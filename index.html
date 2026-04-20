@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Post Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;--border-strong:#c8c0b4;
+    --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
+    --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
+    --green:#3d6b45;--green-light:#eaf2eb;--amber:#8a6020;--amber-light:#fdf3e3;
+    --red:#8b2e2e;--red-light:#fdeaea;--white:#ffffff;--shadow-md:0 4px 12px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;font-size:14px;line-height:1.5;}
+  .topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+  .logo-main{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:0.02em;}
+  .logo-sub{font-size:11px;font-weight:300;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-left:10px;}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  #sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);display:inline-block;}
+  .sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
+  .btn-refresh{height:30px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .btn-refresh:hover{color:var(--accent);border-color:var(--accent-mid);}
+  .tabs-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;}
+  .tab{font-size:12px;font-weight:500;letter-spacing:0.04em;padding:14px 20px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:color 0.15s;}
+  .tab:hover{color:var(--text-primary);}.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .main{max-width:1200px;margin:0 auto;padding:32px;}
+  .section{display:none;}.section.active{display:block;}
+  .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;gap:16px;}
+  .loading-text{font-size:13px;color:var(--text-muted);}
+  .spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+  .stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;}
+  .stat-label{font-size:11px;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;font-weight:500;}
+  .stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;line-height:1;}
+  .stat-num.danger{color:var(--red);}.stat-num.warn{color:var(--amber);}
+  .add-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:24px;}
+  .add-card-title{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;}
+  .add-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+  .fg{display:flex;flex-direction:column;gap:4px;}
+  .fg label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+  .fg input,.fg select{height:36px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
+  .fg input:focus,.fg select:focus{border-color:var(--accent-mid);background:var(--white);}
+  .btn-primary{height:36px;padding:0 20px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;transition:background 0.15s;white-space:nowrap;}
+  .btn-primary:hover{background:#7a5240;}.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .filter-row{display:flex;gap:8px;margin-bottom:16px;align-items:center;}
+  .filter-row select{height:32px;font-size:12px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+  .results-count{font-size:12px;color:var(--text-muted);margin-left:auto;}
+  .project-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow 0.15s;}
+  .project-card:hover{box-shadow:var(--shadow-md);}
+  .project-card.overdue{border-left:3px solid #c0392b;}.project-card.at-risk{border-left:3px solid #c87f14;}
+  .project-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;user-select:none;}
+  .project-header:hover{background:var(--cream);}
+  .client-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;flex:1;}
+  .header-pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;border:1px solid;}
+  .pill.overdue{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+  .pill.at-risk{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+  .pill.ok{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+  .pill.unassigned{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+  .pill.neutral{background:var(--cream-dark);color:var(--text-secondary);border-color:var(--border);}
+  .progress-wrap{display:flex;align-items:center;gap:6px;}
+  .progress-track{width:64px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:2px;background:var(--accent-mid);transition:width 0.3s;}
+  .progress-pct{font-size:11px;color:var(--text-muted);min-width:28px;}
+  .chevron{font-size:10px;color:var(--text-muted);transition:transform 0.2s;}
+  .chevron.open{transform:rotate(90deg);}
+  .project-body{border-top:1px solid var(--border);padding:20px 24px;background:var(--cream);}
+  .body-meta{display:flex;gap:16px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+  .meta-sel{height:30px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+  .meta-sel:focus{border-color:var(--accent-mid);}
+  .del-header-row{display:grid;gap:8px;padding:0 12px 8px;grid-template-columns:160px 110px 110px 1fr 24px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+  .del-col-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;}
+  .del-row{display:grid;gap:8px;align-items:center;padding:10px 12px;grid-template-columns:160px 110px 110px 1fr 24px;border-radius:8px;margin-bottom:4px;background:var(--white);border:1px solid var(--border);}
+  .del-row.done{opacity:0.5;}
+  .del-name-text{font-size:13px;font-weight:500;color:var(--text-primary);}
+  .stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+  .stage-btn{font-size:10px;padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid;font-weight:500;text-align:center;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:filter 0.1s;letter-spacing:0.02em;}
+  .stage-btn.complete{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+  .stage-btn.in-progress{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+  .stage-btn.not-started{background:var(--cream-dark);color:var(--text-muted);border-color:var(--border);}
+  .stage-btn:hover{filter:brightness(0.95);}
+  .del-sel{height:30px;font-size:12px;padding:0 6px;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+  .del-sel:focus{border-color:var(--accent-mid);}
+  .del-date{height:30px;font-size:12px;padding:0 6px;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+  .del-date:focus{border-color:var(--accent-mid);}
+  .del-date.overdue{border-color:#e8a0a0;background:var(--red-light);color:var(--red);}
+  .del-date.at-risk{border-color:#e8c87a;background:var(--amber-light);color:var(--amber);}
+  .del-delete{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;}
+  .del-delete:hover{color:var(--red);background:var(--red-light);}
+  .add-del-bar{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+  .add-del-bar select,.add-del-bar input{height:32px;font-size:12px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+  .add-del-bar input:focus,.add-del-bar select:focus{border-color:var(--accent-mid);}
+  .btn-ghost{height:32px;padding:0 14px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--white);color:var(--accent);border:1px solid var(--accent-mid);font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+  .btn-ghost:hover{background:var(--accent-light);}
+  .remove-project-btn{height:28px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;margin-left:auto;transition:all 0.15s;}
+  .remove-project-btn:hover{color:var(--red);border-color:#e8a0a0;background:var(--red-light);}
+  .empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:13px;}
+  .empty-icon{font-family:'Cormorant Garamond',serif;font-size:40px;margin-bottom:12px;color:var(--border-strong);}
+  .editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px;}
+  .editor-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .editor-card-name{font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:10px;}
+  .cap-bar-track{height:4px;background:var(--border);border-radius:2px;margin-bottom:8px;overflow:hidden;}
+  .cap-bar-fill{height:100%;border-radius:2px;transition:width 0.3s;}
+  .cap-low{background:var(--green);}.cap-mid{background:#c87f14;}.cap-high{background:var(--red);}
+  .cap-meta{font-size:11px;color:var(--text-muted);}
+  .editor-del-section{margin-bottom:20px;}
+  .editor-del-name{font-family:'Cormorant Garamond',serif;font-size:17px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .editor-del-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+  .editor-del-right{display:flex;gap:8px;align-items:center;}
+  .error-banner{background:var(--red-light);border:1px solid #e8a0a0;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:16px;display:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <span class="logo-main">TM Weddings</span>
+    <span class="logo-sub">Post Production</span>
+  </div>
+  <div class="topbar-right">
+    <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
+    <button class="btn-refresh" onclick="loadData()">&#8635; Refresh</button>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab active" onclick="switchTab('pipeline',this)">Pipeline</button>
+  <button class="tab" onclick="switchTab('editors',this)">Editor load</button>
+</div>
+
+<div class="main">
+  <div id="error-banner" class="error-banner"></div>
+
+  <div id="pipeline" class="section active">
+    <div id="pipeline-loading" class="loading-screen">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading from Google Sheets...</div>
+    </div>
+    <div id="pipeline-content" style="display:none;">
+      <div class="summary-row" id="summary-row"></div>
+      <div class="add-card">
+        <div class="add-card-title">Add project</div>
+        <div class="add-fields">
+          <div class="fg"><label>Client name</label><input id="nc" type="text" placeholder="e.g. Sarah + James" style="width:170px;"/></div>
+          <div class="fg"><label>Wedding date</label><input id="nwd" type="date" style="width:150px;"/></div>
+          <div class="fg">
+            <label>Lead editor</label>
+            <select id="ne" style="width:130px;">
+              <option value="">— unassigned —</option>
+              <option>Tony</option><option>Lexi</option><option>Zyara</option>
+              <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="add-btn" onclick="addProject()" style="margin-top:18px;">+ Add project</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <select id="fe" onchange="renderPipeline()">
+          <option value="">All editors</option>
+          <option>Tony</option><option>Lexi</option><option>Zyara</option>
+          <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
+        </select>
+        <select id="fr" onchange="renderPipeline()">
+          <option value="">All statuses</option>
+          <option value="overdue">Overdue</option>
+          <option value="at-risk">At risk</option>
+          <option value="ok">On track</option>
+        </select>
+        <span class="results-count" id="results-count"></span>
+      </div>
+      <div id="pipeline-list"></div>
+    </div>
+  </div>
+
+  <div id="editors" class="section">
+    <div class="editor-grid" id="editor-grid"></div>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:14px;">Deliverable assignments</div>
+    <div id="editor-detail"></div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbywjfsgT2Ff5KfgGYXnUWn-NvclFlGf4eWLQMuhaTzV_ixGMfU6u-56Cr2buk4-y52WRw/exec';
+const EDITORS=['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
+const DELIVERABLE_OPTIONS=['2–3 min highlight','5 min highlight','10 min highlight','30–60 min doc edit','Video book','Custom'];
+const STAGES=['Sync/sift','Edit','Color','Deliver'];
+const STAGE_KEYS=['sync','edit','color','deliver'];
+const STATUS_CYCLE=['not-started','in-progress','complete'];
+
+let projects=[];
+let expanded={};
+let saving=false;
+
+function setSyncStatus(state,text){
+  document.getElementById('sync-dot').className='sync-dot '+state;
+  document.getElementById('sync-text').textContent=text;
+}
+
+function showError(msg){
+  const b=document.getElementById('error-banner');
+  b.textContent=msg;b.style.display='block';
+  setTimeout(()=>{b.style.display='none';},7000);
+}
+
+function loadData(){
+  setSyncStatus("","Connecting...");
+  const cbName="tmw_cb_"+Date.now();
+  const script=document.createElement("script");
+  const timeout=setTimeout(()=>{
+    setSyncStatus("error","Connection failed");
+    document.getElementById("pipeline-loading").style.display="none";
+    document.getElementById("pipeline-content").style.display="block";
+    showError("Could not reach Google Sheets. Make sure Apps Script is deployed with Anyone access.");
+    delete window[cbName];script.remove();renderAll();
+  },10000);
+  window[cbName]=function(data){
+    clearTimeout(timeout);delete window[cbName];script.remove();
+    projects=data.projects||[];
+    document.getElementById("pipeline-loading").style.display="none";
+    document.getElementById("pipeline-content").style.display="block";
+    setSyncStatus("ok","Live u2014 "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}));
+    renderAll();
+  };
+  script.src=SCRIPT_URL+"?callback="+cbName+"&t="+Date.now();
+  document.head.appendChild(script);
+}
+
+async function saveData(){
+  if(saving)return;
+  saving=true;
+  setSyncStatus('saving','Saving...');
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({projects}),headers:{'Content-Type':'text/plain'}});
+    setSyncStatus('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    setSyncStatus('error','Save failed — refresh & retry');
+    showError('Save failed. Refresh the page and try again.');
+  }
+  saving=false;
+}
+
+function getRisk(d){
+  if(!d)return'ok';
+  const now=new Date();now.setHours(0,0,0,0);
+  const diff=Math.round((new Date(d)-now)/86400000);
+  if(diff<0)return'overdue';
+  if(diff<=5)return'at-risk';
+  return'ok';
+}
+
+function getProjectRisk(p){
+  if(!p.deliverables||!p.deliverables.length)return'ok';
+  const risks=p.deliverables.map(d=>getRisk(d.dueDate));
+  if(risks.includes('overdue'))return'overdue';
+  if(risks.includes('at-risk'))return'at-risk';
+  return'ok';
+}
+
+function getProgress(deliverables){
+  if(!deliverables||!deliverables.length)return 0;
+  const total=deliverables.length*STAGE_KEYS.length;
+  const done=deliverables.reduce((a,d)=>a+STAGE_KEYS.filter(k=>d.stages[k]==='complete').length,0);
+  return total>0?Math.round((done/total)*100):0;
+}
+
+async function addProject(){
+  const client=document.getElementById('nc').value.trim();
+  if(!client){document.getElementById('nc').focus();return;}
+  const id=Date.now().toString();
+  projects.push({id,client,weddingDate:document.getElementById('nwd').value,editor:document.getElementById('ne').value,deliverables:[]});
+  expanded[id]=true;
+  document.getElementById('nc').value='';
+  document.getElementById('nwd').value='';
+  document.getElementById('ne').value='';
+  renderAll();await saveData();
+}
+
+async function deleteProject(pid){
+  if(!confirm('Remove this project?'))return;
+  projects=projects.filter(x=>x.id!==pid);
+  delete expanded[pid];
+  renderAll();await saveData();
+}
+
+function toggleExpand(pid){expanded[pid]=!expanded[pid];renderPipeline();}
+
+async function addDeliverable(pid){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const sel=document.getElementById('ds_'+pid);
+  const customIn=document.getElementById('dc_'+pid);
+  let name=sel.value;
+  if(name==='Custom')name=customIn?customIn.value.trim():'';
+  if(!name)return;
+  const stages={};STAGE_KEYS.forEach(k=>stages[k]='not-started');
+  p.deliverables.push({id:Date.now().toString(),name,editor:'',dueDate:'',stages});
+  if(customIn)customIn.value='';
+  renderAll();await saveData();
+}
+
+async function deleteDeliverable(pid,did){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  p.deliverables=p.deliverables.filter(d=>d.id!==did);
+  renderAll();await saveData();
+}
+
+async function cycleStage(pid,did,key){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);if(!d)return;
+  const i=STATUS_CYCLE.indexOf(d.stages[key]);
+  d.stages[key]=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
+  renderAll();await saveData();
+}
+
+async function setDelEditor(pid,did,val){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);
+  if(d){d.editor=val;renderEditors();await saveData();}
+}
+
+async function setDelDue(pid,did,val){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);
+  if(d){d.dueDate=val;renderAll();await saveData();}
+}
+
+async function setProjectEditor(pid,val){
+  const p=projects.find(x=>x.id===pid);
+  if(p){p.editor=val;renderAll();await saveData();}
+}
+
+function renderSummary(){
+  const total=projects.length;
+  const totalDels=projects.reduce((a,p)=>a+p.deliverables.length,0);
+  const allDels=projects.flatMap(p=>p.deliverables);
+  const overdue=allDels.filter(d=>getRisk(d.dueDate)==='overdue').length;
+  const atRisk=allDels.filter(d=>getRisk(d.dueDate)==='at-risk').length;
+  const unassigned=allDels.filter(d=>!d.editor).length;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat"><div class="stat-label">Projects</div><div class="stat-num">${total}</div></div>
+    <div class="stat"><div class="stat-label">Deliverables</div><div class="stat-num">${totalDels}</div></div>
+    <div class="stat"><div class="stat-label">Overdue</div><div class="stat-num ${overdue>0?'danger':''}">${overdue}</div></div>
+    <div class="stat"><div class="stat-label">At risk</div><div class="stat-num ${atRisk>0?'warn':''}">${atRisk}</div></div>
+    <div class="stat"><div class="stat-label">Unassigned</div><div class="stat-num ${unassigned>0?'warn':''}">${unassigned}</div></div>`;
+}
+
+function renderPipeline(){
+  const ef=document.getElementById('fe').value;
+  const rf=document.getElementById('fr').value;
+  let list=[...projects].filter(p=>{
+    if(ef&&p.editor!==ef)return false;
+    if(rf&&getProjectRisk(p)!==rf)return false;
+    return true;
+  }).sort((a,b)=>{
+    const o={'overdue':0,'at-risk':1,'ok':2};
+    return o[getProjectRisk(a)]-o[getProjectRisk(b)];
+  });
+
+  document.getElementById('results-count').textContent=list.length+' project'+(list.length!==1?'s':'');
+
+  if(!list.length){
+    document.getElementById('pipeline-list').innerHTML='<div class="empty-state"><div class="empty-icon">TM</div><div>No projects yet — add your first wedding above.</div></div>';
+    return;
+  }
+
+  let html='';
+  list.forEach(p=>{
+    const risk=getProjectRisk(p);
+    const prog=getProgress(p.deliverables);
+    const isOpen=!!expanded[p.id];
+    const riskLabel=risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track';
+    const weddingStr=p.weddingDate?new Date(p.weddingDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+
+    html+=`<div class="project-card ${risk}">
+      <div class="project-header" onclick="toggleExpand('${p.id}')">
+        <span class="client-name">${p.client}</span>
+        <div class="header-pills">
+          ${!p.editor?'<span class="pill unassigned">Unassigned</span>':'<span class="pill neutral">'+p.editor+'</span>'}
+          ${weddingStr?`<span class="pill neutral">${weddingStr}</span>`:''}
+          <span class="pill neutral">${p.deliverables.length} deliverable${p.deliverables.length!==1?'s':''}</span>
+          <div class="progress-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
+            <span class="progress-pct">${prog}%</span>
+          </div>
+          <span class="pill ${risk}">${riskLabel}</span>
+          <span class="chevron ${isOpen?'open':''}">&#9654;</span>
+        </div>
+      </div>`;
+
+    if(isOpen){
+      html+=`<div class="project-body">
+        <div class="body-meta">
+          <span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
+          <select class="meta-sel" onchange="setProjectEditor('${p.id}',this.value)">
+            <option value=""${!p.editor?' selected':''}>— unassigned —</option>
+            ${EDITORS.map(e=>`<option${p.editor===e?' selected':''}>${e}</option>`).join('')}
+          </select>
+          <button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>
+        </div>`;
+
+      if(p.deliverables.length){
+        html+=`<div class="del-header-row">
+          <span class="del-col-label">Deliverable</span>
+          <span class="del-col-label">Assigned to</span>
+          <span class="del-col-label">Due date</span>
+          <span class="del-col-label">Stages — click to advance</span>
+          <span></span>
+        </div>`;
+        p.deliverables.forEach(d=>{
+          const allDone=STAGE_KEYS.every(k=>d.stages[k]==='complete');
+          const dRisk=getRisk(d.dueDate);
+          html+=`<div class="del-row${allDone?' done':''}">
+            <span class="del-name-text">${d.name}</span>
+            <select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
+              <option value=""${!d.editor?' selected':''}>— assign —</option>
+              ${EDITORS.map(e=>`<option${d.editor===e?' selected':''}>${e}</option>`).join('')}
+            </select>
+            <input type="date" class="del-date ${d.dueDate?dRisk:''}" value="${d.dueDate||''}" onchange="setDelDue('${p.id}','${d.id}',this.value)"/>
+            <div class="stage-grid">
+              ${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}
+            </div>
+            <button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">&#10005;</button>
+          </div>`;
+        });
+      }else{
+        html+=`<div style="font-size:12px;color:var(--text-muted);padding:10px 12px;font-style:italic;">No deliverables yet — add one below.</div>`;
+      }
+
+      html+=`<div class="add-del-bar">
+        <select id="ds_${p.id}" onchange="document.getElementById('dcc_${p.id}').style.display=this.value==='Custom'?'flex':'none'">
+          ${DELIVERABLE_OPTIONS.map(o=>`<option>${o}</option>`).join('')}
+        </select>
+        <div id="dcc_${p.id}" style="display:none;align-items:center;">
+          <input id="dc_${p.id}" type="text" placeholder="Custom name" style="width:170px;"/>
+        </div>
+        <button class="btn-ghost" onclick="addDeliverable('${p.id}')">+ Add deliverable</button>
+      </div></div>`;
+    }
+    html+=`</div>`;
+  });
+  document.getElementById('pipeline-list').innerHTML=html;
+}
+
+function renderEditors(){
+  const delsByEditor={};
+  EDITORS.forEach(e=>{delsByEditor[e]=[];});
+  projects.forEach(p=>{
+    p.deliverables.forEach(d=>{
+      if(d.editor)(delsByEditor[d.editor]=delsByEditor[d.editor]||[]).push({client:p.client,name:d.name,dueDate:d.dueDate,stages:d.stages});
+    });
+  });
+
+  const MAX=5;
+  let grid='';
+  EDITORS.forEach(e=>{
+    const c=(delsByEditor[e]||[]).length;
+    const pct=Math.min(100,Math.round((c/MAX)*100));
+    const cls=c<=2?'low':c<=4?'mid':'high';
+    const label=cls==='high'?'At capacity':cls==='mid'?'Moderate load':'Available';
+    grid+=`<div class="editor-card">
+      <div class="editor-card-name">${e}</div>
+      <div class="cap-bar-track"><div class="cap-bar-fill cap-${cls}" style="width:${pct}%"></div></div>
+      <div class="cap-meta">${c} deliverable${c!==1?'s':''} &middot; ${label}</div>
+    </div>`;
+  });
+  document.getElementById('editor-grid').innerHTML=grid;
+
+  let detail='';
+  EDITORS.forEach(e=>{
+    const dels=delsByEditor[e]||[];
+    if(!dels.length)return;
+    detail+=`<div class="editor-del-section"><div class="editor-del-name">${e}</div>`;
+    dels.forEach(d=>{
+      const risk=getRisk(d.dueDate);
+      const dueStr=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+      const prog=STAGE_KEYS.filter(k=>d.stages[k]==='complete').length;
+      detail+=`<div class="editor-del-row">
+        <div><span style="font-size:13px;font-weight:500;">${d.client}</span><span style="font-size:12px;color:var(--text-secondary);margin-left:8px;">${d.name}</span></div>
+        <div class="editor-del-right">
+          <span style="font-size:11px;color:var(--text-muted);">${prog}/${STAGE_KEYS.length} stages</span>
+          <span style="font-size:12px;color:${risk!=='ok'?'var(--red)':'var(--text-muted)'};">${dueStr}</span>
+          <span class="pill ${risk}">${risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track'}</span>
+        </div>
+      </div>`;
+    });
+    detail+=`</div>`;
+  });
+  if(!detail)detail='<div class="empty-state"><div>No deliverables assigned yet.</div></div>';
+  document.getElementById('editor-detail').innerHTML=detail;
+}
+
+function renderAll(){renderSummary();renderPipeline();renderEditors();}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+loadData();
+setInterval(loadData,30000);
+</script>
+</body>
+</html>
