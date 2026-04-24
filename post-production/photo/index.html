@@ -84,7 +84,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .del-row{display:grid;gap:8px;align-items:center;padding:9px 10px;grid-template-columns:1fr 100px 100px 1fr 24px;border-radius:7px;margin-bottom:4px;background:var(--white);border:1px solid var(--border);}
 .del-row.done{opacity:0.5;}
 .del-name{font-size:13px;font-weight:500;}
-.stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.stage-grid{display:grid;gap:3px;}
 .stage-btn{font-size:10px;padding:4px 4px;border-radius:5px;cursor:pointer;border:1px solid;font-weight:500;text-align:center;font-family:'DM Sans',sans-serif;transition:filter 0.1s;}
 .stage-btn.complete{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
 .stage-btn.in-progress{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
@@ -196,12 +196,23 @@ const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 const ADMIN_PW='Post-Production_2026!';
 const TONY_EMAIL='tonyellismartinez@gmail.com';
+const BRYNN_EMAIL='brynn.weller95@gmail.com';
 const EDITORS=['Tony','Brynn'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Brynn:'brynn.weller95@gmail.com'};
-const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Album design','Custom'];
-const STAGES=['Cull','Edit','Export','Deliver'];
-const STAGE_KEYS=['cull','edit','export','deliver'];
+const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Custom'];
+
+// Two stage sets — photo book has different workflow
+const PHOTO_STAGES=['Cull','Edit','Export','Deliver'];
+const PHOTO_STAGE_KEYS=['cull','edit','export','deliver'];
+const BOOK_STAGES=['Selections submitted','Design stage','Order placed'];
+const BOOK_STAGE_KEYS=['selections','design','ordered'];
+
 const STATUS_CYCLE=['not-started','in-progress','complete'];
+
+function isBookDeliverable(name){return name&&name.toLowerCase().includes('photo book');}
+function getStages(name){return isBookDeliverable(name)?BOOK_STAGE_KEYS:PHOTO_STAGE_KEYS;}
+function getStageLabels(name){return isBookDeliverable(name)?BOOK_STAGES:PHOTO_STAGES;}
+function makeStages(name){const s={};getStages(name).forEach(k=>s[k]='not-started');return s;}
 
 let projects=[];let expanded={};let saving=false;let isAdmin=false;
 
@@ -311,14 +322,11 @@ async function saveData(){
 async function sendNotification(client,deliverable,stage,editor){
   const params={
     client,deliverable,stage,editor:editor||'Unassigned',
-    time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
-    to_email:TONY_EMAIL
+    time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
   };
   try{
     await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:TONY_EMAIL});
-    if(editor&&EDITOR_EMAILS[editor]&&EDITOR_EMAILS[editor]!==TONY_EMAIL){
-      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:EDITOR_EMAILS[editor]});
-    }
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:BRYNN_EMAIL});
     showToast('✓ Notification sent');
   }catch(e){console.warn('Email failed:',e);}
 }
@@ -336,8 +344,12 @@ function getProjectRisk(p){
 }
 function getProgress(deliverables){
   if(!deliverables||!deliverables.length)return 0;
-  const total=deliverables.length*STAGE_KEYS.length;
-  const done=deliverables.reduce((a,d)=>a+STAGE_KEYS.filter(k=>d.stages[k]==='complete').length,0);
+  let total=0,done=0;
+  deliverables.forEach(d=>{
+    const keys=getStages(d.name);
+    total+=keys.length;
+    done+=keys.filter(k=>d.stages[k]==='complete').length;
+  });
   return total>0?Math.round((done/total)*100):0;
 }
 
@@ -364,8 +376,7 @@ async function addDeliverable(pid){
   let name=sel.value;
   if(name==='Custom')name=ci?ci.value.trim():'';
   if(!name)return;
-  const stages={};STAGE_KEYS.forEach(k=>stages[k]='not-started');
-  p.deliverables.push({id:Date.now().toString(),name,editor:'',dueDate:'',stages});
+  p.deliverables.push({id:Date.now().toString(),name,editor:'',dueDate:'',stages:makeStages(name)});
   if(ci)ci.value='';renderAll();await saveData();
 }
 async function deleteDeliverable(pid,did){
@@ -380,7 +391,9 @@ async function cycleStage(pid,did,key){
   const newStatus=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
   d.stages[key]=newStatus;
   if(newStatus==='complete'){
-    sendNotification(p.client,d.name,STAGES[STAGE_KEYS.indexOf(key)],d.editor);
+    const labels=getStageLabels(d.name);
+    const keys=getStages(d.name);
+    sendNotification(p.client,d.name,labels[keys.indexOf(key)],d.editor);
   }
   renderAll();await saveData();
 }
@@ -417,22 +430,37 @@ function renderSummary(){
     <div class="stat"><div class="stat-label">Unassigned</div><div class="stat-num ${unassigned>0?'warn':''}">${unassigned}</div></div>`;
 }
 
+function isProjectComplete(p){
+  if(!p.deliverables||!p.deliverables.length)return false;
+  return p.deliverables.every(d=>{
+    const keys=getStages(d.name);
+    return keys.every(k=>d.stages[k]==='complete');
+  });
+}
+
 function renderPipeline(){
   const ef=document.getElementById('fe').value;
   const rf=document.getElementById('fr').value;
-  let list=[...projects].filter(p=>{
+
+  const allFiltered=[...projects].filter(p=>{
     if(ef&&p.editor!==ef)return false;
     if(rf&&getProjectRisk(p)!==rf)return false;
     return true;
-  }).sort((a,b)=>{const o={'overdue':0,'at-risk':1,'ok':2};return o[getProjectRisk(a)]-o[getProjectRisk(b)];});
-  document.getElementById('results-count').textContent=list.length+' project'+(list.length!==1?'s':'');
-  if(!list.length){document.getElementById('pipeline-list').innerHTML='<div class="empty-state">No projects yet.</div>';return;}
-  let html='';
-  list.forEach(p=>{
-    const risk=getProjectRisk(p);const prog=getProgress(p.deliverables);const isOpen=!!expanded[p.id];
+  });
+
+  const active=allFiltered.filter(p=>!isProjectComplete(p)).sort((a,b)=>{const o={'overdue':0,'at-risk':1,'ok':2};return o[getProjectRisk(a)]-o[getProjectRisk(b)];});
+  const completed=allFiltered.filter(p=>isProjectComplete(p));
+
+  document.getElementById('results-count').textContent=active.length+' active';
+
+  if(!allFiltered.length){document.getElementById('pipeline-list').innerHTML='<div class="empty-state">No projects yet.</div>';return;}
+
+  function buildCard(p,isCompleted){
+    const risk=isCompleted?'ok':getProjectRisk(p);
+    const prog=getProgress(p.deliverables);const isOpen=!!expanded[p.id];
     const riskLabel=risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track';
     const wd=p.weddingDate?new Date(p.weddingDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-    html+=`<div class="project-card ${risk}">
+    let h=`<div class="project-card ${isCompleted?'':risk}" style="${isCompleted?'opacity:0.7;':''}">
       <div class="project-header" onclick="toggleExpand('${p.id}')">
         <span class="client-name">${p.client}</span>
         <div class="header-pills">
@@ -440,47 +468,48 @@ function renderPipeline(){
           ${wd?`<span class="pill neutral">${wd}</span>`:''}
           <span class="pill neutral">${p.deliverables.length} del${p.deliverables.length!==1?'s':''}</span>
           <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div><span class="progress-pct">${prog}%</span></div>
-          <span class="pill ${risk}">${riskLabel}</span>
+          ${isCompleted?'<span class="pill ok">✓ Complete</span>':'<span class="pill '+risk+'">'+riskLabel+'</span>'}
           <span class="chevron ${isOpen?'open':''}">&#9654;</span>
         </div>
       </div>`;
     if(isOpen){
-      html+=`<div class="project-body"><div class="body-meta">`;
+      h+=`<div class="project-body"><div class="body-meta">`;
       if(isAdmin){
-        html+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
+        h+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
           <select class="meta-sel" onchange="setProjectEditor('${p.id}',this.value)">
             <option value=""${!p.editor?' selected':''}>— unassigned —</option>
             ${EDITORS.map(e=>`<option${p.editor===e?' selected':''}>${e}</option>`).join('')}
           </select>`;
-      }else{html+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
-      if(wd)html+=`<span style="font-size:12px;color:var(--text-muted);">${wd}</span>`;
-      if(isAdmin)html+=`<button class="remove-btn" onclick="deleteProject('${p.id}')">Remove</button>`;
-      html+=`</div>`;
+      }else{h+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
+      if(wd)h+=`<span style="font-size:12px;color:var(--text-muted);">${wd}</span>`;
+      if(isAdmin)h+=`<button class="remove-btn" onclick="deleteProject('${p.id}')">Remove</button>`;
+      h+=`</div>`;
       if(p.deliverables.length){
-        html+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Editor</span><span class="del-col-label">Due</span><span class="del-col-label">Stages</span><span></span></div>`;
+        h+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Editor</span><span class="del-col-label">Due</span><span class="del-col-label">Stages</span><span></span></div>`;
         p.deliverables.forEach(d=>{
-          const allDone=STAGE_KEYS.every(k=>d.stages[k]==='complete');
+          const dKeys=getStages(d.name);const dLabels=getStageLabels(d.name);
+          const allDone=dKeys.every(k=>d.stages[k]==='complete');
           const dRisk=getRisk(d.dueDate);
-          html+=`<div class="del-row${allDone?' done':''}">
-            <span class="del-name">${d.name}</span>`;
+          h+=`<div class="del-row${allDone?' done':''}"><span class="del-name">${d.name}</span>`;
           if(isAdmin){
-            html+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
+            h+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
               <option value=""${!d.editor?' selected':''}>— assign —</option>
               ${EDITORS.map(e=>`<option${d.editor===e?' selected':''}>${e}</option>`).join('')}
             </select>
             <input type="date" class="del-date ${d.dueDate?dRisk:''}" value="${d.dueDate||''}" onchange="setDelDue('${p.id}','${d.id}',this.value)"/>`;
           }else{
             const ds=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
-            html+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>
+            h+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>
             <span style="font-size:12px;color:${dRisk!=='ok'?'var(--red)':'var(--text-muted)'};">${ds}</span>`;
           }
-          html+=`<div class="stage-grid">${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}</div>`;
-          html+=isAdmin?`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">✕</button>`:`<span></span>`;
-          html+=`</div>`;
+          const gridCols=dKeys.length<=3?'repeat(3,1fr)':'repeat(4,1fr)';
+          h+=`<div class="stage-grid" style="grid-template-columns:${gridCols};">${dKeys.map((k,i)=>`<button class="stage-btn ${d.stages[k]||'not-started'}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${dLabels[i]}</button>`).join('')}</div>`;
+          h+=isAdmin?`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">✕</button>`:`<span></span>`;
+          h+=`</div>`;
         });
-      }else{html+=`<div style="font-size:12px;color:var(--text-muted);padding:10px;font-style:italic;">No deliverables yet.</div>`;}
+      }
       if(isAdmin){
-        html+=`<div class="add-del-bar">
+        h+=`<div class="add-del-bar">
           <select id="ds_${p.id}" onchange="document.getElementById('dcc_${p.id}').style.display=this.value==='Custom'?'flex':'none'">
             ${DELIVERABLE_OPTIONS.map(o=>`<option>${o}</option>`).join('')}
           </select>
@@ -488,10 +517,24 @@ function renderPipeline(){
           <button class="btn-ghost" onclick="addDeliverable('${p.id}')">+ Add deliverable</button>
         </div>`;
       }
-      html+=`</div>`;
+      h+=`</div>`;
     }
+    h+=`</div>`;
+    return h;
+  }
+
+  let html='';
+  active.forEach(p=>{html+=buildCard(p,false);});
+
+  if(completed.length){
+    html+=`<div style="margin-top:24px;">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+        Completed <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span> ${completed.length} project${completed.length!==1?'s':''}
+      </div>`;
+    completed.forEach(p=>{html+=buildCard(p,true);});
     html+=`</div>`;
-  });
+  }
+
   document.getElementById('pipeline-list').innerHTML=html;
 }
 
