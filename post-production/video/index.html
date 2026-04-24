@@ -286,23 +286,31 @@ const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 const ADMIN_HASH='8e5df3b4a2c1f0e9d6b7a8c5f2e3d4b1a9c8e7f6d5b4a3c2e1f0d9b8a7c6e5';
 const ADMIN_PW='Post-Production_2026!';
 const TONY_EMAIL='tonyellismartinez@gmail.com';
-const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com'};
+const BRYNN_EMAIL='brynn.weller95@gmail.com';
+const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'',Nick:'',Nathan:'',Luke:'',Zach:''};
 emailjs.init('3EteBapWG4a_hy5ol');
 function showToast(msg){let t=document.getElementById('tmw-toast');if(!t){t=document.createElement('div');t.id='tmw-toast';t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a1714;color:#fff;font-size:12px;padding:10px 16px;border-radius:8px;z-index:300;transition:opacity 0.3s;';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},3200);}
-async function sendNotification(client,deliverable,stage,editor){
-  const params={client,deliverable,stage,editor:editor||'Unassigned',time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),to_email:TONY_EMAIL};
+async function sendNotification(client,deliverable,stage,editor,overrideTo){
+  const params={client,deliverable,stage,editor:editor||'Unassigned',time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
   try{
-    await emailjs.send('service_qoodzdb','template_p1hyj87',params);
-    if(editor&&EDITOR_EMAILS[editor]&&EDITOR_EMAILS[editor]!==TONY_EMAIL){
-      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:EDITOR_EMAILS[editor]});
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:TONY_EMAIL});
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:BRYNN_EMAIL});
+    // Also notify assigned editor if they have an email and aren't Tony/Brynn
+    const editorEmail=editor?EDITOR_EMAILS[editor]:'';
+    if(editorEmail&&editorEmail!==TONY_EMAIL&&editorEmail!==BRYNN_EMAIL){
+      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:editorEmail});
+    }
+    // Override recipient (e.g. QNAS notification direct to editor)
+    if(overrideTo&&overrideTo!==TONY_EMAIL&&overrideTo!==BRYNN_EMAIL&&overrideTo!==editorEmail){
+      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:overrideTo});
     }
     showToast('✓ Notification sent');
   }catch(e){console.warn('Email notification failed:',e);}
 }
 const EDITORS=['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
 const DELIVERABLE_OPTIONS=['2–3 min highlight','5 min highlight','10 min highlight','30–60 min doc edit','Video book','Custom'];
-const STAGES=['Sync/sift','Edit','Color','Deliver'];
-const STAGE_KEYS=['sync','edit','color','deliver'];
+const STAGES=['Files on QNAS','Files obtained','Sync/sift','Edit','Color','Deliver'];
+const STAGE_KEYS=['qnas','obtained','sync','edit','color','deliver'];
 const STATUS_CYCLE=['not-started','in-progress','complete'];
 
 let projects=[];
@@ -487,7 +495,22 @@ async function cycleStage(pid,did,key){
   const d=p.deliverables.find(x=>x.id===did);if(!d)return;
   const i=STATUS_CYCLE.indexOf(d.stages[key]);
   d.stages[key]=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
-  if(d.stages[key]==='complete'){sendNotification(p.client,d.name,STAGES[STAGE_KEYS.indexOf(key)],d.editor);}
+  if(d.stages[key]==='complete'){
+    const stageName=STAGES[STAGE_KEYS.indexOf(key)];
+    // Files on QNAS complete → notify assigned editor so they know to download
+    if(key==='qnas'){
+      const editorEmail=d.editor?EDITOR_EMAILS[d.editor]:'';
+      sendNotification(p.client,d.name,stageName+' — files ready to download',d.editor,editorEmail);
+    }
+    // Files obtained complete → notify Tony so he knows editor has the files
+    else if(key==='obtained'){
+      sendNotification(p.client,d.name,stageName+' — editor has the files',d.editor,null);
+    }
+    // All other stages → notify Tony + Brynn always
+    else{
+      sendNotification(p.client,d.name,stageName,d.editor,null);
+    }
+  }
   renderAll();await saveData();
 }
 
@@ -527,100 +550,84 @@ function renderSummary(){
     <div class="stat"><div class="stat-label">Unassigned</div><div class="stat-num ${unassigned>0?'warn':''}">${unassigned}</div></div>`;
 }
 
+function isProjectComplete(p){
+  if(!p.deliverables||!p.deliverables.length)return false;
+  return p.deliverables.every(d=>STAGE_KEYS.every(k=>d.stages[k]==='complete'));
+}
+
 function renderPipeline(){
   const ef=document.getElementById('fe').value;
   const rf=document.getElementById('fr').value;
-  let list=[...projects].filter(p=>{
+  const allFiltered=[...projects].filter(p=>{
     if(ef&&p.editor!==ef)return false;
     if(rf&&getProjectRisk(p)!==rf)return false;
     return true;
-  }).sort((a,b)=>{
+  });
+  const active=allFiltered.filter(p=>!isProjectComplete(p)).sort((a,b)=>{
     const o={'overdue':0,'at-risk':1,'ok':2};
     return o[getProjectRisk(a)]-o[getProjectRisk(b)];
   });
-  document.getElementById('results-count').textContent=list.length+' project'+(list.length!==1?'s':'');
-  if(!list.length){
+  const completed=allFiltered.filter(p=>isProjectComplete(p));
+
+  document.getElementById('results-count').textContent=active.length+' active';
+  if(!allFiltered.length){
     document.getElementById('pipeline-list').innerHTML='<div class="empty-state"><div class="empty-icon">TM</div><div>No projects yet.</div></div>';
     return;
   }
-  let html='';
-  list.forEach(p=>{
-    const risk=getProjectRisk(p);
-    const prog=getProgress(p.deliverables);
-    const isOpen=!!expanded[p.id];
+
+  function buildCard(p,isCompleted){
+    const risk=isCompleted?'ok':getProjectRisk(p);
+    const prog=getProgress(p.deliverables);const isOpen=!!expanded[p.id];
     const riskLabel=risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track';
     const weddingStr=p.weddingDate?new Date(p.weddingDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-    html+=`<div class="project-card ${risk}">
+    let h=`<div class="project-card ${isCompleted?'':risk}" style="${isCompleted?'opacity:0.7;':''}">
       <div class="project-header" onclick="toggleExpand('${p.id}')">
         <span class="client-name">${p.client}</span>
         <div class="header-pills">
           ${!p.editor?'<span class="pill unassigned">Unassigned</span>':'<span class="pill neutral">'+p.editor+'</span>'}
           ${weddingStr?`<span class="pill neutral">${weddingStr}</span>`:''}
-          <span class="pill neutral">${p.deliverables.length} del${p.deliverables.length!==1?'s':''}</span>
-          <div class="progress-wrap">
-            <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
-            <span class="progress-pct">${prog}%</span>
-          </div>
-          <span class="pill ${risk}">${riskLabel}</span>
+          <span class="pill neutral">${p.deliverables.length} deliverable${p.deliverables.length!==1?'s':''}</span>
+          <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div><span class="progress-pct">${prog}%</span></div>
+          ${isCompleted?'<span class="pill ok">✓ Complete</span>':'<span class="pill '+risk+'">'+riskLabel+'</span>'}
           <span class="chevron ${isOpen?'open':''}">&#9654;</span>
         </div>
       </div>`;
     if(isOpen){
-      html+=`<div class="project-body">
-        <div class="body-meta">`;
+      h+=`<div class="project-body"><div class="body-meta">`;
       if(isAdmin){
-        html+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
+        h+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
           <select class="meta-sel" onchange="setProjectEditor('${p.id}',this.value)">
             <option value=""${!p.editor?' selected':''}>— unassigned —</option>
             ${EDITORS.map(e=>`<option${p.editor===e?' selected':''}>${e}</option>`).join('')}
           </select>`;
-      } else {
-        html+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;
-      }
-      if(weddingStr) html+=`<span style="font-size:12px;color:var(--text-muted);">${weddingStr}</span>`;
-      if(isAdmin) html+=`<button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>`;
-      html+=`</div>`;
-
+      }else{h+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
+      if(weddingStr)h+=`<span style="font-size:12px;color:var(--text-muted);">${weddingStr}</span>`;
+      if(isAdmin)h+=`<button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>`;
+      h+=`</div>`;
       if(p.deliverables.length){
-        html+=`<div class="del-header-row">
-          <span class="del-col-label">Deliverable</span>
-          <span class="del-col-label">Editor</span>
-          <span class="del-col-label">Due</span>
-          <span class="del-col-label">Stages</span>
-          <span></span>
-        </div>`;
+        h+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Assigned to</span><span class="del-col-label">Due date</span><span class="del-col-label">Stages — click to advance</span><span></span></div>`;
         p.deliverables.forEach(d=>{
           const allDone=STAGE_KEYS.every(k=>d.stages[k]==='complete');
           const dRisk=getRisk(d.dueDate);
-          html+=`<div class="del-row${allDone?' done':''}">
-            <span class="del-name-text">${d.name}</span>`;
+          h+=`<div class="del-row${allDone?' done':''}"><span class="del-name-text">${d.name}</span>`;
           if(isAdmin){
-            html+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
+            h+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
               <option value=""${!d.editor?' selected':''}>— assign —</option>
               ${EDITORS.map(e=>`<option${d.editor===e?' selected':''}>${e}</option>`).join('')}
             </select>
             <input type="date" class="del-date ${d.dueDate?dRisk:''}" value="${d.dueDate||''}" onchange="setDelDue('${p.id}','${d.id}',this.value)"/>`;
-          } else {
-            html+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>`;
+          }else{
             const dueStr=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
-            html+=`<span class="del-date ${d.dueDate?dRisk:''}" style="display:flex;align-items:center;font-size:12px;background:none;border:none;height:auto;padding:0;">${dueStr}</span>`;
+            h+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>
+            <span style="font-size:12px;color:${dRisk!=='ok'?'var(--red)':'var(--text-muted)'};">${dueStr}</span>`;
           }
-          html+=`<div class="stage-grid">
-              ${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}
-            </div>`;
-          if(isAdmin){
-            html+=`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">&#10005;</button>`;
-          } else {
-            html+=`<span></span>`;
-          }
-          html+=`</div>`;
+          h+=`<div class="stage-grid">${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}</div>`;
+          h+=isAdmin?`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">&#10005;</button>`:`<span></span>`;
+          h+=`</div>`;
         });
-      } else {
-        html+=`<div style="font-size:12px;color:var(--text-muted);padding:10px;font-style:italic;">No deliverables yet.</div>`;
-      }
-
+      }else{h+=`<div style="font-size:12px;color:var(--text-muted);padding:10px;font-style:italic;">No deliverables yet.</div>`;}
       if(isAdmin){
-        html+=`<div class="add-del-bar">
+        h+=`<div class="add-del-bar">
           <select id="ds_${p.id}" onchange="document.getElementById('dcc_${p.id}').style.display=this.value==='Custom'?'flex':'none'">
             ${DELIVERABLE_OPTIONS.map(o=>`<option>${o}</option>`).join('')}
           </select>
@@ -630,10 +637,22 @@ function renderPipeline(){
           <button class="btn-ghost" onclick="addDeliverable('${p.id}')">+ Add deliverable</button>
         </div>`;
       }
-      html+=`</div>`;
+      h+=`</div>`;
     }
+    h+=`</div>`;
+    return h;
+  }
+
+  let html='';
+  active.forEach(p=>{html+=buildCard(p,false);});
+  if(completed.length){
+    html+=`<div style="margin-top:24px;">
+      <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+        Completed <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span> ${completed.length} project${completed.length!==1?'s':''}
+      </div>`;
+    completed.forEach(p=>{html+=buildCard(p,true);});
     html+=`</div>`;
-  });
+  }
   document.getElementById('pipeline-list').innerHTML=html;
 }
 
