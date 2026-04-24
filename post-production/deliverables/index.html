@@ -216,7 +216,22 @@ async function loadData(){
   try{
     const rows=await sbFetch('projects?id=eq.tmw_deliverables&select=data');
     if(rows&&rows[0]){clients=rows[0].data.clients||[];}
-    else{await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_deliverables',data:{clients:[]}})}); clients=[];}
+    else{
+      const seed=[
+        {id:'1',name:'Casey Gruver',weddingDate:'2026-04-11',sneakPeek:'2026-04-12',photoGallery:'2026-04-27',photoBook:'2026-05-27',highlight:'2026-05-25',doc:'2026-05-25',videoBook:'2026-06-25',contentCreation:''},
+        {id:'2',name:'Liz Scialpi',weddingDate:'2026-04-18',sneakPeek:'',photoGallery:'2026-05-04',photoBook:'2026-06-04',highlight:'2026-06-01',doc:'2026-06-01',videoBook:'',contentCreation:''},
+        {id:'3',name:'Elizabeth Forget',weddingDate:'2026-04-19',sneakPeek:'',photoGallery:'2026-05-04',photoBook:'2026-06-04',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'4',name:'Francesca Kurtzi',weddingDate:'2026-04-24',sneakPeek:'',photoGallery:'2026-05-09',photoBook:'2026-06-09',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'5',name:'Mallory Johnson',weddingDate:'2026-04-25',sneakPeek:'',photoGallery:'2026-05-11',photoBook:'2026-06-11',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'6',name:'Melissa DeShaw',weddingDate:'2026-04-25',sneakPeek:'',photoGallery:'2026-05-11',photoBook:'2026-06-11',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'7',name:'Zee Haroon',weddingDate:'2026-05-03',sneakPeek:'',photoGallery:'2026-05-18',photoBook:'2026-06-18',highlight:'',doc:'',videoBook:'',contentCreation:'2026-05-04'},
+        {id:'8',name:'Julia Swayser',weddingDate:'2026-05-16',sneakPeek:'2026-05-17',photoGallery:'2026-06-01',photoBook:'2026-07-01',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'9',name:'PJ Knight',weddingDate:'2026-05-17',sneakPeek:'',photoGallery:'2026-06-15',photoBook:'',highlight:'',doc:'',videoBook:'',contentCreation:''},
+        {id:'10',name:'Bryce Galczynski',weddingDate:'2026-05-30',sneakPeek:'',photoGallery:'2026-06-15',photoBook:'',highlight:'',doc:'',videoBook:'',contentCreation:''}
+      ];
+      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_deliverables',data:{clients:seed}})});
+      clients=seed;
+    }
     document.getElementById('loading').style.display='none';
     document.getElementById('table-wrap').style.display='block';
     setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
