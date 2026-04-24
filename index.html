@@ -1,682 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TM Weddings — Post Production</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TM Weddings — Team Resources</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;--border-strong:#c8c0b4;
-  --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
-  --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
-  --green:#3d6b45;--green-light:#eaf2eb;--amber:#8a6020;--amber-light:#fdf3e3;
-  --red:#8b2e2e;--red-light:#fdeaea;--white:#ffffff;--shadow-md:0 4px 12px rgba(0,0,0,0.08);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;font-size:14px;line-height:1.5;}
+  .tmwr {
+    all: initial;
+    display: block;
+    font-family: 'Jost', sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    color: #1a2b2b !important;
+    background: #F6FEFE !important;
+    -webkit-tap-highlight-color: transparent;
+    --teal: #4aacac;
+    --teal-dark: #357e7e;
+    --teal-light: #e8f5f5;
+    --teal-mid: #c2e4e4;
+    --bg: #F6FEFE;
+    --white: #ffffff;
+    --text: #1a2b2b;
+    --text-muted: #5a7070;
+    --border: #d4ecec;
+    --shadow: 0 2px 16px rgba(74,172,172,0.10);
+    --shadow-hover: 0 8px 32px rgba(74,172,172,0.20);
+  }
+  .tmwr *, .tmwr *::before, .tmwr *::after { box-sizing: border-box !important; }
+  .tmwr a { text-decoration: none !important; color: inherit !important; }
+  .tmwr h1, .tmwr h2, .tmwr h3 { font-size: unset !important; font-weight: unset !important; line-height: unset !important; margin: 0 !important; padding: 0 !important; letter-spacing: unset !important; color: unset !important; }
+  .tmwr p, .tmwr ul, .tmwr li { margin: 0 !important; padding: 0 !important; list-style: none !important; }
+  .tmwr button { font-family: 'Jost', sans-serif !important; }
 
-/* TOPBAR */
-.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
-.logo-main{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;letter-spacing:0.02em;}
-.logo-sub{font-size:10px;font-weight:300;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-left:8px;}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-#sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);flex-shrink:0;}
-.sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
-.btn-icon{height:32px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
-.btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
-.admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);letter-spacing:0.04em;}
+  .tmwr .hero { padding: 24px 32px 20px; max-width: 960px; margin: 0 auto; }
+  .tmwr .hero-eyebrow { font-family: 'Jost', sans-serif !important; font-size: 0.68rem !important; font-weight: 600 !important; letter-spacing: 0.2em !important; text-transform: uppercase !important; color: #4aacac !important; margin-bottom: 6px !important; display: flex !important; align-items: center !important; gap: 8px !important; }
+  .tmwr .hero-eyebrow::before { content: ''; width: 24px; height: 1.5px; background: #4aacac; display: inline-block; flex-shrink: 0; }
+  .tmwr .hero-title { font-family: 'Cormorant Garamond', serif !important; font-size: 2.4rem !important; font-weight: 600 !important; color: #1a2b2b !important; line-height: 1.1 !important; margin-bottom: 8px !important; white-space: nowrap !important; }
+  .tmwr .hero-title span { color: #4aacac !important; }
+  .tmwr .hero-desc { font-family: 'Jost', sans-serif !important; font-size: 0.82rem !important; color: #5a7070 !important; max-width: 520px; line-height: 1.6 !important; }
 
-/* TABS */
-.tabs-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;}
-.tab{font-size:12px;font-weight:500;letter-spacing:0.04em;padding:12px 16px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:color 0.15s;}
-.tab:hover{color:var(--text-primary);}.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tmwr .divider { max-width: 960px; margin: 0 auto; padding: 0 32px; height: 1px; background: #d4ecec; }
+  .tmwr .main { max-width: 960px; margin: 0 auto; padding: 20px 32px 80px; }
 
-/* MAIN */
-.main{max-width:1200px;margin:0 auto;padding:24px;}
-.section{display:none;}.section.active{display:block;}
+  .tmwr .section-label { font-family: 'Jost', sans-serif !important; font-size: 0.68rem !important; font-weight: 600 !important; letter-spacing: 0.18em !important; text-transform: uppercase !important; color: #5a7070 !important; margin-bottom: 12px !important; display: flex !important; align-items: center !important; gap: 10px !important; }
+  .tmwr .section-label::after { content: ''; flex: 1; height: 1px; background: #d4ecec; }
 
-/* LOADING */
-.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;gap:16px;}
-.loading-text{font-size:13px;color:var(--text-muted);}
-.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+  .tmwr .welcome-banner { background: linear-gradient(135deg, #1a2b2b 0%, #0d1f1f 100%); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; }
+  .tmwr .welcome-banner::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(74,172,172,0.15) 0%, transparent 70%); pointer-events: none; }
+  .tmwr .banner-title { font-family: 'Cormorant Garamond', serif !important; font-size: 1.15rem !important; font-weight: 400 !important; color: #ffffff !important; margin-bottom: 4px !important; }
+  .tmwr .banner-sub { font-family: 'Jost', sans-serif !important; font-size: 0.76rem !important; color: rgba(255,255,255,0.55) !important; max-width: 480px; line-height: 1.5 !important; }
+  .tmwr .banner-tag { flex-shrink: 0; background: rgba(74,172,172,0.2); border: 1px solid rgba(74,172,172,0.3); color: #4aacac !important; font-family: 'Jost', sans-serif !important; font-size: 0.62rem !important; font-weight: 600 !important; letter-spacing: 0.14em !important; text-transform: uppercase !important; padding: 5px 12px; border-radius: 20px; }
 
-/* MODAL / OVERLAY */
-.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.modal{background:var(--white);border-radius:12px;padding:32px;width:100%;max-width:380px;box-shadow:var(--shadow-md);}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:6px;}
-.modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
-.modal input{width:100%;height:40px;font-size:14px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;}
-.modal input:focus{border-color:var(--accent-mid);background:var(--white);}
-.modal-error{font-size:12px;color:var(--red);margin-bottom:12px;display:none;}
-.modal-btns{display:flex;gap:8px;}
-.btn-primary{height:38px;padding:0 20px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;white-space:nowrap;flex:1;}
-.btn-primary:hover{background:#7a5240;}
-.btn-secondary{height:38px;padding:0 16px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
-.btn-secondary:hover{border-color:var(--border-strong);color:var(--text-primary);}
+  .tmwr .quick-access-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .tmwr .quick-group { background: #ffffff; border-radius: 14px; border: 1px solid #d4ecec; overflow: hidden; box-shadow: 0 2px 16px rgba(74,172,172,0.10); }
+  .tmwr .quick-group-header { display: flex; align-items: center; gap: 8px; padding: 11px 16px; background: linear-gradient(135deg, #e8f5f5, #f0fafa); border-bottom: 1px solid #d4ecec; }
+  .tmwr .quick-group-icon { font-size: 0.95rem; }
+  .tmwr .quick-group-title { font-family: 'Jost', sans-serif !important; font-size: 0.68rem !important; font-weight: 700 !important; letter-spacing: 0.14em !important; text-transform: uppercase !important; color: #357e7e !important; }
+  .tmwr .quick-links { display: flex !important; flex-direction: column !important; padding: 8px !important; gap: 2px !important; }
+  .tmwr .quick-link { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 9px 12px !important; border-radius: 8px !important; border: none !important; background: transparent !important; font-family: 'Jost', sans-serif !important; font-size: 0.78rem !important; font-weight: 500 !important; color: #5a7070 !important; text-decoration: none !important; transition: all 0.18s ease !important; cursor: pointer !important; min-height: 38px !important; }
+  .tmwr .quick-link:hover { background: #e8f5f5 !important; color: #357e7e !important; }
+  .tmwr .quick-link.live-link { color: #1a2b2b !important; font-weight: 600 !important; }
+  .tmwr .quick-link[href="#"] { cursor: default !important; opacity: 0.6 !important; }
+  .tmwr .quick-link[href="#"]:hover { background: transparent !important; color: #5a7070 !important; }
+  .tmwr .ql-badge { font-family: 'Jost', sans-serif !important; font-size: 0.58rem !important; font-weight: 700 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; padding: 2px 7px !important; border-radius: 10px !important; flex-shrink: 0 !important; margin-left: 6px !important; }
+  .tmwr .ql-badge.live { background: #4aacac !important; color: #ffffff !important; }
+  .tmwr .ql-badge:not(.live) { background: #F6FEFE !important; color: #5a7070 !important; border: 1px solid #d4ecec !important; }
 
-/* SUMMARY */
-.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
-.stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
-.stat-label{font-size:10px;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;font-weight:500;}
-.stat-num{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;line-height:1;}
-.stat-num.danger{color:var(--red);}.stat-num.warn{color:var(--amber);}
+  .tmwr .resource-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
 
-/* ADD CARD (admin only) */
-.add-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:20px;}
-.add-card-title{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;}
-.add-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
-.fg{display:flex;flex-direction:column;gap:4px;}
-.fg label{font-size:11px;color:var(--text-secondary);font-weight:500;}
-.fg input,.fg select{height:36px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;}
-.fg input:focus,.fg select:focus{border-color:var(--accent-mid);background:var(--white);}
+  @keyframes tmwrFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-/* FILTERS */
-.filter-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
-.filter-row select{height:32px;font-size:12px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
-.results-count{font-size:12px;color:var(--text-muted);margin-left:auto;}
+  .tmwr .resource-card { background: #ffffff; border-radius: 16px; border: 1px solid #d4ecec; padding: 22px 20px; text-decoration: none !important; color: inherit !important; display: flex !important; flex-direction: column !important; gap: 12px !important; box-shadow: 0 2px 16px rgba(74,172,172,0.10); transition: all 0.25s ease; position: relative; overflow: hidden; cursor: pointer; animation: tmwrFadeUp 0.4s ease forwards; opacity: 0; }
+  .tmwr .resource-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #4aacac; transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
+  .tmwr .resource-card:hover { border-color: #4aacac !important; box-shadow: 0 8px 32px rgba(74,172,172,0.20) !important; transform: translateY(-2px) !important; }
+  .tmwr .resource-card:hover::before { transform: scaleX(1); }
+  .tmwr .resource-card.live { border-color: #c2e4e4; }
+  .tmwr .resource-card.live::before { transform: scaleX(1); }
+  .tmwr .resource-card.coming { opacity: 0.55 !important; cursor: default !important; border-style: dashed !important; animation: tmwrFadeUp 0.4s ease forwards !important; }
+  .tmwr .resource-card.coming:hover { transform: none !important; box-shadow: 0 2px 16px rgba(74,172,172,0.10) !important; border-color: #d4ecec !important; }
+  .tmwr .resource-card.coming::before { display: none; }
+  .tmwr .resource-card:nth-child(1) { animation-delay: 0.05s; }
+  .tmwr .resource-card:nth-child(2) { animation-delay: 0.10s; }
+  .tmwr .resource-card:nth-child(3) { animation-delay: 0.15s; }
+  .tmwr .resource-card:nth-child(4) { animation-delay: 0.20s; }
+  .tmwr .resource-card:nth-child(5) { animation-delay: 0.25s; }
+  .tmwr .resource-card:nth-child(6) { animation-delay: 0.30s; }
+  .tmwr .resource-card:nth-child(7) { animation-delay: 0.35s; }
 
-/* PROJECT CARDS */
-.project-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow 0.15s;}
-.project-card:hover{box-shadow:var(--shadow-md);}
-.project-card.overdue{border-left:3px solid #c0392b;}.project-card.at-risk{border-left:3px solid #c87f14;}
-.project-header{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;}
-.project-header:hover{background:var(--cream);}
-.client-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;flex:1;min-width:0;}
-.header-pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.pill{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap;border:1px solid;}
-.pill.overdue{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
-.pill.at-risk{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
-.pill.ok{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
-.pill.unassigned{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
-.pill.neutral{background:var(--cream-dark);color:var(--text-secondary);border-color:var(--border);}
-.progress-wrap{display:flex;align-items:center;gap:5px;}
-.progress-track{width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;border-radius:2px;background:var(--accent-mid);transition:width 0.3s;}
-.progress-pct{font-size:11px;color:var(--text-muted);min-width:26px;}
-.chevron{font-size:10px;color:var(--text-muted);transition:transform 0.2s;flex-shrink:0;}
-.chevron.open{transform:rotate(90deg);}
+  .tmwr .card-icon { width: 40px; height: 40px; background: #e8f5f5; border-radius: 10px; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 1.1rem; flex-shrink: 0; }
+  .tmwr .resource-card.live .card-icon { background: linear-gradient(135deg, #e8f5f5, #c2e4e4); }
+  .tmwr .card-body { flex: 1; }
+  .tmwr .card-name { font-family: 'Cormorant Garamond', serif !important; font-size: 1.15rem !important; font-weight: 600 !important; color: #1a2b2b !important; margin-bottom: 5px !important; line-height: 1.3 !important; }
+  .tmwr .card-desc { font-family: 'Jost', sans-serif !important; font-size: 0.78rem !important; color: #5a7070 !important; line-height: 1.5 !important; }
+  .tmwr .card-footer { display: flex !important; align-items: center !important; justify-content: space-between !important; padding-top: 10px !important; border-top: 1px solid #d4ecec !important; margin-top: auto !important; }
+  .tmwr .card-count { font-family: 'Jost', sans-serif !important; font-size: 0.68rem !important; font-weight: 600 !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; color: #5a7070 !important; }
+  .tmwr .resource-card.live .card-count { color: #357e7e !important; }
+  .tmwr .card-arrow { width: 28px; height: 28px; background: #e8f5f5; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.8rem; color: #357e7e !important; transition: all 0.2s ease; }
+  .tmwr .resource-card:hover .card-arrow { background: #4aacac !important; color: #ffffff !important; }
+  .tmwr .resource-card.coming .card-arrow { display: none !important; }
+  .tmwr .coming-badge { font-family: 'Jost', sans-serif !important; font-size: 0.62rem !important; font-weight: 600 !important; letter-spacing: 0.12em !important; text-transform: uppercase !important; color: #5a7070 !important; background: #F6FEFE !important; border: 1px solid #d4ecec !important; padding: 3px 8px !important; border-radius: 20px !important; }
 
-/* PROJECT BODY */
-.project-body{border-top:1px solid var(--border);padding:18px 22px;background:var(--cream);}
-.body-meta{display:flex;gap:14px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
-.meta-sel{height:30px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
-.meta-sel:focus{border-color:var(--accent-mid);}
+  .tmwr .resource-card.featured { grid-column: span 3 !important; flex-direction: row !important; align-items: center !important; padding: 22px 26px !important; background: linear-gradient(135deg, #f0fafa 0%, #ffffff 60%) !important; border-color: #c2e4e4 !important; gap: 20px !important; }
+  .tmwr .resource-card.featured .card-icon { width: 48px !important; height: 48px !important; font-size: 1.3rem !important; background: linear-gradient(135deg, #e8f5f5, #c2e4e4) !important; }
+  .tmwr .resource-card.featured .card-body { flex: 1 !important; }
+  .tmwr .resource-card.featured .card-name { font-size: 1.2rem !important; }
+  .tmwr .resource-card.featured .card-desc { font-size: 0.8rem !important; max-width: 500px; }
+  .tmwr .live-badge { display: inline-flex !important; align-items: center !important; font-family: 'Jost', sans-serif !important; font-size: 0.58rem !important; font-weight: 700 !important; letter-spacing: 0.12em !important; text-transform: uppercase !important; color: #357e7e !important; background: #e8f5f5 !important; border: 1px solid #c2e4e4 !important; padding: 2px 8px !important; border-radius: 20px !important; margin-left: 8px !important; vertical-align: middle !important; }
+  .tmwr .card-cta { font-family: 'Jost', sans-serif !important; font-size: 0.75rem !important; font-weight: 600 !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; color: #4aacac !important; white-space: nowrap !important; flex-shrink: 0 !important; margin-left: auto !important; transition: color 0.2s ease !important; }
+  .tmwr .resource-card:hover .card-cta { color: #357e7e !important; }
 
-/* DELIVERABLE TABLE */
-.del-header-row{display:grid;gap:8px;padding:0 10px 8px;grid-template-columns:1fr 100px 100px 1fr 24px;border-bottom:1px solid var(--border);margin-bottom:6px;}
-.del-col-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;}
-.del-row{display:grid;gap:8px;align-items:center;padding:9px 10px;grid-template-columns:1fr 100px 100px 1fr 24px;border-radius:8px;margin-bottom:4px;background:var(--white);border:1px solid var(--border);}
-.del-row.done{opacity:0.5;}
-.del-name-text{font-size:13px;font-weight:500;color:var(--text-primary);min-width:0;}
-.stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
-.stage-btn{font-size:10px;padding:4px 4px;border-radius:5px;cursor:pointer;border:1px solid;font-weight:500;text-align:center;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:filter 0.1s;}
-.stage-btn.complete{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
-.stage-btn.in-progress{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
-.stage-btn.not-started{background:var(--cream-dark);color:var(--text-muted);border-color:var(--border);}
-.stage-btn:hover{filter:brightness(0.93);}
-.del-sel{height:28px;font-size:11px;padding:0 5px;width:100%;border:1px solid var(--border);border-radius:5px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
-.del-date{height:28px;font-size:11px;padding:0 5px;width:100%;border:1px solid var(--border);border-radius:5px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
-.del-date.overdue{border-color:#e8a0a0;background:var(--red-light);color:var(--red);}
-.del-date.at-risk{border-color:#e8c87a;background:var(--amber-light);color:var(--amber);}
-.del-delete{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;}
-.del-delete:hover{color:var(--red);background:var(--red-light);}
-.add-del-bar{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
-.add-del-bar select,.add-del-bar input{height:30px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
-.btn-ghost{height:30px;padding:0 12px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--white);color:var(--accent);border:1px solid var(--accent-mid);font-family:'DM Sans',sans-serif;transition:background 0.15s;}
-.btn-ghost:hover{background:var(--accent-light);}
-.remove-project-btn{height:28px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;margin-left:auto;transition:all 0.15s;}
-.remove-project-btn:hover{color:var(--red);border-color:#e8a0a0;background:var(--red-light);}
-
-/* EDITOR TAB */
-.editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px;}
-.editor-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;}
-.editor-card-name{font-family:'Cormorant Garamond',serif;font-size:17px;margin-bottom:8px;}
-.cap-bar-track{height:4px;background:var(--border);border-radius:2px;margin-bottom:6px;overflow:hidden;}
-.cap-bar-fill{height:100%;border-radius:2px;transition:width 0.3s;}
-.cap-low{background:var(--green);}.cap-mid{background:#c87f14;}.cap-high{background:var(--red);}
-.cap-meta{font-size:11px;color:var(--text-muted);}
-.editor-del-section{margin-bottom:18px;}
-.editor-del-name{font-family:'Cormorant Garamond',serif;font-size:16px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--border);}
-.editor-del-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);gap:8px;}
-.editor-del-right{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-
-/* MISC */
-.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);font-size:13px;}
-.empty-icon{font-family:'Cormorant Garamond',serif;font-size:36px;margin-bottom:10px;color:var(--border-strong);}
-.error-banner{background:var(--red-light);border:1px solid #e8a0a0;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
-.section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px;}
-
-/* MOBILE */
-@media(max-width:680px){
-  .topbar{padding:0 16px;height:52px;}
-  .logo-sub{display:none;}
-  #sync-text{display:none;}
-  .main{padding:16px;}
-  .summary-row{grid-template-columns:repeat(3,1fr);gap:8px;}
-  .stat{padding:10px 12px;}
-  .stat-num{font-size:24px;}
-  .stat:nth-child(4),.stat:nth-child(5){display:none;}
-  .add-fields{flex-direction:column;}
-  .fg input,.fg select{width:100%!important;}
-  .filter-row select{font-size:11px;}
-  .project-header{padding:12px 14px;}
-  .client-name{font-size:15px;}
-  .header-pills .pill.neutral:not(.unassigned){display:none;}
-  .progress-wrap{display:none;}
-  .project-body{padding:14px 16px;}
-  .del-header-row{display:none;}
-  .del-row{grid-template-columns:1fr;gap:6px;padding:12px;}
-  .del-row .del-name-text{font-size:14px;}
-  .del-row .del-sel,.del-row .del-date{height:34px;font-size:13px;}
-  .stage-grid{grid-template-columns:repeat(4,1fr);gap:4px;}
-  .stage-btn{font-size:11px;padding:6px 2px;}
-  .del-delete{justify-self:end;}
-  .add-del-bar{flex-direction:column;align-items:stretch;}
-  .add-del-bar select,.add-del-bar input{width:100%;}
-  .btn-ghost{width:100%;text-align:center;}
-  .editor-grid{grid-template-columns:repeat(2,1fr);}
-  .editor-del-row{flex-direction:column;align-items:flex-start;gap:6px;}
-  .editor-del-right{flex-wrap:wrap;}
-  .tabs-bar{padding:0 16px;}
-  .tab{padding:11px 12px;font-size:11px;}
-  .body-meta{gap:10px;}
-}
+  @media (max-width: 768px) {
+    .tmwr .hero { padding: 18px 20px 16px; }
+    .tmwr .hero-title { font-size: 2rem !important; white-space: normal !important; }
+    .tmwr .divider { padding: 0 20px; }
+    .tmwr .main { padding: 20px 20px 60px; }
+    .tmwr .welcome-banner { padding: 18px 20px; gap: 14px; }
+    .tmwr .quick-access-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tmwr .resource-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tmwr .resource-card.featured { grid-column: span 2 !important; flex-direction: row !important; }
+  }
+  @media (max-width: 640px) {
+    .tmwr .hero { padding: 14px 16px 12px; }
+    .tmwr .hero-eyebrow { font-size: 0.6rem !important; margin-bottom: 5px !important; }
+    .tmwr .hero-title { font-size: 1.75rem !important; white-space: normal !important; margin-bottom: 6px !important; }
+    .tmwr .hero-desc { font-size: 0.8rem !important; }
+    .tmwr .divider { padding: 0 16px; }
+    .tmwr .main { padding: 14px 16px 80px; }
+    .tmwr .section-label { font-size: 0.62rem !important; margin-bottom: 10px !important; }
+    .tmwr .welcome-banner { flex-direction: column !important; align-items: flex-start !important; padding: 16px !important; gap: 10px !important; border-radius: 12px !important; margin-bottom: 18px !important; }
+    .tmwr .banner-title { font-size: 1rem !important; }
+    .tmwr .banner-sub { font-size: 0.74rem !important; }
+    .tmwr .banner-tag { font-size: 0.58rem !important; }
+    .tmwr .quick-access-grid { grid-template-columns: 1fr !important; gap: 10px !important; margin-bottom: 22px !important; }
+    .tmwr .quick-group { border-radius: 12px !important; }
+    .tmwr .quick-group-header { padding: 10px 14px !important; }
+    .tmwr .quick-link { padding: 10px 12px !important; font-size: 0.8rem !important; min-height: 42px !important; }
+    .tmwr .ql-badge { font-size: 0.55rem !important; }
+    .tmwr .resource-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .tmwr .resource-card { padding: 16px !important; border-radius: 12px !important; }
+    .tmwr .resource-card.featured { grid-column: span 1 !important; flex-direction: column !important; align-items: flex-start !important; padding: 18px 16px !important; }
+    .tmwr .card-cta { margin-left: 0 !important; margin-top: 8px !important; }
+    .tmwr .card-icon { width: 36px !important; height: 36px !important; font-size: 1rem !important; border-radius: 8px !important; }
+    .tmwr .card-name { font-size: 1rem !important; }
+    .tmwr .card-desc { font-size: 0.76rem !important; }
+  }
+  @media (max-width: 375px) {
+    .tmwr .hero-title { font-size: 1.55rem !important; }
+    .tmwr .card-name { font-size: 0.95rem !important; }
+  }
 </style>
 </head>
 <body>
+<div class="tmwr">
+<div class="hero">
+  <div class="hero-eyebrow">TM Weddings</div>
+  <h1 class="hero-title">Team <span>Resources</span></h1>
+  <p class="hero-desc">Everything your team needs to show up prepared, shoot with confidence, and represent TM Weddings at the highest level.</p>
+</div>
+<div class="divider"></div>
+<main class="main">
 
-<!-- ADMIN PASSWORD MODAL -->
-<div class="modal-overlay" id="admin-modal" style="display:none;">
-  <div class="modal">
-    <div class="modal-title">Admin access</div>
-    <div class="modal-sub">Enter the password to unlock admin controls.</div>
-    <input type="password" id="admin-pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminPw()"/>
-    <div class="modal-error" id="admin-pw-error">Incorrect password. Try again.</div>
-    <div class="modal-btns">
-      <button class="btn-secondary" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitAdminPw()">Unlock</button>
+  <div class="welcome-banner">
+    <div>
+      <div class="banner-title">Welcome to the Team Hub</div>
+      <div class="banner-sub">Your internal reference library — SOPs, shot lists, technical guides, conduct standards, and onboarding materials. Bookmark this page.</div>
     </div>
+    <div class="banner-tag">Internal Use Only</div>
   </div>
-</div>
 
-<div class="topbar">
-  <div style="display:flex;align-items:baseline;">
-    <span class="logo-main">TM Weddings</span>
-    <span class="logo-sub">Post Production</span>
-  </div>
-  <div class="topbar-right">
-    <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
-    <button class="btn-icon" onclick="loadData()">&#8635;</button>
-    <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
-    <button class="btn-icon" id="admin-toggle-btn" onclick="toggleAdminMode()">Admin</button>
-  </div>
-</div>
+  <div class="section-label">Quick Access</div>
+  <div class="quick-access-grid">
 
-<div class="tabs-bar">
-  <button class="tab active" onclick="switchTab('pipeline',this)">Pipeline</button>
-  <button class="tab" onclick="switchTab('editors',this)">Editor load</button>
-</div>
-
-<div class="main">
-  <div id="error-banner" class="error-banner"></div>
-
-  <div id="pipeline" class="section active">
-    <div id="pipeline-loading" class="loading-screen">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-    </div>
-    <div id="pipeline-content" style="display:none;">
-      <div class="summary-row" id="summary-row"></div>
-
-      <!-- ADMIN ONLY: Add project -->
-      <div class="add-card" id="add-project-card" style="display:none;">
-        <div class="add-card-title">Add project</div>
-        <div class="add-fields">
-          <div class="fg"><label>Client name</label><input id="nc" type="text" placeholder="e.g. Sarah + James" style="width:170px;"/></div>
-          <div class="fg"><label>Wedding date</label><input id="nwd" type="date" style="width:150px;"/></div>
-          <div class="fg">
-            <label>Lead editor</label>
-            <select id="ne" style="width:130px;">
-              <option value="">— unassigned —</option>
-              <option>Tony</option><option>Lexi</option><option>Zyara</option>
-              <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
-            </select>
-          </div>
-          <button class="btn-primary" onclick="addProject()" style="margin-top:18px;">+ Add project</button>
-        </div>
+    <div class="quick-group">
+      <div class="quick-group-header"><span class="quick-group-icon">📷</span><span class="quick-group-title">Photography</span></div>
+      <div class="quick-links">
+        <a class="quick-link live-link" href="/shooter-sops">Lead Photographer SOP <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/shooter-sops">Second Photographer SOP <span class="ql-badge live">Live</span></a>
+        <a class="quick-link" href="#">Shot List — Full Wedding <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Portrait Session Flow <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Gear Checklist — Photo <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Off-Camera Lighting Guide <span class="ql-badge">Soon</span></a>
       </div>
-
-      <div class="filter-row">
-        <select id="fe" onchange="renderPipeline()">
-          <option value="">All editors</option>
-          <option>Tony</option><option>Lexi</option><option>Zyara</option>
-          <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
-        </select>
-        <select id="fr" onchange="renderPipeline()">
-          <option value="">All statuses</option>
-          <option value="overdue">Overdue</option>
-          <option value="at-risk">At risk</option>
-          <option value="ok">On track</option>
-        </select>
-        <span class="results-count" id="results-count"></span>
-      </div>
-      <div id="pipeline-list"></div>
     </div>
+
+    <div class="quick-group">
+      <div class="quick-group-header"><span class="quick-group-icon">🎬</span><span class="quick-group-title">Film</span></div>
+      <div class="quick-links">
+        <a class="quick-link live-link" href="/shooter-sops">Lead Filmmaker SOP <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/shooter-sops">Second Filmmaker SOP <span class="ql-badge live">Live</span></a>
+        <a class="quick-link" href="#">How to Mic the Bride <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">How to Mic the Groom <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Audio Backup Protocol <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Gear Checklist — Film <span class="ql-badge">Soon</span></a>
+      </div>
+    </div>
+
+    <div class="quick-group">
+      <div class="quick-group-header"><span class="quick-group-icon">🎞️</span><span class="quick-group-title">Post Production</span></div>
+      <div class="quick-links">
+        <a class="quick-link live-link" href="/post-production">Post Production Portal <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/post-production/video">Video Dashboard <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/post-production/deliverables">Client Deliverables <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/post-production/photo">Photo Dashboard <span class="ql-badge live">Live</span></a>
+        <a class="quick-link" href="#">Editing Standards <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Delivery Protocol <span class="ql-badge">Soon</span></a>
+      </div>
+    </div>
+
+    <div class="quick-group">
+      <div class="quick-group-header"><span class="quick-group-icon">⚙️</span><span class="quick-group-title">General</span></div>
+      <div class="quick-links">
+        <a class="quick-link" href="#">Wedding Day Timeline Guide <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Vendor Communication Scripts <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Dress Code &amp; Conduct <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">File Delivery Protocol <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Onboarding &mdash; New Team Member <span class="ql-badge">Soon</span></a>
+        <a class="quick-link" href="#">Social Media Policy <span class="ql-badge">Soon</span></a>
+      </div>
+    </div>
+
   </div>
 
-  <div id="editors" class="section">
-    <div class="editor-grid" id="editor-grid"></div>
-    <div class="section-label">Deliverable assignments</div>
-    <div id="editor-detail"></div>
+  <div class="section-label">All Resources</div>
+  <div class="resource-grid">
+
+    <a class="resource-card featured live" href="/shooter-sops">
+      <div class="card-icon">📋</div>
+      <div class="card-body">
+        <div class="card-name">Standard Operating Procedures <span class="live-badge">&#10003; Live</span></div>
+        <div class="card-desc">Role-by-role SOPs for Lead Photographer, Second Photographer, Lead Filmmaker, and Second Filmmaker — all live. Decision authority, quality standards, failure protocols, and more.</div>
+      </div>
+      <div class="card-cta">View SOPs &rarr;</div>
+    </a>
+
+    <a class="resource-card featured live" href="/post-production" style="animation-delay:0.08s;">
+      <div class="card-icon">🎞️</div>
+      <div class="card-body">
+        <div class="card-name">Post Production Portal <span class="live-badge">&#10003; Live</span></div>
+        <div class="card-desc">Video editing queue, client deliverables tracker, and photography post production — all in one place. Update stages, track due dates, and stay in sync with the team.</div>
+      </div>
+      <div class="card-cta">Open Portal &rarr;</div>
+    </a>
+
+    <div class="resource-card coming">
+      <div class="card-icon">🎯</div>
+      <div class="card-body"><div class="card-name">Shot Lists &amp; Coverage Guides</div><div class="card-desc">Master wedding shot list, ceremony, reception, getting ready, details, and family formals.</div></div>
+      <div class="card-footer"><span class="card-count">6 guides</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">🎙️</div>
+      <div class="card-body"><div class="card-name">Technical Guides</div><div class="card-desc">How to mic the bride &amp; groom, off-camera lighting setup, camera settings by scenario, audio backup protocol.</div></div>
+      <div class="card-footer"><span class="card-count">7 guides</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">🗓️</div>
+      <div class="card-body"><div class="card-name">On-Site Workflow</div><div class="card-desc">Portrait session flow, timeline reading guide, vendor communication scripts, ceremony positioning, reception coverage breakdown.</div></div>
+      <div class="card-footer"><span class="card-count">5 guides</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">🎒</div>
+      <div class="card-body"><div class="card-name">Gear Checklists</div><div class="card-desc">Role-specific gear lists for Lead Photo, Second Photo, Lead Film, and Second Film. What to bring, what's required, what's optional.</div></div>
+      <div class="card-footer"><span class="card-count">4 checklists</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">🤝</div>
+      <div class="card-body"><div class="card-name">Brand &amp; Conduct</div><div class="card-desc">Dress code, on-site representation standards, client interaction guidelines, and social media policy for TM Weddings events.</div></div>
+      <div class="card-footer"><span class="card-count">4 docs</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">📤</div>
+      <div class="card-body"><div class="card-name">Post-Wedding</div><div class="card-desc">Card dump &amp; file delivery protocol, how to submit images and footage, culling standards, and turnaround expectations by role.</div></div>
+      <div class="card-footer"><span class="card-count">4 docs</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
+    <div class="resource-card coming">
+      <div class="card-icon">👋</div>
+      <div class="card-body"><div class="card-name">Onboarding</div><div class="card-desc">Welcome to the TM team. What to expect on your first wedding, who to contact and when, and the shadowing protocol.</div></div>
+      <div class="card-footer"><span class="card-count">4 docs</span><span class="coming-badge">Coming Soon</span></div>
+    </div>
+
   </div>
+</main>
 </div>
-
-<script>
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const ADMIN_HASH='8e5df3b4a2c1f0e9d6b7a8c5f2e3d4b1a9c8e7f6d5b4a3c2e1f0d9b8a7c6e5';
-const ADMIN_PW='Post-Production_2026!';
-const EDITORS=['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
-const DELIVERABLE_OPTIONS=['2–3 min highlight','5 min highlight','10 min highlight','30–60 min doc edit','Video book','Custom'];
-const STAGES=['Sync/sift','Edit','Color','Deliver'];
-const STAGE_KEYS=['sync','edit','color','deliver'];
-const STATUS_CYCLE=['not-started','in-progress','complete'];
-
-let projects=[];
-let expanded={};
-let saving=false;
-let isAdmin=false;
-
-function setSyncStatus(state,text){
-  document.getElementById('sync-dot').className='sync-dot '+state;
-  document.getElementById('sync-text').textContent=text;
-}
-function showError(msg){
-  const b=document.getElementById('error-banner');
-  b.textContent=msg;b.style.display='block';
-  setTimeout(()=>{b.style.display='none';},7000);
-}
-
-// ADMIN
-function toggleAdminMode(){
-  if(isAdmin){
-    isAdmin=false;
-    sessionStorage.removeItem('tmw_admin');
-    applyAdminUI();
-  } else {
-    document.getElementById('admin-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('admin-pw-input').focus(),100);
-  }
-}
-function closeAdminModal(){
-  document.getElementById('admin-modal').style.display='none';
-  document.getElementById('admin-pw-input').value='';
-  document.getElementById('admin-pw-error').style.display='none';
-}
-function submitAdminPw(){
-  const val=document.getElementById('admin-pw-input').value;
-  if(val===ADMIN_PW){
-    isAdmin=true;
-    sessionStorage.setItem('tmw_admin','1');
-    closeAdminModal();
-    applyAdminUI();
-    renderAll();
-  } else {
-    document.getElementById('admin-pw-error').style.display='block';
-    document.getElementById('admin-pw-input').value='';
-    document.getElementById('admin-pw-input').focus();
-  }
-}
-function applyAdminUI(){
-  document.getElementById('add-project-card').style.display=isAdmin?'block':'none';
-  document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
-  document.getElementById('admin-toggle-btn').textContent=isAdmin?'Exit admin':'Admin';
-  renderAll();
-}
-
-// SUPABASE
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{
-      'apikey':SUPABASE_KEY,
-      'Authorization':'Bearer '+SUPABASE_KEY,
-      'Content-Type':'application/json',
-      'Prefer':'return=representation',
-      ...(opts.headers||{})
-    }
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const text=await res.text();
-  return text?JSON.parse(text):null;
-}
-
-async function loadData(){
-  setSyncStatus('','Connecting...');
-  try{
-    const rows=await sbFetch('projects?id=eq.tmw_state&select=data');
-    if(rows&&rows[0]){
-      projects=rows[0].data.projects||[];
-    } else {
-      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_state',data:{projects:[]}})});
-      projects=[];
-    }
-    document.getElementById('pipeline-loading').style.display='none';
-    document.getElementById('pipeline-content').style.display='block';
-    setSyncStatus('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
-    renderAll();
-  }catch(e){
-    setSyncStatus('error','Connection failed');
-    document.getElementById('pipeline-loading').style.display='none';
-    document.getElementById('pipeline-content').style.display='block';
-    showError('Could not connect: '+e.message);
-    renderAll();
-  }
-}
-
-async function saveData(){
-  if(saving)return;
-  saving=true;
-  setSyncStatus('saving','Saving...');
-  try{
-    await sbFetch('projects?id=eq.tmw_state',{
-      method:'PATCH',
-      body:JSON.stringify({data:{projects}})
-    });
-    setSyncStatus('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
-  }catch(e){
-    setSyncStatus('error','Save failed');
-    showError('Save failed. Refresh and try again.');
-  }
-  saving=false;
-}
-
-// HELPERS
-function getRisk(d){
-  if(!d)return'ok';
-  const now=new Date();now.setHours(0,0,0,0);
-  const diff=Math.round((new Date(d)-now)/86400000);
-  if(diff<0)return'overdue';
-  if(diff<=5)return'at-risk';
-  return'ok';
-}
-function getProjectRisk(p){
-  if(!p.deliverables||!p.deliverables.length)return'ok';
-  const risks=p.deliverables.map(d=>getRisk(d.dueDate));
-  if(risks.includes('overdue'))return'overdue';
-  if(risks.includes('at-risk'))return'at-risk';
-  return'ok';
-}
-function getProgress(deliverables){
-  if(!deliverables||!deliverables.length)return 0;
-  const total=deliverables.length*STAGE_KEYS.length;
-  const done=deliverables.reduce((a,d)=>a+STAGE_KEYS.filter(k=>d.stages[k]==='complete').length,0);
-  return total>0?Math.round((done/total)*100):0;
-}
-
-// ACTIONS
-async function addProject(){
-  if(!isAdmin)return;
-  const client=document.getElementById('nc').value.trim();
-  if(!client){document.getElementById('nc').focus();return;}
-  const id=Date.now().toString();
-  projects.push({id,client,weddingDate:document.getElementById('nwd').value,editor:document.getElementById('ne').value,deliverables:[]});
-  expanded[id]=true;
-  document.getElementById('nc').value='';
-  document.getElementById('nwd').value='';
-  document.getElementById('ne').value='';
-  renderAll();await saveData();
-}
-
-async function deleteProject(pid){
-  if(!isAdmin)return;
-  if(!confirm('Remove this project?'))return;
-  projects=projects.filter(x=>x.id!==pid);
-  delete expanded[pid];
-  renderAll();await saveData();
-}
-
-function toggleExpand(pid){expanded[pid]=!expanded[pid];renderPipeline();}
-
-async function addDeliverable(pid){
-  if(!isAdmin)return;
-  const p=projects.find(x=>x.id===pid);if(!p)return;
-  const sel=document.getElementById('ds_'+pid);
-  const customIn=document.getElementById('dc_'+pid);
-  let name=sel.value;
-  if(name==='Custom')name=customIn?customIn.value.trim():'';
-  if(!name)return;
-  const stages={};STAGE_KEYS.forEach(k=>stages[k]='not-started');
-  p.deliverables.push({id:Date.now().toString(),name,editor:'',dueDate:'',stages});
-  if(customIn)customIn.value='';
-  renderAll();await saveData();
-}
-
-async function deleteDeliverable(pid,did){
-  if(!isAdmin)return;
-  const p=projects.find(x=>x.id===pid);if(!p)return;
-  p.deliverables=p.deliverables.filter(d=>d.id!==did);
-  renderAll();await saveData();
-}
-
-async function cycleStage(pid,did,key){
-  const p=projects.find(x=>x.id===pid);if(!p)return;
-  const d=p.deliverables.find(x=>x.id===did);if(!d)return;
-  const i=STATUS_CYCLE.indexOf(d.stages[key]);
-  d.stages[key]=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
-  renderAll();await saveData();
-}
-
-async function setDelEditor(pid,did,val){
-  if(!isAdmin)return;
-  const p=projects.find(x=>x.id===pid);if(!p)return;
-  const d=p.deliverables.find(x=>x.id===did);
-  if(d){d.editor=val;renderEditors();await saveData();}
-}
-
-async function setDelDue(pid,did,val){
-  if(!isAdmin)return;
-  const p=projects.find(x=>x.id===pid);if(!p)return;
-  const d=p.deliverables.find(x=>x.id===did);
-  if(d){d.dueDate=val;renderAll();await saveData();}
-}
-
-async function setProjectEditor(pid,val){
-  if(!isAdmin)return;
-  const p=projects.find(x=>x.id===pid);
-  if(p){p.editor=val;renderAll();await saveData();}
-}
-
-// RENDER
-function renderSummary(){
-  const total=projects.length;
-  const totalDels=projects.reduce((a,p)=>a+p.deliverables.length,0);
-  const allDels=projects.flatMap(p=>p.deliverables);
-  const overdue=allDels.filter(d=>getRisk(d.dueDate)==='overdue').length;
-  const atRisk=allDels.filter(d=>getRisk(d.dueDate)==='at-risk').length;
-  const unassigned=allDels.filter(d=>!d.editor).length;
-  document.getElementById('summary-row').innerHTML=`
-    <div class="stat"><div class="stat-label">Projects</div><div class="stat-num">${total}</div></div>
-    <div class="stat"><div class="stat-label">Deliverables</div><div class="stat-num">${totalDels}</div></div>
-    <div class="stat"><div class="stat-label">Overdue</div><div class="stat-num ${overdue>0?'danger':''}">${overdue}</div></div>
-    <div class="stat"><div class="stat-label">At risk</div><div class="stat-num ${atRisk>0?'warn':''}">${atRisk}</div></div>
-    <div class="stat"><div class="stat-label">Unassigned</div><div class="stat-num ${unassigned>0?'warn':''}">${unassigned}</div></div>`;
-}
-
-function renderPipeline(){
-  const ef=document.getElementById('fe').value;
-  const rf=document.getElementById('fr').value;
-  let list=[...projects].filter(p=>{
-    if(ef&&p.editor!==ef)return false;
-    if(rf&&getProjectRisk(p)!==rf)return false;
-    return true;
-  }).sort((a,b)=>{
-    const o={'overdue':0,'at-risk':1,'ok':2};
-    return o[getProjectRisk(a)]-o[getProjectRisk(b)];
-  });
-  document.getElementById('results-count').textContent=list.length+' project'+(list.length!==1?'s':'');
-  if(!list.length){
-    document.getElementById('pipeline-list').innerHTML='<div class="empty-state"><div class="empty-icon">TM</div><div>No projects yet.</div></div>';
-    return;
-  }
-  let html='';
-  list.forEach(p=>{
-    const risk=getProjectRisk(p);
-    const prog=getProgress(p.deliverables);
-    const isOpen=!!expanded[p.id];
-    const riskLabel=risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track';
-    const weddingStr=p.weddingDate?new Date(p.weddingDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-    html+=`<div class="project-card ${risk}">
-      <div class="project-header" onclick="toggleExpand('${p.id}')">
-        <span class="client-name">${p.client}</span>
-        <div class="header-pills">
-          ${!p.editor?'<span class="pill unassigned">Unassigned</span>':'<span class="pill neutral">'+p.editor+'</span>'}
-          ${weddingStr?`<span class="pill neutral">${weddingStr}</span>`:''}
-          <span class="pill neutral">${p.deliverables.length} del${p.deliverables.length!==1?'s':''}</span>
-          <div class="progress-wrap">
-            <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
-            <span class="progress-pct">${prog}%</span>
-          </div>
-          <span class="pill ${risk}">${riskLabel}</span>
-          <span class="chevron ${isOpen?'open':''}">&#9654;</span>
-        </div>
-      </div>`;
-    if(isOpen){
-      html+=`<div class="project-body">
-        <div class="body-meta">`;
-      if(isAdmin){
-        html+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
-          <select class="meta-sel" onchange="setProjectEditor('${p.id}',this.value)">
-            <option value=""${!p.editor?' selected':''}>— unassigned —</option>
-            ${EDITORS.map(e=>`<option${p.editor===e?' selected':''}>${e}</option>`).join('')}
-          </select>`;
-      } else {
-        html+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;
-      }
-      if(weddingStr) html+=`<span style="font-size:12px;color:var(--text-muted);">${weddingStr}</span>`;
-      if(isAdmin) html+=`<button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>`;
-      html+=`</div>`;
-
-      if(p.deliverables.length){
-        html+=`<div class="del-header-row">
-          <span class="del-col-label">Deliverable</span>
-          <span class="del-col-label">Editor</span>
-          <span class="del-col-label">Due</span>
-          <span class="del-col-label">Stages</span>
-          <span></span>
-        </div>`;
-        p.deliverables.forEach(d=>{
-          const allDone=STAGE_KEYS.every(k=>d.stages[k]==='complete');
-          const dRisk=getRisk(d.dueDate);
-          html+=`<div class="del-row${allDone?' done':''}">
-            <span class="del-name-text">${d.name}</span>`;
-          if(isAdmin){
-            html+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
-              <option value=""${!d.editor?' selected':''}>— assign —</option>
-              ${EDITORS.map(e=>`<option${d.editor===e?' selected':''}>${e}</option>`).join('')}
-            </select>
-            <input type="date" class="del-date ${d.dueDate?dRisk:''}" value="${d.dueDate||''}" onchange="setDelDue('${p.id}','${d.id}',this.value)"/>`;
-          } else {
-            html+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>`;
-            const dueStr=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
-            html+=`<span class="del-date ${d.dueDate?dRisk:''}" style="display:flex;align-items:center;font-size:12px;background:none;border:none;height:auto;padding:0;">${dueStr}</span>`;
-          }
-          html+=`<div class="stage-grid">
-              ${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}
-            </div>`;
-          if(isAdmin){
-            html+=`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">&#10005;</button>`;
-          } else {
-            html+=`<span></span>`;
-          }
-          html+=`</div>`;
-        });
-      } else {
-        html+=`<div style="font-size:12px;color:var(--text-muted);padding:10px;font-style:italic;">No deliverables yet.</div>`;
-      }
-
-      if(isAdmin){
-        html+=`<div class="add-del-bar">
-          <select id="ds_${p.id}" onchange="document.getElementById('dcc_${p.id}').style.display=this.value==='Custom'?'flex':'none'">
-            ${DELIVERABLE_OPTIONS.map(o=>`<option>${o}</option>`).join('')}
-          </select>
-          <div id="dcc_${p.id}" style="display:none;align-items:center;">
-            <input id="dc_${p.id}" type="text" placeholder="Custom name" style="width:160px;"/>
-          </div>
-          <button class="btn-ghost" onclick="addDeliverable('${p.id}')">+ Add deliverable</button>
-        </div>`;
-      }
-      html+=`</div>`;
-    }
-    html+=`</div>`;
-  });
-  document.getElementById('pipeline-list').innerHTML=html;
-}
-
-function renderEditors(){
-  const delsByEditor={};
-  EDITORS.forEach(e=>{delsByEditor[e]=[];});
-  projects.forEach(p=>{
-    p.deliverables.forEach(d=>{
-      if(d.editor)(delsByEditor[d.editor]=delsByEditor[d.editor]||[]).push({client:p.client,name:d.name,dueDate:d.dueDate,stages:d.stages});
-    });
-  });
-  const MAX=5;
-  let grid='';
-  EDITORS.forEach(e=>{
-    const c=(delsByEditor[e]||[]).length;
-    const pct=Math.min(100,Math.round((c/MAX)*100));
-    const cls=c<=2?'low':c<=4?'mid':'high';
-    const label=cls==='high'?'At capacity':cls==='mid'?'Moderate':'Available';
-    grid+=`<div class="editor-card">
-      <div class="editor-card-name">${e}</div>
-      <div class="cap-bar-track"><div class="cap-bar-fill cap-${cls}" style="width:${pct}%"></div></div>
-      <div class="cap-meta">${c} deliverable${c!==1?'s':''} &middot; ${label}</div>
-    </div>`;
-  });
-  document.getElementById('editor-grid').innerHTML=grid;
-  let detail='';
-  EDITORS.forEach(e=>{
-    const dels=delsByEditor[e]||[];
-    if(!dels.length)return;
-    detail+=`<div class="editor-del-section"><div class="editor-del-name">${e}</div>`;
-    dels.forEach(d=>{
-      const risk=getRisk(d.dueDate);
-      const dueStr=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
-      const prog=STAGE_KEYS.filter(k=>d.stages[k]==='complete').length;
-      detail+=`<div class="editor-del-row">
-        <div style="min-width:0;"><span style="font-size:13px;font-weight:500;">${d.client}</span><span style="font-size:12px;color:var(--text-secondary);margin-left:6px;">${d.name}</span></div>
-        <div class="editor-del-right">
-          <span style="font-size:11px;color:var(--text-muted);">${prog}/${STAGE_KEYS.length}</span>
-          <span style="font-size:12px;color:${risk!=='ok'?'var(--red)':'var(--text-muted)'};">${dueStr}</span>
-          <span class="pill ${risk}">${risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track'}</span>
-        </div>
-      </div>`;
-    });
-    detail+=`</div>`;
-  });
-  if(!detail)detail='<div class="empty-state"><div>No deliverables assigned yet.</div></div>';
-  document.getElementById('editor-detail').innerHTML=detail;
-}
-
-function renderAll(){renderSummary();renderPipeline();renderEditors();}
-
-function switchTab(id,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-}
-
-// Init
-if(sessionStorage.getItem('tmw_admin')==='1'){isAdmin=true;applyAdminUI();}
-loadData();
-setInterval(loadData,30000);
-</script>
 </body>
 </html>
