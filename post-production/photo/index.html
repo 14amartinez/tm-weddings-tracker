@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Photo Post Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;
+  --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
+  --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
+  --green:#3d6b45;--green-light:#eaf2eb;--amber:#8a6020;--amber-light:#fdf3e3;
+  --red:#8b2e2e;--red-light:#fdeaea;--white:#fff;--shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;font-size:14px;line-height:1.5;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.back-link{font-size:12px;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+.back-link:hover{color:var(--accent);}
+.topbar-center{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+#sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);}
+.sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
+.btn-icon{height:30px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
+.admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:360px;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.modal input{width:100%;height:38px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;}
+.modal input:focus{border-color:var(--accent-mid);}
+.modal-error{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
+.modal-btns{display:flex;gap:8px;}
+.btn-primary{height:36px;padding:0 18px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;flex:1;transition:background 0.15s;}
+.btn-primary:hover{background:#7a5240;}
+.btn-cancel{height:36px;padding:0 14px;font-size:12px;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;}
+.main{max-width:1200px;margin:0 auto;padding:24px;}
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px;}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+.stat-label{font-size:10px;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;font-weight:500;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;line-height:1;}
+.stat-num.danger{color:var(--red);}.stat-num.warn{color:var(--amber);}
+.add-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:20px;}
+.add-card-title{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;}
+.add-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+.fg input,.fg select{height:34px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.fg input:focus,.fg select:focus{border-color:var(--accent-mid);background:var(--white);}
+.btn-add{height:34px;padding:0 16px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;margin-top:18px;}
+.btn-add:hover{background:#7a5240;}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.filter-row select{height:30px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+.results-count{font-size:12px;color:var(--text-muted);margin-left:auto;}
+.project-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow 0.15s;}
+.project-card:hover{box-shadow:var(--shadow);}
+.project-card.overdue{border-left:3px solid #c0392b;}.project-card.at-risk{border-left:3px solid #c87f14;}
+.project-header{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;}
+.project-header:hover{background:var(--cream);}
+.client-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;flex:1;}
+.header-pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.pill{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap;border:1px solid;}
+.pill.overdue{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+.pill.at-risk{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+.pill.ok{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+.pill.neutral{background:var(--cream-dark);color:var(--text-secondary);border-color:var(--border);}
+.pill.unassigned{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+.progress-wrap{display:flex;align-items:center;gap:5px;}
+.progress-track{width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;background:var(--accent-mid);transition:width 0.3s;}
+.progress-pct{font-size:11px;color:var(--text-muted);min-width:26px;}
+.chevron{font-size:10px;color:var(--text-muted);transition:transform 0.2s;}
+.chevron.open{transform:rotate(90deg);}
+.project-body{border-top:1px solid var(--border);padding:18px 22px;background:var(--cream);}
+.body-meta{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.meta-sel{height:28px;font-size:12px;padding:0 7px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.del-header-row{display:grid;gap:8px;padding:0 10px 8px;grid-template-columns:1fr 100px 100px 1fr 24px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+.del-col-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;}
+.del-row{display:grid;gap:8px;align-items:center;padding:9px 10px;grid-template-columns:1fr 100px 100px 1fr 24px;border-radius:7px;margin-bottom:4px;background:var(--white);border:1px solid var(--border);}
+.del-row.done{opacity:0.5;}
+.del-name{font-size:13px;font-weight:500;}
+.stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;}
+.stage-btn{font-size:10px;padding:4px 4px;border-radius:5px;cursor:pointer;border:1px solid;font-weight:500;text-align:center;font-family:'DM Sans',sans-serif;transition:filter 0.1s;}
+.stage-btn.complete{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+.stage-btn.in-progress{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+.stage-btn.not-started{background:var(--cream-dark);color:var(--text-muted);border-color:var(--border);}
+.stage-btn:hover{filter:brightness(0.93);}
+.del-sel{height:28px;font-size:11px;padding:0 5px;width:100%;border:1px solid var(--border);border-radius:5px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.del-date{height:28px;font-size:11px;padding:0 5px;width:100%;border:1px solid var(--border);border-radius:5px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.del-date.overdue{border-color:#e8a0a0;background:var(--red-light);color:var(--red);}
+.del-date.at-risk{border-color:#e8c87a;background:var(--amber-light);color:var(--amber);}
+.del-delete{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:13px;padding:2px 4px;border-radius:4px;}
+.del-delete:hover{color:var(--red);background:var(--red-light);}
+.add-del-bar{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+.add-del-bar select,.add-del-bar input{height:30px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.btn-ghost{height:30px;padding:0 12px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--white);color:var(--accent);border:1px solid var(--accent-mid);font-family:'DM Sans',sans-serif;}
+.btn-ghost:hover{background:var(--accent-light);}
+.remove-btn{height:26px;padding:0 10px;font-size:11px;cursor:pointer;border-radius:5px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;margin-left:auto;}
+.remove-btn:hover{color:var(--red);border-color:#e8a0a0;background:var(--red-light);}
+.empty-state{text-align:center;padding:48px;color:var(--text-muted);font-size:13px;}
+.error-banner{background:var(--red-light);border:1px solid #e8a0a0;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
+.loading-screen{display:flex;flex-direction:column;align-items:center;padding:80px;gap:14px;}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--text-muted);}
+.notify-toast{position:fixed;bottom:24px;right:24px;background:#1a1714;color:#fff;font-size:12px;padding:10px 16px;border-radius:8px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.notify-toast.show{opacity:1;}
+@media(max-width:680px){
+  .main{padding:16px;}
+  .summary-row{grid-template-columns:repeat(3,1fr);}
+  .del-header-row{display:none;}
+  .del-row{grid-template-columns:1fr;gap:6px;padding:12px;}
+  .stage-btn{font-size:11px;padding:6px 2px;}
+  .add-fields{flex-direction:column;}
+  .fg input,.fg select{width:100%!important;}
+  .topbar{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="admin-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Admin access</div>
+    <div class="modal-sub">Enter the password to unlock admin controls.</div>
+    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitPw()"/>
+    <div class="modal-error" id="pw-error">Incorrect password.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closePwModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitPw()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="notify-toast" id="toast"></div>
+
+<div class="topbar">
+  <a class="back-link" href="/post-production">&#8592; Post Production</a>
+  <span class="topbar-center">Photo Post Production</span>
+  <div class="topbar-right">
+    <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
+    <button class="btn-icon" onclick="loadData()">&#8635;</button>
+    <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
+    <button class="btn-icon" id="admin-btn" onclick="toggleAdmin()">Admin</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="error-banner" id="error-banner"></div>
+  <div class="summary-row" id="summary-row"></div>
+
+  <div id="add-card" class="add-card" style="display:none;">
+    <div class="add-card-title">Add project</div>
+    <div class="add-fields">
+      <div class="fg"><label>Client name</label><input id="nc" type="text" placeholder="e.g. Sarah + James" style="width:165px;"/></div>
+      <div class="fg"><label>Wedding date</label><input id="nwd" type="date" style="width:148px;"/></div>
+      <div class="fg">
+        <label>Lead editor</label>
+        <select id="ne" style="width:130px;">
+          <option value="">— unassigned —</option>
+          <option>Tony</option><option>Lexi</option><option>Zyara</option>
+          <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
+        </select>
+      </div>
+      <button class="btn-add" onclick="addProject()">+ Add project</button>
+    </div>
+  </div>
+
+  <div id="pipeline-loading" class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
+
+  <div id="pipeline-content" style="display:none;">
+    <div class="filter-row">
+      <select id="fe" onchange="renderPipeline()">
+        <option value="">All editors</option>
+        <option>Tony</option><option>Lexi</option><option>Zyara</option>
+        <option>Nick</option><option>Nathan</option><option>Luke</option><option>Zach</option>
+      </select>
+      <select id="fr" onchange="renderPipeline()">
+        <option value="">All statuses</option>
+        <option value="overdue">Overdue</option>
+        <option value="at-risk">At risk</option>
+        <option value="ok">On track</option>
+      </select>
+      <span class="results-count" id="results-count"></span>
+    </div>
+    <div id="pipeline-list"></div>
+  </div>
+</div>
+
+<script>
+emailjs.init('3EteBapWG4a_hy5ol');
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const ADMIN_PW='Post-Production_2026!';
+const TONY_EMAIL='tonyellismartinez@gmail.com';
+const EDITORS=['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
+const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com'};
+const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Album design','Custom'];
+const STAGES=['Cull','Edit','Export','Deliver'];
+const STAGE_KEYS=['cull','edit','export','deliver'];
+const STATUS_CYCLE=['not-started','in-progress','complete'];
+
+let projects=[];let expanded={};let saving=false;let isAdmin=false;
+
+function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
+function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+function toggleAdmin(){
+  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();}
+  else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
+}
+function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
+function submitPw(){
+  if(document.getElementById('admin-pw').value===ADMIN_PW){
+    isAdmin=true;sessionStorage.setItem('tmw_photo_admin','1');closePwModal();applyAdmin();renderAll();
+  }else{document.getElementById('pw-error').style.display='block';document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus();}
+}
+function applyAdmin(){
+  document.getElementById('add-card').style.display=isAdmin?'block':'none';
+  document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
+  document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
+  renderAll();
+}
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+
+async function loadData(){
+  setSS('','Connecting...');
+  try{
+    const rows=await sbFetch('projects?id=eq.tmw_photo&select=data');
+    if(rows&&rows[0]){projects=rows[0].data.projects||[];}
+    else{await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_photo',data:{projects:[]}})}); projects=[];}
+    document.getElementById('pipeline-loading').style.display='none';
+    document.getElementById('pipeline-content').style.display='block';
+    setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    renderAll();
+  }catch(e){
+    setSS('error','Connection failed');
+    document.getElementById('pipeline-loading').style.display='none';
+    document.getElementById('pipeline-content').style.display='block';
+    showError('Connection failed: '+e.message);renderAll();
+  }
+}
+
+async function saveData(){
+  if(saving)return;saving=true;setSS('saving','Saving...');
+  try{
+    await sbFetch('projects?id=eq.tmw_photo',{method:'PATCH',body:JSON.stringify({data:{projects}})});
+    setSS('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setSS('error','Save failed');showError('Save failed.');}
+  saving=false;
+}
+
+async function sendNotification(client,deliverable,stage,editor){
+  const params={
+    client,deliverable,stage,editor:editor||'Unassigned',
+    time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+    to_email:TONY_EMAIL
+  };
+  try{
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:TONY_EMAIL});
+    if(editor&&EDITOR_EMAILS[editor]&&EDITOR_EMAILS[editor]!==TONY_EMAIL){
+      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:EDITOR_EMAILS[editor]});
+    }
+    showToast('✓ Notification sent');
+  }catch(e){console.warn('Email failed:',e);}
+}
+
+function getRisk(d){
+  if(!d)return'ok';
+  const now=new Date();now.setHours(0,0,0,0);
+  const diff=Math.round((new Date(d+'T12:00:00')-now)/86400000);
+  if(diff<0)return'overdue';if(diff<=5)return'at-risk';return'ok';
+}
+function getProjectRisk(p){
+  if(!p.deliverables||!p.deliverables.length)return'ok';
+  const risks=p.deliverables.map(d=>getRisk(d.dueDate));
+  if(risks.includes('overdue'))return'overdue';if(risks.includes('at-risk'))return'at-risk';return'ok';
+}
+function getProgress(deliverables){
+  if(!deliverables||!deliverables.length)return 0;
+  const total=deliverables.length*STAGE_KEYS.length;
+  const done=deliverables.reduce((a,d)=>a+STAGE_KEYS.filter(k=>d.stages[k]==='complete').length,0);
+  return total>0?Math.round((done/total)*100):0;
+}
+
+async function addProject(){
+  if(!isAdmin)return;
+  const client=document.getElementById('nc').value.trim();
+  if(!client){document.getElementById('nc').focus();return;}
+  const id=Date.now().toString();
+  projects.push({id,client,weddingDate:document.getElementById('nwd').value,editor:document.getElementById('ne').value,deliverables:[]});
+  expanded[id]=true;
+  document.getElementById('nc').value='';document.getElementById('nwd').value='';document.getElementById('ne').value='';
+  renderAll();await saveData();
+}
+async function deleteProject(pid){
+  if(!isAdmin)return;if(!confirm('Remove this project?'))return;
+  projects=projects.filter(x=>x.id!==pid);delete expanded[pid];renderAll();await saveData();
+}
+function toggleExpand(pid){expanded[pid]=!expanded[pid];renderPipeline();}
+async function addDeliverable(pid){
+  if(!isAdmin)return;
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const sel=document.getElementById('ds_'+pid);
+  const ci=document.getElementById('dc_'+pid);
+  let name=sel.value;
+  if(name==='Custom')name=ci?ci.value.trim():'';
+  if(!name)return;
+  const stages={};STAGE_KEYS.forEach(k=>stages[k]='not-started');
+  p.deliverables.push({id:Date.now().toString(),name,editor:'',dueDate:'',stages});
+  if(ci)ci.value='';renderAll();await saveData();
+}
+async function deleteDeliverable(pid,did){
+  if(!isAdmin)return;
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  p.deliverables=p.deliverables.filter(d=>d.id!==did);renderAll();await saveData();
+}
+async function cycleStage(pid,did,key){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);if(!d)return;
+  const i=STATUS_CYCLE.indexOf(d.stages[key]);
+  const newStatus=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
+  d.stages[key]=newStatus;
+  if(newStatus==='complete'){
+    sendNotification(p.client,d.name,STAGES[STAGE_KEYS.indexOf(key)],d.editor);
+  }
+  renderAll();await saveData();
+}
+async function setDelEditor(pid,did,val){
+  if(!isAdmin)return;
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);
+  if(d){d.editor=val;renderAll();await saveData();}
+}
+async function setDelDue(pid,did,val){
+  if(!isAdmin)return;
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const d=p.deliverables.find(x=>x.id===did);
+  if(d){d.dueDate=val;renderAll();await saveData();}
+}
+async function setProjectEditor(pid,val){
+  if(!isAdmin)return;
+  const p=projects.find(x=>x.id===pid);
+  if(p){p.editor=val;renderAll();await saveData();}
+}
+
+function renderSummary(){
+  const total=projects.length;
+  const totalDels=projects.reduce((a,p)=>a+p.deliverables.length,0);
+  const allDels=projects.flatMap(p=>p.deliverables);
+  const overdue=allDels.filter(d=>getRisk(d.dueDate)==='overdue').length;
+  const atRisk=allDels.filter(d=>getRisk(d.dueDate)==='at-risk').length;
+  const unassigned=allDels.filter(d=>!d.editor).length;
+  document.getElementById('summary-row').innerHTML=`
+    <div class="stat"><div class="stat-label">Projects</div><div class="stat-num">${total}</div></div>
+    <div class="stat"><div class="stat-label">Deliverables</div><div class="stat-num">${totalDels}</div></div>
+    <div class="stat"><div class="stat-label">Overdue</div><div class="stat-num ${overdue>0?'danger':''}">${overdue}</div></div>
+    <div class="stat"><div class="stat-label">At risk</div><div class="stat-num ${atRisk>0?'warn':''}">${atRisk}</div></div>
+    <div class="stat"><div class="stat-label">Unassigned</div><div class="stat-num ${unassigned>0?'warn':''}">${unassigned}</div></div>`;
+}
+
+function renderPipeline(){
+  const ef=document.getElementById('fe').value;
+  const rf=document.getElementById('fr').value;
+  let list=[...projects].filter(p=>{
+    if(ef&&p.editor!==ef)return false;
+    if(rf&&getProjectRisk(p)!==rf)return false;
+    return true;
+  }).sort((a,b)=>{const o={'overdue':0,'at-risk':1,'ok':2};return o[getProjectRisk(a)]-o[getProjectRisk(b)];});
+  document.getElementById('results-count').textContent=list.length+' project'+(list.length!==1?'s':'');
+  if(!list.length){document.getElementById('pipeline-list').innerHTML='<div class="empty-state">No projects yet.</div>';return;}
+  let html='';
+  list.forEach(p=>{
+    const risk=getProjectRisk(p);const prog=getProgress(p.deliverables);const isOpen=!!expanded[p.id];
+    const riskLabel=risk==='overdue'?'Overdue':risk==='at-risk'?'At risk':'On track';
+    const wd=p.weddingDate?new Date(p.weddingDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    html+=`<div class="project-card ${risk}">
+      <div class="project-header" onclick="toggleExpand('${p.id}')">
+        <span class="client-name">${p.client}</span>
+        <div class="header-pills">
+          ${!p.editor?'<span class="pill unassigned">Unassigned</span>':'<span class="pill neutral">'+p.editor+'</span>'}
+          ${wd?`<span class="pill neutral">${wd}</span>`:''}
+          <span class="pill neutral">${p.deliverables.length} del${p.deliverables.length!==1?'s':''}</span>
+          <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div><span class="progress-pct">${prog}%</span></div>
+          <span class="pill ${risk}">${riskLabel}</span>
+          <span class="chevron ${isOpen?'open':''}">&#9654;</span>
+        </div>
+      </div>`;
+    if(isOpen){
+      html+=`<div class="project-body"><div class="body-meta">`;
+      if(isAdmin){
+        html+=`<span style="font-size:11px;color:var(--text-muted);">Lead editor</span>
+          <select class="meta-sel" onchange="setProjectEditor('${p.id}',this.value)">
+            <option value=""${!p.editor?' selected':''}>— unassigned —</option>
+            ${EDITORS.map(e=>`<option${p.editor===e?' selected':''}>${e}</option>`).join('')}
+          </select>`;
+      }else{html+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
+      if(wd)html+=`<span style="font-size:12px;color:var(--text-muted);">${wd}</span>`;
+      if(isAdmin)html+=`<button class="remove-btn" onclick="deleteProject('${p.id}')">Remove</button>`;
+      html+=`</div>`;
+      if(p.deliverables.length){
+        html+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Editor</span><span class="del-col-label">Due</span><span class="del-col-label">Stages</span><span></span></div>`;
+        p.deliverables.forEach(d=>{
+          const allDone=STAGE_KEYS.every(k=>d.stages[k]==='complete');
+          const dRisk=getRisk(d.dueDate);
+          html+=`<div class="del-row${allDone?' done':''}">
+            <span class="del-name">${d.name}</span>`;
+          if(isAdmin){
+            html+=`<select class="del-sel" onchange="setDelEditor('${p.id}','${d.id}',this.value)">
+              <option value=""${!d.editor?' selected':''}>— assign —</option>
+              ${EDITORS.map(e=>`<option${d.editor===e?' selected':''}>${e}</option>`).join('')}
+            </select>
+            <input type="date" class="del-date ${d.dueDate?dRisk:''}" value="${d.dueDate||''}" onchange="setDelDue('${p.id}','${d.id}',this.value)"/>`;
+          }else{
+            const ds=d.dueDate?new Date(d.dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+            html+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>
+            <span style="font-size:12px;color:${dRisk!=='ok'?'var(--red)':'var(--text-muted)'};">${ds}</span>`;
+          }
+          html+=`<div class="stage-grid">${STAGE_KEYS.map((k,i)=>`<button class="stage-btn ${d.stages[k]}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${STAGES[i]}</button>`).join('')}</div>`;
+          html+=isAdmin?`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">✕</button>`:`<span></span>`;
+          html+=`</div>`;
+        });
+      }else{html+=`<div style="font-size:12px;color:var(--text-muted);padding:10px;font-style:italic;">No deliverables yet.</div>`;}
+      if(isAdmin){
+        html+=`<div class="add-del-bar">
+          <select id="ds_${p.id}" onchange="document.getElementById('dcc_${p.id}').style.display=this.value==='Custom'?'flex':'none'">
+            ${DELIVERABLE_OPTIONS.map(o=>`<option>${o}</option>`).join('')}
+          </select>
+          <div id="dcc_${p.id}" style="display:none;align-items:center;"><input id="dc_${p.id}" type="text" placeholder="Custom name" style="width:155px;"/></div>
+          <button class="btn-ghost" onclick="addDeliverable('${p.id}')">+ Add deliverable</button>
+        </div>`;
+      }
+      html+=`</div>`;
+    }
+    html+=`</div>`;
+  });
+  document.getElementById('pipeline-list').innerHTML=html;
+}
+
+function renderAll(){renderSummary();renderPipeline();}
+if(sessionStorage.getItem('tmw_photo_admin')==='1'){isAdmin=true;applyAdmin();}
+loadData();setInterval(loadData,30000);
+</script>
+</body>
+</html>
