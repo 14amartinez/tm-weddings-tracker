@@ -242,7 +242,53 @@ async function loadData(){
   try{
     const rows=await sbFetch('projects?id=eq.tmw_photo&select=data');
     if(rows&&rows[0]){projects=rows[0].data.projects||[];}
-    else{await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_photo',data:{projects:[]}})}); projects=[];}
+    else{
+      function stages(){return{cull:'not-started',edit:'not-started',export:'not-started',deliver:'not-started'};}
+      const seed=[
+        {id:'p1',client:'Casey Gruver',weddingDate:'2026-04-11',editor:'',deliverables:[
+          {id:'p1d1',name:'Sneak peek',editor:'',dueDate:'2026-04-12',stages:stages()},
+          {id:'p1d2',name:'Photo gallery',editor:'',dueDate:'2026-04-27',stages:stages()},
+          {id:'p1d3',name:'Photo book',editor:'',dueDate:'2026-05-27',stages:stages()}
+        ]},
+        {id:'p2',client:'Liz Scialpi',weddingDate:'2026-04-18',editor:'',deliverables:[
+          {id:'p2d1',name:'Photo gallery',editor:'',dueDate:'2026-05-04',stages:stages()},
+          {id:'p2d2',name:'Photo book',editor:'',dueDate:'2026-06-04',stages:stages()}
+        ]},
+        {id:'p3',client:'Elizabeth Forget',weddingDate:'2026-04-19',editor:'',deliverables:[
+          {id:'p3d1',name:'Photo gallery',editor:'',dueDate:'2026-05-04',stages:stages()},
+          {id:'p3d2',name:'Photo book',editor:'',dueDate:'2026-06-04',stages:stages()}
+        ]},
+        {id:'p4',client:'Francesca Kurtzi',weddingDate:'2026-04-24',editor:'',deliverables:[
+          {id:'p4d1',name:'Photo gallery',editor:'',dueDate:'2026-05-09',stages:stages()},
+          {id:'p4d2',name:'Photo book',editor:'',dueDate:'2026-06-09',stages:stages()}
+        ]},
+        {id:'p5',client:'Mallory Johnson',weddingDate:'2026-04-25',editor:'',deliverables:[
+          {id:'p5d1',name:'Photo gallery',editor:'',dueDate:'2026-05-11',stages:stages()},
+          {id:'p5d2',name:'Photo book',editor:'',dueDate:'2026-06-11',stages:stages()}
+        ]},
+        {id:'p6',client:'Melissa DeShaw',weddingDate:'2026-04-25',editor:'',deliverables:[
+          {id:'p6d1',name:'Photo gallery',editor:'',dueDate:'2026-05-11',stages:stages()},
+          {id:'p6d2',name:'Photo book',editor:'',dueDate:'2026-06-11',stages:stages()}
+        ]},
+        {id:'p7',client:'Zee Haroon',weddingDate:'2026-05-03',editor:'',deliverables:[
+          {id:'p7d1',name:'Photo gallery',editor:'',dueDate:'2026-05-18',stages:stages()},
+          {id:'p7d2',name:'Photo book',editor:'',dueDate:'2026-06-18',stages:stages()}
+        ]},
+        {id:'p8',client:'Julia Swayser',weddingDate:'2026-05-16',editor:'',deliverables:[
+          {id:'p8d1',name:'Sneak peek',editor:'',dueDate:'2026-05-17',stages:stages()},
+          {id:'p8d2',name:'Photo gallery',editor:'',dueDate:'2026-06-01',stages:stages()},
+          {id:'p8d3',name:'Photo book',editor:'',dueDate:'2026-07-01',stages:stages()}
+        ]},
+        {id:'p9',client:'PJ Knight',weddingDate:'2026-05-17',editor:'',deliverables:[
+          {id:'p9d1',name:'Photo gallery',editor:'',dueDate:'2026-06-15',stages:stages()}
+        ]},
+        {id:'p10',client:'Bryce Galczynski',weddingDate:'2026-05-30',editor:'',deliverables:[
+          {id:'p10d1',name:'Photo gallery',editor:'',dueDate:'2026-06-15',stages:stages()}
+        ]}
+      ];
+      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_photo',data:{projects:seed}})});
+      projects=seed;
+    }
     document.getElementById('pipeline-loading').style.display='none';
     document.getElementById('pipeline-content').style.display='block';
     setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
