@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Client Deliverables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;
+  --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
+  --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
+  --green:#3d6b45;--green-light:#eaf2eb;--amber:#8a6020;--amber-light:#fdf3e3;
+  --red:#8b2e2e;--red-light:#fdeaea;--white:#fff;--shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;font-size:13px;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.back-link{font-size:12px;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+.back-link:hover{color:var(--accent);}
+.topbar-center{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+#sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);}
+.sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
+.btn-sm{height:30px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-sm:hover{color:var(--accent);border-color:var(--accent-mid);}
+.admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:360px;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.modal input{width:100%;height:38px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;}
+.modal input:focus{border-color:var(--accent-mid);}
+.modal-error{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
+.modal-btns{display:flex;gap:8px;}
+.btn-primary{height:36px;padding:0 18px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;flex:1;transition:background 0.15s;}
+.btn-primary:hover{background:#7a5240;}
+.btn-cancel{height:36px;padding:0 14px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;}
+.main{max-width:1300px;margin:0 auto;padding:24px;}
+.page-header{margin-bottom:20px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text-muted);}
+.add-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:20px;}
+.add-card-label{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;}
+.add-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+.fg input,.fg select{height:34px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.fg input:focus,.fg select:focus{border-color:var(--accent-mid);background:var(--white);}
+.btn-add{height:34px;padding:0 16px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;margin-top:18px;}
+.btn-add:hover{background:#7a5240;}
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+thead th{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;background:var(--cream-dark);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--cream);}
+td{padding:10px 14px;vertical-align:middle;}
+.client-name-cell{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;white-space:nowrap;}
+.date-cell{font-size:12px;color:var(--text-secondary);white-space:nowrap;}
+.due-cell{position:relative;}
+.due-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid;white-space:nowrap;cursor:default;}
+.due-pill.ok{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+.due-pill.at-risk{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+.due-pill.overdue{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+.due-pill.empty{background:var(--cream-dark);color:var(--text-muted);border-color:var(--border);}
+.due-edit{display:none;position:absolute;top:50%;left:0;transform:translateY(-50%);z-index:10;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:4px;box-shadow:var(--shadow);}
+.due-cell:hover .due-edit{display:block;}
+.due-edit input{height:28px;font-size:11px;padding:0 6px;border:none;outline:none;font-family:'DM Sans',sans-serif;background:transparent;color:var(--text-primary);}
+.delete-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:13px;padding:3px 5px;border-radius:4px;transition:all 0.15s;}
+.delete-btn:hover{color:var(--red);background:var(--red-light);}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--text-muted);}
+.error-banner{background:var(--red-light);border:1px solid #e8a0a0;border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none;}
+.na-cell{font-size:11px;color:var(--text-muted);font-style:italic;}
+.tooltip{position:relative;}
+.tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1a1714;color:#fff;font-size:10px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:20;}
+@media(max-width:640px){
+  .main{padding:16px;}
+  .add-fields{flex-direction:column;}
+  .fg input,.fg select{width:100%!important;}
+  .topbar{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="admin-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Admin access</div>
+    <div class="modal-sub">Enter the password to unlock admin controls.</div>
+    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitPw()"/>
+    <div class="modal-error" id="pw-error">Incorrect password.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closePwModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitPw()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="topbar">
+  <a class="back-link" href="/post-production">&#8592; Post Production</a>
+  <span class="topbar-center">Client Deliverables</span>
+  <div class="topbar-right">
+    <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
+    <button class="btn-sm" onclick="loadData()">&#8635;</button>
+    <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
+    <button class="btn-sm" id="admin-btn" onclick="toggleAdmin()">Admin</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="error-banner" id="error-banner"></div>
+  <div class="page-header">
+    <div class="page-title">Client Deliverables</div>
+    <div class="page-sub">All active clients with deliverable due dates. Dates auto-calculate from wedding date. Click any date to override.</div>
+  </div>
+
+  <div id="add-card" class="add-card" style="display:none;">
+    <div class="add-card-label">Add client</div>
+    <div class="add-fields">
+      <div class="fg"><label>Client name</label><input id="nc" type="text" placeholder="e.g. Casey Gruver" style="width:160px;"/></div>
+      <div class="fg"><label>Wedding date</label><input id="nwd" type="date" style="width:148px;" onchange="previewDates()"/></div>
+      <div class="fg"><label>Sneak peek (optional)</label><input id="nsp" type="date" style="width:148px;"/></div>
+      <div class="fg"><label>Content creation (optional)</label><input id="ncc" type="date" style="width:148px;"/></div>
+      <button class="btn-add" onclick="addClient()">+ Add client</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
+  <div id="table-wrap" class="table-wrap" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Wedding date</th>
+          <th>Sneak peek</th>
+          <th>Photo gallery</th>
+          <th>Photo book</th>
+          <th>Highlight</th>
+          <th>Doc</th>
+          <th>Video book</th>
+          <th>Content creation</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+emailjs.init('3EteBapWG4a_hy5ol');
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const ADMIN_PW='Post-Production_2026!';
+const TONY_EMAIL='tonyellismartinez@gmail.com';
+
+// Deliverable columns
+const COLS=[
+  {key:'sneakPeek',label:'Sneak peek',auto:false},
+  {key:'photoGallery',label:'Photo gallery',auto:true,weeks:2,photo:true},
+  {key:'photoBook',label:'Photo book',auto:true,weeks:2,photo:true},
+  {key:'highlight',label:'Highlight',auto:true,weeks:6,photo:false},
+  {key:'doc',label:'Doc',auto:true,weeks:6,photo:false},
+  {key:'videoBook',label:'Video book',auto:true,weeks:6,photo:false},
+  {key:'contentCreation',label:'Content creation',auto:false}
+];
+
+let clients=[];
+let isAdmin=false;
+let saving=false;
+
+function setSS(state,text){
+  document.getElementById('sync-dot').className='sync-dot '+state;
+  document.getElementById('sync-text').textContent=text;
+}
+function showError(msg){
+  const b=document.getElementById('error-banner');
+  b.textContent=msg;b.style.display='block';
+  setTimeout(()=>b.style.display='none',7000);
+}
+
+function toggleAdmin(){
+  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_del_admin');applyAdmin();}
+  else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
+}
+function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
+function submitPw(){
+  if(document.getElementById('admin-pw').value===ADMIN_PW){
+    isAdmin=true;sessionStorage.setItem('tmw_del_admin','1');closePwModal();applyAdmin();renderTable();
+  }else{document.getElementById('pw-error').style.display='block';document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus();}
+}
+function applyAdmin(){
+  document.getElementById('add-card').style.display=isAdmin?'block':'none';
+  document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
+  document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
+}
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+
+async function loadData(){
+  setSS('','Connecting...');
+  try{
+    const rows=await sbFetch('projects?id=eq.tmw_deliverables&select=data');
+    if(rows&&rows[0]){clients=rows[0].data.clients||[];}
+    else{await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_deliverables',data:{clients:[]}})}); clients=[];}
+    document.getElementById('loading').style.display='none';
+    document.getElementById('table-wrap').style.display='block';
+    setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    renderTable();
+  }catch(e){
+    setSS('error','Connection failed');
+    document.getElementById('loading').style.display='none';
+    document.getElementById('table-wrap').style.display='block';
+    showError('Connection failed: '+e.message);
+  }
+}
+
+async function saveData(){
+  if(saving)return;saving=true;setSS('saving','Saving...');
+  try{
+    await sbFetch('projects?id=eq.tmw_deliverables',{method:'PATCH',body:JSON.stringify({data:{clients}})});
+    setSS('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setSS('error','Save failed');showError('Save failed.');}
+  saving=false;
+}
+
+// Date helpers
+function nextMonday(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const day=d.getDay();
+  const diff=day===1?7:(8-day)%7;
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().split('T')[0];
+}
+function addWeeks(dateStr,weeks){
+  const d=new Date(dateStr+'T12:00:00');
+  d.setDate(d.getDate()+weeks*7);
+  return d.toISOString().split('T')[0];
+}
+function calcDueDates(weddingDate){
+  if(!weddingDate)return{};
+  const mon=nextMonday(weddingDate);
+  return{
+    photoGallery:addWeeks(mon,2),
+    photoBook:addWeeks(mon,2),
+    highlight:addWeeks(mon,6),
+    doc:addWeeks(mon,6),
+    videoBook:addWeeks(mon,6)
+  };
+}
+function getRisk(d){
+  if(!d)return'empty';
+  const now=new Date();now.setHours(0,0,0,0);
+  const diff=Math.round((new Date(d+'T12:00:00')-now)/86400000);
+  if(diff<0)return'overdue';
+  if(diff<=5)return'at-risk';
+  return'ok';
+}
+function fmtDate(d){
+  if(!d)return null;
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+async function addClient(){
+  const name=document.getElementById('nc').value.trim();
+  if(!name){document.getElementById('nc').focus();return;}
+  const wd=document.getElementById('nwd').value;
+  const auto=calcDueDates(wd);
+  const sp=document.getElementById('nsp').value;
+  const cc=document.getElementById('ncc').value;
+  clients.push({
+    id:Date.now().toString(),name,weddingDate:wd,
+    sneakPeek:sp||'',
+    photoGallery:auto.photoGallery||'',
+    photoBook:auto.photoBook||'',
+    highlight:auto.highlight||'',
+    doc:auto.doc||'',
+    videoBook:auto.videoBook||'',
+    contentCreation:cc||''
+  });
+  document.getElementById('nc').value='';
+  document.getElementById('nwd').value='';
+  document.getElementById('nsp').value='';
+  document.getElementById('ncc').value='';
+  renderTable();await saveData();
+}
+
+async function deleteClient(id){
+  if(!isAdmin)return;
+  if(!confirm('Remove this client?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  renderTable();await saveData();
+}
+
+async function updateDate(id,key,val){
+  const c=clients.find(x=>x.id===id);
+  if(!c)return;
+  c[key]=val;
+  renderTable();await saveData();
+}
+
+function renderTable(){
+  const sorted=[...clients].sort((a,b)=>{
+    if(!a.weddingDate&&!b.weddingDate)return 0;
+    if(!a.weddingDate)return 1;
+    if(!b.weddingDate)return -1;
+    return new Date(a.weddingDate)-new Date(b.weddingDate);
+  });
+
+  let html='';
+  if(!sorted.length){
+    html=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">No clients yet${isAdmin?' — add one above':''}</td></tr>`;
+  } else {
+    sorted.forEach(c=>{
+      html+=`<tr>
+        <td class="client-name-cell">${c.name}</td>
+        <td class="date-cell">${c.weddingDate?fmtDate(c.weddingDate):'—'}</td>`;
+      COLS.forEach(col=>{
+        const val=c[col.key];
+        const risk=getRisk(val);
+        const display=val?fmtDate(val):'Set date';
+        if(isAdmin){
+          html+=`<td class="due-cell">
+            <span class="due-pill ${risk}">${display}</span>
+            <div class="due-edit"><input type="date" value="${val||''}" onchange="updateDate('${c.id}','${col.key}',this.value)" onclick="event.stopPropagation()"/></div>
+          </td>`;
+        } else {
+          html+=`<td><span class="due-pill ${risk}">${val?display:'—'}</span></td>`;
+        }
+      });
+      html+=`<td>${isAdmin?`<button class="delete-btn" onclick="deleteClient('${c.id}')">✕</button>`:''}</td>`;
+      html+=`</tr>`;
+    });
+  }
+  document.getElementById('table-body').innerHTML=html;
+}
+
+if(sessionStorage.getItem('tmw_del_admin')==='1'){isAdmin=true;applyAdmin();}
+loadData();
+setInterval(loadData,30000);
+</script>
+</body>
+</html>
