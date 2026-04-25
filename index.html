@@ -208,13 +208,9 @@
 
     <div class="quick-group">
       <div class="quick-group-header"><span class="quick-group-icon">💍</span><span class="quick-group-title">Wedding Day Info</span></div>
-      <div class="quick-links">
+      <div class="quick-links" id="wdi-quick-links">
         <a class="quick-link live-link" href="/weddings/">All Weddings <span class="ql-badge live">Live</span></a>
-        <a class="quick-link live-link" href="/weddings/client.html?id=w1">Casey Gruver — Apr 11 <span class="ql-badge live">Live</span></a>
-        <a class="quick-link live-link" href="/weddings/client.html?id=w2">Liz Scialpi — Apr 18 <span class="ql-badge live">Live</span></a>
-        <a class="quick-link live-link" href="/weddings/client.html?id=w3">Elizabeth Forget — Apr 19 <span class="ql-badge live">Live</span></a>
-        <a class="quick-link live-link" href="/weddings/client.html?id=w4">Francesca Kurtz — Apr 24 <span class="ql-badge live">Live</span></a>
-        <a class="quick-link live-link" href="/weddings/">View all 56 weddings → <span class="ql-badge live">Live</span></a>
+        <a class="quick-link" href="#" style="opacity:0.5;cursor:default;">Loading upcoming...</a>
       </div>
     </div>
 
@@ -304,5 +300,35 @@
   </div>
 </main>
 </div>
+<script>
+(async function(){
+  try{
+    const res=await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
+      headers:{'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp','Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'}
+    });
+    const rows=await res.json();
+    if(!rows||!rows[0])return;
+    const now=new Date();now.setHours(0,0,0,0);
+    const upcoming=(rows[0].data.weddings||[])
+      .filter(w=>w.date&&new Date(w.date+'T12:00:00')>=now)
+      .sort((a,b)=>new Date(a.date)-new Date(b.date))
+      .slice(0,5);
+    const container=document.getElementById('wdi-quick-links');
+    container.innerHTML=`<a class="quick-link live-link" href="/weddings/" style="color:#1a2b2b!important;font-weight:600!important;">All Weddings <span class="ql-badge live">Live</span></a>`;
+    if(!upcoming.length){
+      container.innerHTML+=`<a class="quick-link" href="#" style="opacity:0.5;cursor:default;">No upcoming weddings</a>`;
+    } else {
+      upcoming.forEach(w=>{
+        const d=new Date(w.date+'T12:00:00');
+        const label=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        container.innerHTML+=`<a class="quick-link live-link" href="/weddings/client.html?id=${w.id}" style="color:#1a2b2b!important;font-weight:600!important;">${w.client} <span style="color:#5a7070;font-weight:400;">— ${label}</span> <span class="ql-badge live">Live</span></a>`;
+      });
+    }
+    container.innerHTML+=`<a class="quick-link live-link" href="/weddings/" style="color:#357e7e!important;font-weight:500!important;">View all weddings →</a>`;
+  }catch(e){
+    // fail silently — static fallback already shown
+  }
+})();
+</script>
 </body>
 </html>
