@@ -52,7 +52,7 @@
   .tmwr .banner-sub { font-family: 'Jost', sans-serif !important; font-size: 0.76rem !important; color: rgba(255,255,255,0.55) !important; max-width: 480px; line-height: 1.5 !important; }
   .tmwr .banner-tag { flex-shrink: 0; background: rgba(74,172,172,0.2); border: 1px solid rgba(74,172,172,0.3); color: #4aacac !important; font-family: 'Jost', sans-serif !important; font-size: 0.62rem !important; font-weight: 600 !important; letter-spacing: 0.14em !important; text-transform: uppercase !important; padding: 5px 12px; border-radius: 20px; }
 
-  .tmwr .quick-access-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .tmwr .quick-access-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
   .tmwr .quick-group { background: #ffffff; border-radius: 14px; border: 1px solid #d4ecec; overflow: hidden; box-shadow: 0 2px 16px rgba(74,172,172,0.10); }
   .tmwr .quick-group-header { display: flex; align-items: center; gap: 8px; padding: 11px 16px; background: linear-gradient(135deg, #e8f5f5, #f0fafa); border-bottom: 1px solid #d4ecec; }
   .tmwr .quick-group-icon { font-size: 0.95rem; }
@@ -117,8 +117,6 @@
     .tmwr .main { padding: 20px 20px 60px; }
     .tmwr .welcome-banner { padding: 18px 20px; gap: 14px; }
     .tmwr .quick-access-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .tmwr .resource-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .tmwr .resource-card.featured { grid-column: span 2 !important; flex-direction: row !important; }
   }
   @media (max-width: 640px) {
     .tmwr .hero { padding: 14px 16px 12px; }
@@ -209,6 +207,18 @@
     </div>
 
     <div class="quick-group">
+      <div class="quick-group-header"><span class="quick-group-icon">💍</span><span class="quick-group-title">Wedding Day Info</span></div>
+      <div class="quick-links">
+        <a class="quick-link live-link" href="/weddings/">All Weddings <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/weddings/client.html?id=w1">Casey Gruver — Apr 11 <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/weddings/client.html?id=w2">Liz Scialpi — Apr 18 <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/weddings/client.html?id=w3">Elizabeth Forget — Apr 19 <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/weddings/client.html?id=w4">Francesca Kurtz — Apr 24 <span class="ql-badge live">Live</span></a>
+        <a class="quick-link live-link" href="/weddings/">View all 56 weddings → <span class="ql-badge live">Live</span></a>
+      </div>
+    </div>
+
+    <div class="quick-group">
       <div class="quick-group-header"><span class="quick-group-icon">⚙️</span><span class="quick-group-title">General</span></div>
       <div class="quick-links">
         <a class="quick-link" href="#">Wedding Day Timeline Guide <span class="ql-badge">Soon</span></a>
@@ -243,8 +253,14 @@
       <div class="card-cta">Open Portal &rarr;</div>
     </a>
 
-    <div class="resource-card coming">
-      <div class="card-icon">🎯</div>
+    <a class="resource-card featured live" href="/weddings/" style="animation-delay:0.12s;">
+      <div class="card-icon">💍</div>
+      <div class="card-body">
+        <div class="card-name">Wedding Day Info <span class="live-badge">&#10003; Live</span></div>
+        <div class="card-desc">Every client's wedding day details in one place — vendors, locations, team assignments, shot list, and day timeline. Click any wedding to open their full info sheet.</div>
+      </div>
+      <div class="card-cta">View Weddings &rarr;</div>
+    </a>
       <div class="card-body"><div class="card-name">Shot Lists &amp; Coverage Guides</div><div class="card-desc">Master wedding shot list, ceremony, reception, getting ready, details, and family formals.</div></div>
       <div class="card-footer"><span class="card-count">6 guides</span><span class="coming-badge">Coming Soon</span></div>
     </div>
