@@ -117,7 +117,7 @@ body{font-family:var(--font-sans);display:flex;flex-direction:column;max-width:4
     <div class="progress-pct" id="ppct">0%</div>
   </div>
   <div class="progress-count" id="pleft">0 of 0 captured</div>
-  <div style="font-size:9px;color:rgba(122,110,104,0.6);margin-top:2px;">auto-saved locally to this device</div>
+  <div style="font-size:9px;color:rgba(122,110,104,0.6);margin-top:2px;"><span id="sync-badge" style="color:rgba(74,172,74,0.8);">Live · connecting...</span></div>
 </div>
 
 <div class="view-toggle">
@@ -442,7 +442,7 @@ const shotGroups=[
   ]},
 ];
 
-const STORAGE_KEY='tmw_shot_caller_martindale_v1';
+const STORAGE_KEY='tmw_shot_martindale';
 const eventLog=[];
 let currentView='group';
 let locCollapsed={};
@@ -616,8 +616,7 @@ function addShot(){
   closeModal();saveState();renderShots();
 }
 
-loadState();
-renderShots();
+loadState().then(()=>renderShots());
 </script>
 </body>
 </html>
