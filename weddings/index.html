@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Wedding Day Info</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;
+  --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
+  --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
+  --green:#3d6b45;--green-light:#eaf2eb;--white:#fff;
+  --shadow:0 4px 16px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.back-link{font-size:12px;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+.back-link:hover{color:var(--accent);}
+.topbar-center{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+#sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);}
+.sync-dot.ok{background:var(--green);}
+.sync-dot.saving{background:#8a6020;}
+.sync-dot.error{background:#8b2e2e;}
+.btn-sm{height:30px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-sm:hover{color:var(--accent);border-color:var(--accent-mid);}
+.admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:380px;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.modal input{width:100%;height:38px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;}
+.modal input:focus{border-color:var(--accent-mid);}
+.modal-error{font-size:12px;color:#8b2e2e;margin-bottom:10px;display:none;}
+.modal-btns{display:flex;gap:8px;}
+.btn-primary{height:36px;padding:0 18px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;flex:1;transition:background 0.15s;}
+.btn-primary:hover{background:#7a5240;}
+.btn-cancel{height:36px;padding:0 14px;font-size:12px;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;}
+.main{max-width:1100px;margin:0 auto;padding:32px 24px;}
+.page-hero{margin-bottom:32px;}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;margin-bottom:6px;}
+.page-sub{font-size:13px;color:var(--text-muted);}
+.add-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:28px;}
+.add-card-label{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;}
+.add-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+.fg input,.fg select{height:34px;font-size:12px;padding:0 8px;border:1px solid var(--border);border-radius:6px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;}
+.fg input:focus,.fg select:focus{border-color:var(--accent-mid);background:var(--white);}
+.btn-add{height:34px;padding:0 16px;font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;margin-top:18px;}
+.btn-add:hover{background:#7a5240;}
+.filter-row{display:flex;gap:8px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+.filter-row input{height:32px;font-size:12px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;width:220px;}
+.results-count{font-size:12px;color:var(--text-muted);margin-left:auto;}
+.weddings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.wedding-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s;text-decoration:none;color:inherit;display:flex;flex-direction:column;position:relative;}
+.wedding-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow);transform:translateY(-2px);}
+.wedding-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
+.wedding-card:hover::before{transform:scaleX(1);}
+.card-date-bar{background:var(--accent);color:var(--white);padding:10px 16px;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;}
+.card-body{padding:18px 16px;flex:1;}
+.card-client{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;margin-bottom:6px;line-height:1.2;}
+.card-venue{font-size:12px;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:5px;}
+.card-shooters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.shooter-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--cream-dark);color:var(--text-secondary);border:1px solid var(--border);}
+.shooter-tag.lead{background:var(--accent-light);color:var(--accent);border-color:var(--accent-mid);}
+.card-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-pkg{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;}
+.card-arrow{width:26px;height:26px;background:var(--cream-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);transition:all 0.2s;}
+.wedding-card:hover .card-arrow{background:var(--accent);color:var(--white);}
+.upcoming-section{margin-bottom:32px;}
+.section-header{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-header::after{content:'';flex:1;height:1px;background:var(--border);}
+.empty-state{text-align:center;padding:48px;color:var(--text-muted);font-size:13px;}
+.empty-icon{font-family:'Cormorant Garamond',serif;font-size:36px;margin-bottom:10px;color:var(--border);}
+.error-banner{background:#fdeaea;border:1px solid #e8a0a0;border-radius:8px;padding:10px 14px;font-size:12px;color:#8b2e2e;margin-bottom:14px;display:none;}
+.loading-screen{display:flex;flex-direction:column;align-items:center;padding:80px;gap:14px;}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent-mid);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--text-muted);}
+@media(max-width:640px){
+  .main{padding:16px;}
+  .weddings-grid{grid-template-columns:1fr;}
+  .topbar{padding:0 16px;}
+  .add-fields{flex-direction:column;}
+  .fg input,.fg select{width:100%!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="admin-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">Admin access</div>
+    <div class="modal-sub">Tony or Brynn — enter the password to add and edit weddings.</div>
+    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitPw()"/>
+    <div class="modal-error" id="pw-error">Incorrect password.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closePwModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitPw()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="topbar">
+  <a class="back-link" href="/">&#8592; Team Resources</a>
+  <span class="topbar-center">Wedding Day Info</span>
+  <div class="topbar-right">
+    <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
+    <button class="btn-sm" onclick="loadData()">&#8635;</button>
+    <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
+    <button class="btn-sm" id="admin-btn" onclick="toggleAdmin()">Admin</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="error-banner" id="error-banner"></div>
+  <div class="page-hero">
+    <div class="eyebrow">TM Weddings</div>
+    <div class="page-title">Wedding Day Info</div>
+    <div class="page-sub">All client wedding details — vendors, timeline, shooters, shot list. Click any wedding to open its full info sheet.</div>
+  </div>
+
+  <div id="add-card" class="add-card" style="display:none;">
+    <div class="add-card-label">Add wedding</div>
+    <div class="add-fields">
+      <div class="fg"><label>Client name(s)</label><input id="nc" type="text" placeholder="e.g. Casey + Nick" style="width:170px;"/></div>
+      <div class="fg"><label>Wedding date</label><input id="nwd" type="date" style="width:150px;"/></div>
+      <div class="fg"><label>Venue</label><input id="nv" type="text" placeholder="e.g. Bear Creek" style="width:170px;"/></div>
+      <div class="fg">
+        <label>Package</label>
+        <select id="np" style="width:160px;">
+          <option value="Photo + Video">Photo + Video</option>
+          <option value="Photo only">Photo only</option>
+          <option value="Video only">Video only</option>
+          <option value="Photo + Video + Content">Photo + Video + Content</option>
+        </select>
+      </div>
+      <button class="btn-add" onclick="addWedding()">+ Add wedding</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading weddings...</div></div>
+
+  <div id="content" style="display:none;">
+    <div class="filter-row">
+      <input type="text" id="search" placeholder="Search client or venue..." oninput="renderWeddings()"/>
+      <span class="results-count" id="results-count"></span>
+    </div>
+    <div id="upcoming-section"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const ADMIN_PW='Post-Production_2026!';
+
+let weddings=[];
+let isAdmin=false;
+
+function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
+function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
+function toggleAdmin(){
+  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_wdi_admin');applyAdmin();}
+  else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
+}
+function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
+function submitPw(){
+  if(document.getElementById('admin-pw').value===ADMIN_PW){
+    isAdmin=true;sessionStorage.setItem('tmw_wdi_admin','1');closePwModal();applyAdmin();renderWeddings();
+  }else{document.getElementById('pw-error').style.display='block';document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus();}
+}
+function applyAdmin(){
+  document.getElementById('add-card').style.display=isAdmin?'block':'none';
+  document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
+  document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
+}
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+
+const SEED_WEDDINGS=[
+  {
+    "id": "w1",
+    "client": "Casey Gruver",
+    "date": "2026-04-11",
+    "venue": "Applecross Country Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 82,
+    "package_code": "CN0411",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "Zyara",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w2",
+    "client": "Liz Scialpi",
+    "date": "2026-04-18",
+    "venue": "The Banks - Pittston",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 140,
+    "package_code": "LM0418",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "Zyara",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w3",
+    "client": "Elizabeth Forget",
+    "date": "2026-04-19",
+    "venue": "Folino Estate",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 28,
+    "package_code": "EM0419",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w4",
+    "client": "Francesca Kurtz",
+    "date": "2026-04-24",
+    "venue": "Terrain at Styers",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 104,
+    "package_code": "FJ0424",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w5",
+    "client": "Mallory Johnson",
+    "date": "2026-04-25",
+    "venue": "The Wilbur",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 32,
+    "package_code": "ML0425",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Brynn needs to lead",
+    "deliverables": ""
+  },
+  {
+    "id": "w6",
+    "client": "Melissa DeShaw",
+    "date": "2026-04-25",
+    "venue": "Folino Estate",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 28,
+    "package_code": "MJ0425",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "Kaitlyn Esteves",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w7",
+    "client": "Zee Haroon / Maggie Driscoll",
+    "date": "2026-05-03",
+    "venue": "Wilbur Mansion",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Content",
+    "miles": 32,
+    "package_code": "MZ0503",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Lexi",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Tony and Lexi \u2014 content creation",
+    "deliverables": ""
+  },
+  {
+    "id": "w8",
+    "client": "Matthew Patterson-Curry",
+    "date": "",
+    "venue": "",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "TBD",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "May 8-10, 2026",
+    "deliverables": ""
+  },
+  {
+    "id": "w9",
+    "client": "Julia Swayser",
+    "date": "2026-05-16",
+    "venue": "Parque at Ridley Creek",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 112,
+    "package_code": "JE0516",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w10",
+    "client": "PJ Knight",
+    "date": "2026-05-17",
+    "venue": "",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w11",
+    "client": "Bryce Galczynski",
+    "date": "2026-05-30",
+    "venue": "Olde Homestead Golf Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 30,
+    "package_code": "JB0530",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "PJ",
+      "secondVideo": "Luke",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Tony leads",
+    "deliverables": ""
+  },
+  {
+    "id": "w12",
+    "client": "Emma Diamond / Keith Golden",
+    "date": "2026-05-30",
+    "venue": "Meredith Manor",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 54,
+    "package_code": "EK0530",
+    "team": {
+      "leadPhoto": "Nolan",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Chris",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Lexi leads",
+    "deliverables": ""
+  },
+  {
+    "id": "w13",
+    "client": "David Lyons",
+    "date": "2026-06-06",
+    "venue": "Glassbern Inn",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 20,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w14",
+    "client": "Katelyn Hottle",
+    "date": "2026-06-12",
+    "venue": "Curtis Arboretum",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 102,
+    "package_code": "KM0612",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w15",
+    "client": "Catherine Donmoyer",
+    "date": "2026-06-13",
+    "venue": "Bear Creek",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 5,
+    "package_code": "CD0613",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w16",
+    "client": "Shelby Werley",
+    "date": "2026-06-13",
+    "venue": "S Cedar Crest Blvd Church",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Bella",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Only one hour of coverage",
+    "deliverables": ""
+  },
+  {
+    "id": "w17",
+    "client": "Danielle Knowles",
+    "date": "2026-06-27",
+    "venue": "Pen Ryn Estate",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 132,
+    "package_code": "DP0627",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "Lexi",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w18",
+    "client": "Julie Battaglia",
+    "date": "2026-07-10",
+    "venue": "Folino Estate",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 28,
+    "package_code": "JB0710",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w19",
+    "client": "Maren Cole / Bryce Cavey",
+    "date": "2026-08-08",
+    "venue": "Grove at Kempton",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 42,
+    "package_code": "MB0808",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Tony and Brynn both must be here",
+    "deliverables": ""
+  },
+  {
+    "id": "w20",
+    "client": "Alexis Murphy",
+    "date": "2026-08-21",
+    "venue": "The Farm",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 46,
+    "package_code": "AD0821",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w21",
+    "client": "Jessica Abert",
+    "date": "2026-08-22",
+    "venue": "Folino Estate",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 28,
+    "package_code": "JJ0822",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w22",
+    "client": "Jessica Cole",
+    "date": "2026-08-29",
+    "venue": "Renaissance",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 20,
+    "package_code": "JM0829",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w23",
+    "client": "Vandy Robinson",
+    "date": "2026-08-29",
+    "venue": "Cypress House",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 236,
+    "package_code": "VA0829",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "Bella",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Nick",
+      "videoShadow": "",
+      "bts": "Kaitlyn"
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w24",
+    "client": "Gabrielle Matejcek",
+    "date": "2026-09-12",
+    "venue": "Stokesay Castle",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 0,
+    "package_code": "GT0904",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Sept 4, 2026",
+    "deliverables": ""
+  },
+  {
+    "id": "w25",
+    "client": "Kelley Maberry",
+    "date": "2026-09-12",
+    "venue": "Ironspire",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 72,
+    "package_code": "KJ0912",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w26",
+    "client": "Dee Dee Price",
+    "date": "2026-09-12",
+    "venue": "Meredith Manor",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 54,
+    "package_code": "DJ0912",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Nick",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w27",
+    "client": "Taylor Higgins",
+    "date": "2026-09-12",
+    "venue": "Bear Creek",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 5,
+    "package_code": "TS0912",
+    "team": {
+      "leadPhoto": "Lexi",
+      "secondPhoto": "Isabella",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w28",
+    "client": "Rachel Friemann",
+    "date": "2026-09-12",
+    "venue": "Inn at Millrace Pond",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "PJ",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w29",
+    "client": "Marissa Kirsch",
+    "date": "2026-09-19",
+    "venue": "Catalpa Grove",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Nick",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w30",
+    "client": "Emily Hegyi",
+    "date": "2026-09-19",
+    "venue": "Pavilion at Mainland",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 42,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Nolan",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w31",
+    "client": "Jordan Wilkinson",
+    "date": "2026-09-25",
+    "venue": "Barn at Walnut Grove",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 30,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w32",
+    "client": "Lynda Abi-Daher",
+    "date": "2026-09-26",
+    "venue": "TBD",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "Isabella",
+      "photoShadow": "",
+      "leadVideo": "Luke",
+      "secondVideo": "Nick",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Tony needs to lead",
+    "deliverables": ""
+  },
+  {
+    "id": "w33",
+    "client": "Vanessa Hannagan",
+    "date": "2026-09-26",
+    "venue": "Westmoreland Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 136,
+    "package_code": "VM0926",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tasha",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Brynn needs to lead",
+    "deliverables": ""
+  },
+  {
+    "id": "w34",
+    "client": "Daniela Enamorado",
+    "date": "2026-09-26",
+    "venue": "Bear Creek",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 5,
+    "package_code": "DM0926",
+    "team": {
+      "leadPhoto": "Nolan",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w35",
+    "client": "Julia Wignot",
+    "date": "2026-10-03",
+    "venue": "Woodstone Country Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 42,
+    "package_code": "JS1003",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w36",
+    "client": "Kim Hooven",
+    "date": "2026-10-03",
+    "venue": "Westwynd Gardens",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 82,
+    "package_code": "KD1003",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Luke",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w37",
+    "client": "Sarah Ochs",
+    "date": "2026-10-10",
+    "venue": "Domaine Pterion",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 5,
+    "package_code": "SJ1010",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Nick",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w38",
+    "client": "Elizabeth Diehl",
+    "date": "2026-10-17",
+    "venue": "Fox Rose Farm",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 34,
+    "package_code": "EC1017",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "Zach",
+      "secondVideo": "Lexi",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w39",
+    "client": "Kelly Bauman",
+    "date": "2026-10-24",
+    "venue": "Constantinos",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 180,
+    "package_code": "KD1023",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Tony",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w40",
+    "client": "Anita Werner",
+    "date": "2026-10-24",
+    "venue": "Bear Creek",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 5,
+    "package_code": "AH1024",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "Lexi",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w41",
+    "client": "Delaynee McLeod",
+    "date": "2026-10-31",
+    "venue": "Willow Stone Farm",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 131,
+    "package_code": "DJ1031",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Tony",
+      "secondVideo": "Zach",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w42",
+    "client": "Shanlie Lydon",
+    "date": "2026-11-06",
+    "venue": "Farmhouse NJ",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 90,
+    "package_code": "SC1106",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w43",
+    "client": "Alympia",
+    "date": "2026-11-07",
+    "venue": "Glassbern Inn",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 19,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Tony",
+      "secondPhoto": "Brynn",
+      "photoShadow": "",
+      "leadVideo": "Luke",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Do not share anything",
+    "deliverables": ""
+  },
+  {
+    "id": "w44",
+    "client": "Briana Arrabito",
+    "date": "2026-12-10",
+    "venue": "Glassbern Inn",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 19,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "Brynn",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "Dylan",
+      "secondVideo": "Tony",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w45",
+    "client": "Aubree Lutz / Sam Kelk",
+    "date": "2027-04-09",
+    "venue": "Westwynd Gardens",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 82,
+    "package_code": "AS0409",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w46",
+    "client": "Isabel Gonzalez / Mac Lawrence",
+    "date": "2027-05-16",
+    "venue": "Terrain at Styers",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 84,
+    "package_code": "IM0517",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w47",
+    "client": "Megan Tucker / Duncan Coolican",
+    "date": "2027-06-05",
+    "venue": "The Banks",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 164,
+    "package_code": "MD0607",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w48",
+    "client": "Abby Rapp / Zach Thomas",
+    "date": "2027-06-12",
+    "venue": "Woodstone Country Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 42,
+    "package_code": "AZ0612",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w49",
+    "client": "Nicole Secara / Brad Kluscarits",
+    "date": "2027-06-12",
+    "venue": "Grove at Kempton",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 42,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w50",
+    "client": "Kristina Beyer / Corey Feist",
+    "date": "",
+    "venue": "Woodmont Manor",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 60,
+    "package_code": "KC0612",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "June 11-12, 2027",
+    "deliverables": ""
+  },
+  {
+    "id": "w51",
+    "client": "Dria Benjamin / Colin",
+    "date": "2027-06-19",
+    "venue": "Coopersburg",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 0,
+    "package_code": "",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  },
+  {
+    "id": "w52",
+    "client": "Samantha Lanza / Ricky Abate",
+    "date": "",
+    "venue": "Lace by Epicurean",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Video only",
+    "miles": 164,
+    "package_code": "SR0626",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Overnight \u2014 June 25-26, 2027",
+    "deliverables": ""
+  },
+  {
+    "id": "w53",
+    "client": "Madison / Ezra",
+    "date": "2027-07-10",
+    "venue": "Talamore Country Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo only",
+    "miles": 102,
+    "package_code": "ME0710",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "prefers Brynn & Tony",
+    "deliverables": ""
+  },
+  {
+    "id": "w54",
+    "client": "Ashley Arroyo / Elvin",
+    "date": "",
+    "venue": "Woodmont Manor",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 60,
+    "package_code": "AE0918",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Sept 18, 2027",
+    "deliverables": ""
+  },
+  {
+    "id": "w55",
+    "client": "Nina Dellarte / Austin Stoeckel",
+    "date": "2027-10-02",
+    "venue": "Huntington Country Club",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 106,
+    "package_code": "NA1002",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "Brynn must lead",
+    "deliverables": ""
+  },
+  {
+    "id": "w56",
+    "client": "Emily Bruchak / Tanner Blatt",
+    "date": "2027-10-17",
+    "venue": "Westwynd Gardens",
+    "venueAddress": "",
+    "ceremonyVenue": "",
+    "package": "Photo + Video",
+    "miles": 82,
+    "package_code": "ET1017",
+    "team": {
+      "leadPhoto": "",
+      "secondPhoto": "",
+      "photoShadow": "",
+      "leadVideo": "",
+      "secondVideo": "",
+      "videoShadow": "",
+      "bts": ""
+    },
+    "vendors": [],
+    "timeline": [],
+    "shotList": [],
+    "notes": "",
+    "deliverables": ""
+  }
+];
+
+async function loadData(){
+  setSS('','Connecting...');
+  try{
+    const rows=await sbFetch('projects?id=eq.tmw_weddings&select=data');
+    if(rows&&rows[0]){weddings=rows[0].data.weddings||[];}
+    else{
+      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_weddings',data:{weddings:SEED_WEDDINGS}})});
+      weddings=SEED_WEDDINGS;
+    }
+    document.getElementById('loading').style.display='none';
+    document.getElementById('content').style.display='block';
+    setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    renderWeddings();
+  }catch(e){
+    setSS('error','Connection failed');
+    document.getElementById('loading').style.display='none';
+    document.getElementById('content').style.display='block';
+    showError('Connection failed: '+e.message);
+  }
+}
+
+async function saveData(){
+  setSS('saving','Saving...');
+  try{
+    await sbFetch('projects?id=eq.tmw_weddings',{method:'PATCH',body:JSON.stringify({data:{weddings}})});
+    setSS('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setSS('error','Save failed');showError('Save failed.');}
+}
+
+async function addWedding(){
+  if(!isAdmin)return;
+  const client=document.getElementById('nc').value.trim();
+  if(!client){document.getElementById('nc').focus();return;}
+  const id='w'+Date.now();
+  weddings.push({
+    id,client,
+    date:document.getElementById('nwd').value,
+    venue:document.getElementById('nv').value,
+    venueAddress:'',ceremonyVenue:'',
+    package:document.getElementById('np').value,
+    miles:0,
+    team:{leadPhoto:'',secondPhoto:'',photoShadow:'',leadVideo:'',secondVideo:'',videoShadow:'',bts:''},
+    vendors:[],timeline:[],shotList:[],notes:'',deliverables:'',package_code:''
+  });
+  document.getElementById('nc').value='';
+  document.getElementById('nwd').value='';
+  document.getElementById('nv').value='';
+  renderWeddings();await saveData();
+}
+
+function fmtDate(d){
+  if(!d)return'TBD';
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric',year:'numeric'});
+}
+
+function getShooterTags(team){
+  const tags=[];
+  if(team.leadPhoto)tags.push({name:team.leadPhoto,role:'Lead Photo',lead:true});
+  if(team.secondPhoto)tags.push({name:team.secondPhoto,role:'2nd Photo',lead:false});
+  if(team.leadVideo)tags.push({name:team.leadVideo,role:'Lead Video',lead:true});
+  if(team.secondVideo)tags.push({name:team.secondVideo,role:'2nd Video',lead:false});
+  if(team.videoShadow)tags.push({name:team.videoShadow,role:'Video Shadow',lead:false});
+  if(team.bts)tags.push({name:team.bts,role:'BTS',lead:false});
+  return tags;
+}
+
+function renderWeddings(){
+  const search=document.getElementById('search').value.toLowerCase();
+  const now=new Date();now.setHours(0,0,0,0);
+
+  let filtered=weddings.filter(w=>{
+    if(!search)return true;
+    return w.client.toLowerCase().includes(search)||w.venue.toLowerCase().includes(search);
+  });
+
+  filtered.sort((a,b)=>{
+    if(!a.date&&!b.date)return 0;
+    if(!a.date)return 1;
+    if(!b.date)return-1;
+    return new Date(a.date)-new Date(b.date);
+  });
+
+  const upcoming=filtered.filter(w=>!w.date||new Date(w.date+'T12:00:00')>=now);
+  const past=filtered.filter(w=>w.date&&new Date(w.date+'T12:00:00')<now);
+
+  document.getElementById('results-count').textContent=filtered.length+' wedding'+(filtered.length!==1?'s':'');
+
+  let html='';
+
+  if(!filtered.length){
+    html='<div class="empty-state"><div class="empty-icon">TM</div><div>No weddings found.</div></div>';
+    document.getElementById('upcoming-section').innerHTML=html;
+    return;
+  }
+
+  function buildCard(w){
+    const tags=getShooterTags(w.team);
+    return `<a class="wedding-card" href="/weddings/${w.id}">
+      <div class="card-date-bar">${fmtDate(w.date)}</div>
+      <div class="card-body">
+        <div class="card-client">${w.client}</div>
+        <div class="card-venue">${w.venue||'<span style="font-style:italic;">Venue TBD</span>'}</div>
+        <div class="card-shooters">
+          ${tags.map(t=>`<span class="shooter-tag ${t.lead?'lead':''}">${t.name}</span>`).join('')}
+          ${!tags.length?'<span style="font-size:11px;color:var(--text-muted);font-style:italic;">No team assigned yet</span>':''}
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-pkg">${w.package||'Package TBD'}</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>`;
+  }
+
+  let out='';
+  if(upcoming.length){
+    out+=`<div class="upcoming-section">
+      <div class="section-header">Upcoming — ${upcoming.length} wedding${upcoming.length!==1?'s':''}</div>
+      <div class="weddings-grid">${upcoming.map(buildCard).join('')}</div>
+    </div>`;
+  }
+  if(past.length){
+    out+=`<div class="upcoming-section">
+      <div class="section-header">Past — ${past.length} wedding${past.length!==1?'s':''}</div>
+      <div class="weddings-grid" style="opacity:0.6;">${past.map(buildCard).join('')}</div>
+    </div>`;
+  }
+
+  document.getElementById('upcoming-section').innerHTML=out;
+}
+
+if(sessionStorage.getItem('tmw_wdi_admin')==='1'){isAdmin=true;applyAdmin();}
+loadData();
+setInterval(loadData,30000);
+</script>
+</body>
+</html>
