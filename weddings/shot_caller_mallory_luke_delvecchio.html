@@ -327,10 +327,6 @@ const shotGroups=[
 ];
 
 const STORAGE_KEY='tmw_shot_delvecchio';
-const eventLog=[];
-let currentView='group';
-let locCollapsed={};
-
 const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 let saveTimeout=null;
@@ -368,14 +364,17 @@ async function loadState(){
     if(state.log){eventLog.length=0;state.log.forEach(l=>eventLog.push(l));}
     lastSyncAt=Date.now();
     updateSyncBadge();
-  }catch(e){}
+  }catch(e){console.warn('loadState failed:',e);}
 }
 
 async function resetState(){
   if(!confirm('Reset all shot progress? This will clear progress for ALL team members.'))return;
   allShots().forEach(s=>{s.done=false;s.skipped=false;});
   eventLog.length=0;
-  await sbFetch('projects?id=eq.'+STORAGE_KEY,{method:'PATCH',body:JSON.stringify({data:{shots:[],log:[],savedAt:new Date().toISOString()}})});
+  const existing=await sbFetch('projects?id=eq.'+STORAGE_KEY+'&select=id');
+  if(existing&&existing.length){
+    await sbFetch('projects?id=eq.'+STORAGE_KEY,{method:'PATCH',body:JSON.stringify({data:{shots:[],log:[],savedAt:new Date().toISOString()}})});
+  }
   renderShots();
 }
 
@@ -386,7 +385,6 @@ function updateSyncBadge(){
   el.textContent='Live · synced '+t;
 }
 
-// Poll for updates from other devices every 8 seconds
 setInterval(async()=>{
   try{
     const rows=await sbFetch('projects?id=eq.'+STORAGE_KEY+'&select=data');
@@ -403,6 +401,12 @@ setInterval(async()=>{
     }
   }catch(e){}
 },8000);
+
+const eventLog=[];
+let currentView='group';
+let locCollapsed={};
+
+
 
 function allShots(){return shotGroups.flatMap(g=>g.shots);}
 function doneCount(){return allShots().filter(s=>s.done).length;}
@@ -570,6 +574,7 @@ function addShot(){
   closeModal();saveState();renderShots();
 }
 
+loadState().then(()=>renderShots());
 loadState().then(()=>renderShots());
 </script>
 </body>
