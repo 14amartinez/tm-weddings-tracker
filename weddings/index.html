@@ -1692,7 +1692,7 @@ function renderWeddings(){
 
   function buildCard(w){
     const tags=getShooterTags(w.team);
-    return `<a class="wedding-card" href="/weddings/${w.id}">
+    return `<a class="wedding-card" href="/weddings/client.html?id=${w.id}">
       <div class="card-date-bar">${fmtDate(w.date)}</div>
       <div class="card-body">
         <div class="card-client">${w.client}</div>
