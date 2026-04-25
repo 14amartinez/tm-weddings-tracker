@@ -95,7 +95,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .del-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-mid);flex-shrink:0;}
 
 /* MISC */
-.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:12px 24px;display:none;align-items:center;justify-content:flex-end;gap:10px;z-index:40;}
+.action-bar{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn-action{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;font-size:12px;font-weight:500;cursor:pointer;border-radius:8px;text-decoration:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.btn-shotcaller{background:#1a1714;color:#fff;border:none;}
+.btn-shotcaller:hover{background:#2c2420;}
+.btn-wallpaper{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.btn-wallpaper:hover{background:var(--accent);color:#fff;}
 .save-bar.visible{display:flex;}
 .btn-save{height:36px;padding:0 24px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
 .btn-save:hover{background:#7a5240;}
@@ -237,6 +242,11 @@ function renderPage(){
       ${w.miles?`<span class="hero-tag">${w.miles} mi</span>`:''}
       ${w.package_code?`<span class="hero-tag">${w.package_code}</span>`:''}
     </div>
+    ${(w.shotCallerUrl||w.wallpaperUrl)?`
+    <div class="action-bar">
+      ${w.shotCallerUrl?`<a class="btn-action btn-shotcaller" href="${w.shotCallerUrl}" target="_blank">📋 Open Shot Caller</a>`:''}
+      ${w.wallpaperUrl?`<a class="btn-action btn-wallpaper" href="${w.wallpaperUrl}" download>📱 Download Timeline Wallpaper</a>`:''}
+    </div>`:''}
   </div>
 
   <div class="two-col">
