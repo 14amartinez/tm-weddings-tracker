@@ -119,7 +119,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 <body>
 
 <div class="topbar">
-  <a class="back-link" href="/weddings">&#8592; All Weddings</a>
+  <a class="back-link" href="/weddings/">&#8592; All Weddings</a>
   <div class="topbar-right">
     <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Loading...</span></div>
     <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
@@ -148,7 +148,7 @@ let weddings=[];
 let wedding=null;
 let isAdmin=false;
 let dirty=false;
-const weddingId=location.pathname.split('/').pop();
+const weddingId=new URLSearchParams(location.search).get('id');
 
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
@@ -185,7 +185,7 @@ async function loadData(){
       wedding=weddings.find(w=>w.id===weddingId);
     }
     if(!wedding){
-      document.getElementById('loading').innerHTML='<div style="text-align:center;padding:48px;color:var(--text-muted);">Wedding not found. <a href="/weddings" style="color:var(--accent);">Back to all weddings</a></div>';
+      document.getElementById('loading').innerHTML='<div style="text-align:center;padding:48px;color:var(--text-muted);">Wedding not found. <a href="/weddings/" style="color:var(--accent);">Back to all weddings</a></div>';
       return;
     }
     document.title='TM Weddings — '+wedding.client;
