@@ -102,6 +102,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-ghost:hover{background:var(--accent-light);}
 .remove-btn{height:26px;padding:0 10px;font-size:11px;cursor:pointer;border-radius:5px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;margin-left:auto;}
 .remove-btn:hover{color:var(--red);border-color:#e8a0a0;background:var(--red-light);}
+.complete-all-btn{height:26px;padding:0 10px;font-size:11px;cursor:pointer;border-radius:5px;background:var(--green-light);color:var(--green);border:1px solid #a0c8a8;font-family:'DM Sans',sans-serif;font-weight:500;transition:all 0.15s;}
+.complete-all-btn:hover{background:var(--green);color:#fff;}
 .empty-state{text-align:center;padding:48px;color:var(--text-muted);font-size:13px;}
 .error-banner{background:var(--red-light);border:1px solid #e8a0a0;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
 .loading-screen{display:flex;flex-direction:column;align-items:center;padding:80px;gap:14px;}
@@ -425,6 +427,19 @@ async function setProjectEditor(pid,val){
   if(p){p.editor=val;renderAll();await saveData();}
 }
 
+async function completeProject(pid){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  if(!confirm(`Mark all deliverables complete for ${p.client}? This sends one notification email.`))return;
+  p.deliverables.forEach(d=>{
+    const keys=getStages(d.name);
+    keys.forEach(k=>d.stages[k]='complete');
+  });
+  renderAll();
+  await saveData();
+  // Single notification email
+  sendNotification(p.client,'All deliverables','Project completed ✓',p.editor);
+}
+
 function renderSummary(){
   const total=projects.length;
   const totalDels=projects.reduce((a,p)=>a+p.deliverables.length,0);
@@ -492,7 +507,7 @@ function renderPipeline(){
           </select>`;
       }else{h+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
       if(wd)h+=`<span style="font-size:12px;color:var(--text-muted);">${wd}</span>`;
-      if(isAdmin)h+=`<button class="remove-btn" onclick="deleteProject('${p.id}')">Remove</button>`;
+      if(isAdmin)h+=`<button class="complete-all-btn" onclick="completeProject('${p.id}')">✓ Mark complete</button><button class="remove-btn" onclick="deleteProject('${p.id}')">Remove</button>`;
       h+=`</div>`;
       if(p.deliverables.length){
         h+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Editor</span><span class="del-col-label">Due</span><span class="del-col-label">Stages</span><span></span></div>`;
