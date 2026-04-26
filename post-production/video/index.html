@@ -132,6 +132,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-ghost:hover{background:var(--accent-light);}
 .remove-project-btn{height:28px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;margin-left:auto;transition:all 0.15s;}
 .remove-project-btn:hover{color:var(--red);border-color:#e8a0a0;background:var(--red-light);}
+.complete-all-btn{height:28px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:var(--green-light);color:var(--green);border:1px solid #a0c8a8;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.complete-all-btn:hover{background:var(--green);color:#fff;}
 
 /* EDITOR TAB */
 .editor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px;}
@@ -535,6 +537,17 @@ async function setProjectEditor(pid,val){
 }
 
 // RENDER
+async function completeProject(pid){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  if(!confirm(`Mark all deliverables complete for ${p.client}? This sends one notification email.`))return;
+  p.deliverables.forEach(d=>{
+    STAGE_KEYS.forEach(k=>d.stages[k]='complete');
+  });
+  renderAll();
+  await saveData();
+  sendNotification(p.client,'All deliverables','Project completed ✓',p.editor,null);
+}
+
 function renderSummary(){
   const total=projects.length;
   const totalDels=projects.reduce((a,p)=>a+p.deliverables.length,0);
@@ -602,7 +615,7 @@ function renderPipeline(){
           </select>`;
       }else{h+=`<span style="font-size:12px;color:var(--text-secondary);">Lead: <strong>${p.editor||'Unassigned'}</strong></span>`;}
       if(weddingStr)h+=`<span style="font-size:12px;color:var(--text-muted);">${weddingStr}</span>`;
-      if(isAdmin)h+=`<button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>`;
+      if(isAdmin)h+=`<button class="complete-all-btn" onclick="completeProject('${p.id}')">✓ Mark complete</button><button class="remove-project-btn" onclick="deleteProject('${p.id}')">Remove project</button>`;
       h+=`</div>`;
       if(p.deliverables.length){
         h+=`<div class="del-header-row"><span class="del-col-label">Deliverable</span><span class="del-col-label">Assigned to</span><span class="del-col-label">Due date</span><span class="del-col-label">Stages — click to advance</span><span></span></div>`;
