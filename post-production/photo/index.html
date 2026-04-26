@@ -202,10 +202,10 @@ const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Brynn:'brynn.weller95@gm
 const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Custom'];
 
 // Two stage sets — photo book has different workflow
-const PHOTO_STAGES=['Cull','Edit','Export','Deliver'];
-const PHOTO_STAGE_KEYS=['cull','edit','export','deliver'];
-const BOOK_STAGES=['Selections submitted','Design stage','Order placed'];
-const BOOK_STAGE_KEYS=['selections','design','ordered'];
+const PHOTO_STAGES=['Files on QNAS','Files obtained','Cull','Edit','Export','Deliver'];
+const PHOTO_STAGE_KEYS=['qnas','obtained','cull','edit','export','deliver'];
+const BOOK_STAGES=['Files on QNAS','Files obtained','Selections submitted','Design stage','Order placed'];
+const BOOK_STAGE_KEYS=['qnas','obtained','selections','design','ordered'];
 
 const STATUS_CYCLE=['not-started','in-progress','complete'];
 
@@ -393,7 +393,17 @@ async function cycleStage(pid,did,key){
   if(newStatus==='complete'){
     const labels=getStageLabels(d.name);
     const keys=getStages(d.name);
-    sendNotification(p.client,d.name,labels[keys.indexOf(key)],d.editor);
+    const stageName=labels[keys.indexOf(key)];
+    if(key==='qnas'){
+      // Notify assigned editor — files ready to download
+      const editorEmail=d.editor?EDITOR_EMAILS[d.editor]:'';
+      sendNotification(p.client,d.name,stageName+' — files ready to download',d.editor);
+    } else if(key==='obtained'){
+      // Notify Tony + Brynn — editor has the files
+      sendNotification(p.client,d.name,stageName+' — editor has the files',d.editor);
+    } else {
+      sendNotification(p.client,d.name,stageName,d.editor);
+    }
   }
   renderAll();await saveData();
 }
@@ -502,7 +512,7 @@ function renderPipeline(){
             h+=`<span style="font-size:12px;color:var(--text-secondary);">${d.editor||'—'}</span>
             <span style="font-size:12px;color:${dRisk!=='ok'?'var(--red)':'var(--text-muted)'};">${ds}</span>`;
           }
-          const gridCols=dKeys.length<=3?'repeat(3,1fr)':'repeat(4,1fr)';
+          const gridCols=dKeys.length<=3?'repeat(3,1fr)':dKeys.length<=5?'repeat(5,1fr)':'repeat(6,1fr)';
           h+=`<div class="stage-grid" style="grid-template-columns:${gridCols};">${dKeys.map((k,i)=>`<button class="stage-btn ${d.stages[k]||'not-started'}" onclick="cycleStage('${p.id}','${d.id}','${k}')">${dLabels[i]}</button>`).join('')}</div>`;
           h+=isAdmin?`<button class="del-delete" onclick="deleteDeliverable('${p.id}','${d.id}')">✕</button>`:`<span></span>`;
           h+=`</div>`;
