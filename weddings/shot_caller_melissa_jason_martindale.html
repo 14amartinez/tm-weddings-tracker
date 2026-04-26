@@ -522,7 +522,6 @@ const eventLog=[];
 let currentView='group';
 let locCollapsed={};
 
-function saveState(){try{const state={shots:allShots().map(s=>({id:s.id,done:s.done,skipped:s.skipped})),log:eventLog};localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
 function allShots(){return shotGroups.flatMap(g=>g.shots);}
 function doneCount(){return allShots().filter(s=>s.done).length;}
 function skipCount(){return allShots().filter(s=>s.skipped).length;}
