@@ -551,11 +551,8 @@ function renderSummary(){
 }
 
 function isProjectComplete(p){
-  const now=new Date();now.setHours(0,0,0,0);
-  const pastDate=p.weddingDate&&new Date(p.weddingDate+'T12:00:00')<now;
-  if(!p.deliverables||!p.deliverables.length)return pastDate;
-  const allStagesDone=p.deliverables.every(d=>STAGE_KEYS.every(k=>d.stages[k]==='complete'));
-  return allStagesDone||pastDate;
+  if(!p.deliverables||!p.deliverables.length)return false;
+  return p.deliverables.every(d=>STAGE_KEYS.every(k=>d.stages[k]==='complete'));
 }
 
 function renderPipeline(){
