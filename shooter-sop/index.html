@@ -731,8 +731,10 @@
     stopAllVideos();
     currentSection = section;
     document.querySelectorAll('.section-pill').forEach(p=>p.classList.remove('active'));
-    event.target.classList.add('active');
-    event.target.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    if(event && event.target) {
+      event.target.classList.add('active');
+      event.target.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    }
     showSection(section);
   }
 
