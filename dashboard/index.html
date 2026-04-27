@@ -361,7 +361,7 @@ function renderDashboard(){
           <a class="panel-link" href="/weddings/">View all →</a>
         </div>
         <div class="panel-body">
-          ${upcomingWeddings.slice(0,8).map(w=>{
+          ${upcomingWeddings.map(w=>{
             const days=daysAway(w.date);
             return `<div class="wedding-row" onclick="location.href='/weddings/client.html?id=${w.id}'">
               <span class="wedding-date-badge">${fmtDate(w.date,{month:'short',day:'numeric'})}</span>
