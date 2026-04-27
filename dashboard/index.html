@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+a{text-decoration:none;color:inherit;}
+html{-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#f6fefe;--white:#fff;--dark:#0d1f1f;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --border:#d4ecec;--border-strong:#b8dede;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --red:#c0392b;--red-light:#fdf0ef;--red-border:#f0b8b4;
+  --amber:#b8860b;--amber-light:#fdf8e8;--amber-border:#e8d890;
+  --green:#2d7a4a;--green-light:#eaf5ef;--green-border:#a8d8bc;
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* NAV */
+nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+.nav-name{font-size:0.82rem;font-weight:600;color:#fff;letter-spacing:-0.01em;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:0.72rem;color:rgba(255,255,255,0.5);transition:color 0.15s;}
+.nav-link:hover{color:#fff;}
+.nav-link.active{color:var(--teal);}
+#sync-wrap{display:flex;align-items:center;gap:5px;font-size:0.68rem;color:rgba(255,255,255,0.4);}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3);}
+.sync-dot.ok{background:var(--teal);box-shadow:0 0 5px rgba(74,172,172,0.6);}
+.sync-dot.err{background:var(--red);}
+
+/* PAGE */
+.page{max-width:1100px;margin:0 auto;padding:36px 32px 80px;}
+
+/* HEADER */
+.page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:12px;}
+.page-eyebrow{font-size:0.6rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;color:var(--text);letter-spacing:-0.02em;}
+.page-date{font-size:0.75rem;color:var(--text-dim);}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:32px;}
+.stat{background:var(--white);border:1.5px solid var(--border-strong);border-radius:12px;padding:16px 14px;position:relative;overflow:hidden;transition:transform 0.15s;}
+.stat:hover{transform:translateY(-1px);}
+.stat-label{font-size:0.58rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;color:var(--text);line-height:1;letter-spacing:-0.02em;}
+.stat-sub{font-size:0.65rem;color:var(--text-dim);margin-top:4px;}
+.stat.danger{border-color:var(--red-border);background:var(--red-light);}
+.stat.danger .stat-label{color:var(--red);}
+.stat.danger .stat-val{color:var(--red);}
+.stat.warn{border-color:var(--amber-border);background:var(--amber-light);}
+.stat.warn .stat-label{color:var(--amber);}
+.stat.warn .stat-val{color:var(--amber);}
+.stat.good{border-color:var(--green-border);background:var(--green-light);}
+.stat.good .stat-label{color:var(--green);}
+.stat.good .stat-val{color:var(--green);}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+
+/* PANEL */
+.panel{background:var(--white);border:1.5px solid var(--border-strong);border-radius:14px;overflow:hidden;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1.5px solid var(--border);background:linear-gradient(180deg,#f4fcfc,#edf8f8);}
+.panel-title{font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal-dark);}
+.panel-count{font-size:0.65rem;font-weight:600;color:var(--text-dim);}
+.panel-body{padding:10px;}
+.panel-link{font-size:0.68rem;color:var(--teal);font-weight:600;text-decoration:none;letter-spacing:0.04em;}
+.panel-link:hover{text-decoration:underline;}
+
+/* PROJECT ROW */
+.proj-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;gap:10px;transition:background 0.12s;cursor:pointer;}
+.proj-row:hover{background:var(--teal-light);}
+.proj-name{font-size:0.78rem;font-weight:600;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.proj-editor{font-size:0.68rem;color:var(--text-dim);flex-shrink:0;}
+.proj-due{font-size:0.68rem;font-weight:600;flex-shrink:0;padding:2px 7px;border-radius:4px;}
+.proj-due.overdue{background:var(--red-light);color:var(--red);border:1px solid var(--red-border);}
+.proj-due.at-risk{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);}
+.proj-due.ok{color:var(--text-dim);}
+.proj-tag{font-size:0.6rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+.proj-tag.photo{background:var(--teal-light);color:var(--teal-dark);border:1px solid var(--teal-mid);}
+.proj-tag.video{background:#e8f0fe;color:#1a56b0;border:1px solid #bfcef5;}
+.empty{font-size:0.75rem;color:var(--text-dim);font-style:italic;padding:12px 10px;}
+
+/* WEDDING ROW */
+.wedding-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background 0.12s;cursor:pointer;}
+.wedding-row:hover{background:var(--teal-light);}
+.wedding-date-badge{font-size:0.62rem;font-weight:700;color:var(--teal-dark);background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:5px;padding:3px 7px;flex-shrink:0;min-width:52px;text-align:center;}
+.wedding-name{font-size:0.78rem;font-weight:600;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wedding-venue{font-size:0.68rem;color:var(--text-dim);flex-shrink:0;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wedding-pkg{font-size:0.6rem;font-weight:600;color:var(--text-dim);flex-shrink:0;}
+.days-away{font-size:0.65rem;font-weight:600;color:var(--teal-dark);flex-shrink:0;}
+.days-away.soon{color:var(--red);}
+
+/* EDITOR LOAD */
+.editor-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;}
+.editor-name{font-size:0.78rem;font-weight:600;color:var(--text);min-width:52px;}
+.editor-bar-wrap{flex:1;height:6px;background:var(--teal-light);border-radius:20px;overflow:hidden;}
+.editor-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--teal),var(--teal-dark));transition:width 0.4s ease;}
+.editor-bar.heavy{background:linear-gradient(90deg,var(--amber),#8a6010);}
+.editor-bar.overloaded{background:linear-gradient(90deg,var(--red),#8b1a1a);}
+.editor-count{font-size:0.68rem;font-weight:600;color:var(--text-dim);min-width:28px;text-align:right;}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:48px;gap:10px;color:var(--text-dim);font-size:0.8rem;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MOBILE */
+@media(max-width:800px){
+  nav{padding:0 18px;}
+  .page{padding:24px 18px 60px;}
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+  .two-col,.three-col{grid-template-columns:1fr;}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    <span class="nav-name">TM Weddings</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-link" href="/">Team Resources</a>
+    <a class="nav-link" href="/weddings/">Weddings</a>
+    <a class="nav-link" href="/post-production">Post Production</a>
+    <a class="nav-link active" href="/dashboard">Dashboard</a>
+    <div id="sync-wrap"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">Loading...</span></div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">Owner Dashboard</div>
+      <div class="page-title">Mission Control</div>
+    </div>
+    <div class="page-date" id="page-date"></div>
+  </div>
+
+  <div id="loading" class="loading"><div class="spinner"></div> Loading dashboard...</div>
+  <div id="dashboard" style="display:none;"></div>
+
+</div>
+
+<script src="/tmw-core.js"></script>
+<script>
+const PHOTO_URL = 'tmw_photo';
+const VIDEO_URL = 'tmw_state';
+const WEDDINGS_URL = 'tmw_weddings';
+
+let photoProjects=[], videoProjects=[], weddings=[];
+
+// Date helpers
+const today = new Date(); today.setHours(0,0,0,0);
+function fmtDate(d,opts){return new Date(d+'T12:00:00').toLocaleDateString('en-US',opts||{month:'short',day:'numeric'});}
+function daysAway(d){return Math.round((new Date(d+'T12:00:00')-today)/86400000);}
+function getRisk(d){
+  if(!d)return'ok';
+  const diff=daysAway(d);
+  if(diff<0)return'overdue';
+  if(diff<=5)return'at-risk';
+  return'ok';
+}
+function getProgress(dels){
+  if(!dels||!dels.length)return 0;
+  let done=0,total=0;
+  dels.forEach(d=>{
+    const keys=Object.keys(d.stages||{});
+    keys.forEach(k=>{total++;if(d.stages[k]==='complete')done++;});
+  });
+  return total?Math.round(done/total*100):0;
+}
+
+function setSS(state,text){
+  document.getElementById('sync-dot').className='sync-dot '+state;
+  document.getElementById('sync-text').textContent=text;
+}
+
+async function loadAll(){
+  try{
+    const [pRows,vRows,wRows]=await Promise.all([
+      sbFetch('projects?id=eq.'+PHOTO_URL+'&select=data'),
+      sbFetch('projects?id=eq.'+VIDEO_URL+'&select=data'),
+      sbFetch('projects?id=eq.'+WEDDINGS_URL+'&select=data'),
+    ]);
+    photoProjects=(pRows&&pRows[0])?pRows[0].data.projects||[]:[];
+    videoProjects=(vRows&&vRows[0])?vRows[0].data.projects||[]:[];
+    weddings=(wRows&&wRows[0])?wRows[0].data.weddings||[]:[];
+    setSS('ok','Live · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+    document.getElementById('loading').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    renderDashboard();
+  }catch(e){
+    setSS('err','Error');
+    document.getElementById('loading').innerHTML='<div style="color:var(--red);padding:48px;text-align:center;">Failed to load. Check connection.</div>';
+  }
+}
+
+function renderDashboard(){
+  // ── COMPUTE STATS ──
+  const now=new Date();
+  const upcomingWeddings=weddings.filter(w=>w.date&&new Date(w.date+'T12:00:00')>=today).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const nextWedding=upcomingWeddings[0];
+  const nextDays=nextWedding?daysAway(nextWedding.date):null;
+
+  // Active projects (not all stages done)
+  function isComplete(p,isVideo){
+    if(!p.deliverables||!p.deliverables.length)return false;
+    return p.deliverables.every(d=>{
+      const keys=isVideo?TMW.videoStages.keys:Object.keys(d.stages||{});
+      return keys.every(k=>d.stages[k]==='complete');
+    });
+  }
+  const activePhoto=photoProjects.filter(p=>!isComplete(p,false));
+  const activeVideo=videoProjects.filter(p=>!isComplete(p,true));
+
+  // Overdue deliverables across both
+  let overdueCount=0, atRiskCount=0;
+  [...photoProjects,...videoProjects].forEach(p=>{
+    (p.deliverables||[]).forEach(d=>{
+      const r=getRisk(d.dueDate);
+      if(r==='overdue')overdueCount++;
+      else if(r==='at-risk')atRiskCount++;
+    });
+  });
+
+  // Total in-flight deliverables
+  let totalDels=0;
+  [...activePhoto,...activeVideo].forEach(p=>{totalDels+=(p.deliverables||[]).length;});
+
+  // Editor load (across both dashboards)
+  const editorLoad={};
+  TMW.editors.forEach(e=>{editorLoad[e]=0;});
+  [...photoProjects,...videoProjects].forEach(p=>{
+    (p.deliverables||[]).forEach(d=>{
+      if(d.editor&&!isAllDone(d))editorLoad[d.editor]=(editorLoad[d.editor]||0)+1;
+    });
+  });
+  function isAllDone(d){return Object.values(d.stages||{}).every(v=>v==='complete');}
+
+  // Overdue projects
+  const overdueProjects=[
+    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
+  ].sort((a,b)=>{
+    const aMin=Math.min(...(a.deliverables||[]).filter(d=>d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
+    const bMin=Math.min(...(b.deliverables||[]).filter(d=>d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
+    return aMin-bMin;
+  });
+
+  // At risk projects
+  const atRiskProjects=[
+    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
+  ];
+
+  // In progress projects (on track)
+  const onTrackProjects=[
+    ...activePhoto.filter(p=>!(p.deliverables||[]).some(d=>['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>!(p.deliverables||[]).some(d=>['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'video'})),
+  ];
+
+  const maxLoad=Math.max(1,...Object.values(editorLoad));
+
+  // ── RENDER ──
+  document.getElementById('dashboard').innerHTML = `
+
+    <div class="stats-row">
+      <div class="stat ${overdueCount>0?'danger':'good'}">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-val">${overdueCount}</div>
+        <div class="stat-sub">deliverable${overdueCount!==1?'s':''}</div>
+      </div>
+      <div class="stat ${atRiskCount>0?'warn':''}">
+        <div class="stat-label">At Risk</div>
+        <div class="stat-val">${atRiskCount}</div>
+        <div class="stat-sub">due within 5 days</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-val">${activePhoto.length+activeVideo.length}</div>
+        <div class="stat-sub">${activePhoto.length} photo · ${activeVideo.length} video</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">In Flight</div>
+        <div class="stat-val">${totalDels}</div>
+        <div class="stat-sub">deliverables</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Upcoming</div>
+        <div class="stat-val">${upcomingWeddings.length}</div>
+        <div class="stat-sub">weddings this season</div>
+      </div>
+      <div class="stat ${nextDays!==null&&nextDays<=7?'warn':''}">
+        <div class="stat-label">Next Wedding</div>
+        <div class="stat-val">${nextDays!==null?nextDays:'—'}</div>
+        <div class="stat-sub">${nextWedding?nextWedding.client.split('/')[0].trim():'—'}</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title" style="color:var(--red);">⚠ Overdue</span>
+          <span class="panel-count">${overdueProjects.length} project${overdueProjects.length!==1?'s':''}</span>
+        </div>
+        <div class="panel-body">
+          ${overdueProjects.length?overdueProjects.map(p=>{
+            const worstDel=(p.deliverables||[]).filter(d=>getRisk(d.dueDate)==='overdue').sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
+            const days=worstDel?Math.abs(daysAway(worstDel.dueDate)):0;
+            const url=p.type==='photo'?'/post-production/photo':'/post-production/video';
+            return `<div class="proj-row" onclick="location.href='${url}'">
+              <span class="proj-tag ${p.type}">${p.type}</span>
+              <span class="proj-name">${p.client}</span>
+              <span class="proj-editor">${p.editor||'—'}</span>
+              <span class="proj-due overdue">${days}d overdue</span>
+            </div>`;
+          }).join(''):'<div class="empty">No overdue projects 🎉</div>'}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title" style="color:var(--amber);">⏱ At Risk</span>
+          <span class="panel-count">${atRiskProjects.length} project${atRiskProjects.length!==1?'s':''}</span>
+        </div>
+        <div class="panel-body">
+          ${atRiskProjects.length?atRiskProjects.map(p=>{
+            const worstDel=(p.deliverables||[]).filter(d=>getRisk(d.dueDate)==='at-risk').sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate))[0];
+            const days=worstDel?daysAway(worstDel.dueDate):0;
+            const url=p.type==='photo'?'/post-production/photo':'/post-production/video';
+            return `<div class="proj-row" onclick="location.href='${url}'">
+              <span class="proj-tag ${p.type}">${p.type}</span>
+              <span class="proj-name">${p.client}</span>
+              <span class="proj-editor">${p.editor||'—'}</span>
+              <span class="proj-due at-risk">${days}d left</span>
+            </div>`;
+          }).join(''):'<div class="empty">Nothing at risk</div>'}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="two-col">
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📅 Upcoming Weddings</span>
+          <a class="panel-link" href="/weddings/">View all →</a>
+        </div>
+        <div class="panel-body">
+          ${upcomingWeddings.slice(0,8).map(w=>{
+            const days=daysAway(w.date);
+            return `<div class="wedding-row" onclick="location.href='/weddings/client.html?id=${w.id}'">
+              <span class="wedding-date-badge">${fmtDate(w.date,{month:'short',day:'numeric'})}</span>
+              <span class="wedding-name">${w.client}</span>
+              <span class="wedding-venue">${w.venue||'—'}</span>
+              <span class="days-away ${days<=14?'soon':''}">${days}d</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">👥 Editor Load</span>
+            <span class="panel-count">active deliverables</span>
+          </div>
+          <div class="panel-body">
+            ${TMW.editors.map(e=>{
+              const count=editorLoad[e]||0;
+              const pct=Math.round(count/maxLoad*100);
+              const cls=count>=5?'overloaded':count>=3?'heavy':'';
+              return `<div class="editor-row">
+                <span class="editor-name">${e}</span>
+                <div class="editor-bar-wrap"><div class="editor-bar ${cls}" style="width:${pct}%"></div></div>
+                <span class="editor-count">${count}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">✅ On Track</span>
+            <span class="panel-count">${onTrackProjects.length} project${onTrackProjects.length!==1?'s':''}</span>
+          </div>
+          <div class="panel-body">
+            ${onTrackProjects.length?onTrackProjects.slice(0,6).map(p=>{
+              const prog=getProgress(p.deliverables);
+              const url=p.type==='photo'?'/post-production/photo':'/post-production/video';
+              return `<div class="proj-row" onclick="location.href='${url}'">
+                <span class="proj-tag ${p.type}">${p.type}</span>
+                <span class="proj-name">${p.client}</span>
+                <span class="proj-editor">${p.editor||'—'}</span>
+                <span class="proj-due ok">${prog}%</span>
+              </div>`;
+            }).join(''):'<div class="empty">No active projects</div>'}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+// Init
+document.getElementById('page-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+loadAll();
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>
