@@ -143,10 +143,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   <button class="btn-save" onclick="saveChanges()">Save changes</button>
 </div>
 
+<script src="/tmw-core.js"></script>
 <script>
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const ADMIN_PW='Post-Production_2026!';
+const SUPABASE_URL=TMW.supabase.url;
+const SUPABASE_KEY=TMW.supabase.key;
+const ADMIN_PW=TMW.admin.password;
 const TEAM_MEMBERS=['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach','PJ','Nolan','Isabella','Bella','Kaitlyn','Chris','Dylan'];
 
 let weddings=[];
@@ -172,14 +173,7 @@ function applyAdmin(){
   document.getElementById('admin-btn').style.display='flex';
 }
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const t=await res.text();return t?JSON.parse(t):null;
-}
+// sbFetch → loaded from tmw-core.js
 
 async function loadData(){
   setSS('','Loading...');
