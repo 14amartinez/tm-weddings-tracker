@@ -261,7 +261,8 @@ function renderPage(){
           ${renderTeamField('leadVideo','Lead Video',w.team.leadVideo,ro)}
           ${renderTeamField('secondVideo','2nd Video',w.team.secondVideo,ro)}
           ${renderTeamField('videoShadow','Video Shadow',w.team.videoShadow,ro)}
-          ${renderTeamField('bts','BTS / Content',w.team.bts,ro)}
+          ${renderTeamField('contentCreator','Content Creator',w.team.contentCreator||'',ro)}
+          ${renderTeamField('bts','BTS',w.team.bts,ro)}
         </div>
       </div>
     </div>
@@ -288,7 +289,7 @@ function renderPage(){
         </div>
         <div class="team-row">
           <div class="team-label">Package</div>
-          ${ro?`<div class="team-val">${w.package||'—'}</div>`:`<select class="team-edit" onchange="w.package=this.value;markDirty()"><option>Photo + Video</option><option>Photo only</option><option>Video only</option><option>Photo + Video + Content</option></select>`}
+          ${ro?`<div class="team-val">${w.package||'—'}</div>`:`<select class="team-edit" onchange="w.package=this.value;markDirty()"><option>Photo + Video</option><option>Photo only</option><option>Video only</option><option>Photo + Video + Content</option><option>Content only</option></select>`}
         </div>
       </div>
     </div>
