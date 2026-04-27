@@ -143,12 +143,14 @@
 </head>
 <body>
 
-<div style="max-width:960px;margin:0 auto;padding:14px 32px 0;display:flex;align-items:center;">
-  <a href="https://team.tmweddings.com" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#1a2b2b;font-family:'Jost',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.02em;opacity:0.6;transition:opacity 0.15s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10L3 7L6 4" stroke="#1a2b2b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="7" x2="11" y2="7" stroke="#1a2b2b" stroke-width="1.5" stroke-linecap="round"/></svg>
-    TM Weddings
+<nav style="background:#0d1f1f;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:100;">
+  <a href="https://team.tmweddings.com" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:rgba(255,255,255,0.6);font-family:'Jost',sans-serif;font-size:0.78rem;font-weight:500;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M6 10L3 7L6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Team Resources
   </a>
-</div>
+  <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:#fff;letter-spacing:0.02em;">TM Weddings</span>
+  <span style="font-size:0.58rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.12);padding:3px 9px;border-radius:4px;">Internal</span>
+</nav>
 
 <div class="role-switcher">
   <div class="role-group">
@@ -746,6 +748,23 @@
   }
 
   window.addEventListener('load', initPlayers);
+
+  // Deep link via hash e.g. /shooter-sop#lead-film
+  (function(){
+    const hash = window.location.hash.replace('#','');
+    if(!hash) return;
+    const roleMap = {
+      'lead': 'lead',
+      'second': 'second',
+      'lead-film': 'lead-film',
+      'second-film': 'second-film'
+    };
+    if(roleMap[hash]){
+      switchRole(roleMap[hash]);
+      // Update active pill back to overview
+      document.querySelectorAll('.section-pill').forEach((p,i)=>{ p.classList.toggle('active', i===0); });
+    }
+  })();
 </script>
 </body>
 </html>
