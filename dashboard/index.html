@@ -219,17 +219,19 @@ function renderDashboard(){
   function isComplete(p,isVideo){
     if(!p.deliverables||!p.deliverables.length)return false;
     return p.deliverables.every(d=>{
-      const keys=isVideo?TMW.videoStages.keys:Object.keys(d.stages||{});
+      const keys=Object.keys(d.stages||{});
       return keys.every(k=>d.stages[k]==='complete');
     });
   }
   const activePhoto=photoProjects.filter(p=>!isComplete(p,false));
   const activeVideo=videoProjects.filter(p=>!isComplete(p,true));
 
-  // Overdue deliverables across both
+  // Only count overdue on deliverables that aren't fully complete
+  function isDelComplete(d){return Object.values(d.stages||{}).length>0&&Object.values(d.stages||{}).every(v=>v==='complete');}
   let overdueCount=0, atRiskCount=0;
   [...photoProjects,...videoProjects].forEach(p=>{
     (p.deliverables||[]).forEach(d=>{
+      if(isDelComplete(d))return; // skip completed deliverables
       const r=getRisk(d.dueDate);
       if(r==='overdue')overdueCount++;
       else if(r==='at-risk')atRiskCount++;
@@ -238,38 +240,35 @@ function renderDashboard(){
 
   // Total in-flight deliverables
   let totalDels=0;
-  [...activePhoto,...activeVideo].forEach(p=>{totalDels+=(p.deliverables||[]).length;});
+  [...activePhoto,...activeVideo].forEach(p=>{totalDels+=(p.deliverables||[]).filter(d=>!isDelComplete(d)).length;});
 
-  // Editor load (across both dashboards)
+  // Editor load — ALL editors across both photo and video
+  const allEditors=[...new Set([...TMW.editors,...TMW.photoEditors])].sort();
   const editorLoad={};
-  TMW.editors.forEach(e=>{editorLoad[e]=0;});
+  allEditors.forEach(e=>{editorLoad[e]=0;});
   [...photoProjects,...videoProjects].forEach(p=>{
     (p.deliverables||[]).forEach(d=>{
-      if(d.editor&&!isAllDone(d))editorLoad[d.editor]=(editorLoad[d.editor]||0)+1;
+      if(d.editor&&!isDelComplete(d))editorLoad[d.editor]=(editorLoad[d.editor]||0)+1;
     });
   });
-  function isAllDone(d){return Object.values(d.stages||{}).every(v=>v==='complete');}
 
-  // Overdue projects
   const overdueProjects=[
-    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
-    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
+    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
   ].sort((a,b)=>{
-    const aMin=Math.min(...(a.deliverables||[]).filter(d=>d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
-    const bMin=Math.min(...(b.deliverables||[]).filter(d=>d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
+    const aMin=Math.min(...(a.deliverables||[]).filter(d=>!isDelComplete(d)&&d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
+    const bMin=Math.min(...(b.deliverables||[]).filter(d=>!isDelComplete(d)&&d.dueDate).map(d=>new Date(d.dueDate+'T12:00:00')));
     return aMin-bMin;
   });
 
-  // At risk projects
   const atRiskProjects=[
-    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
-    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
+    ...activePhoto.filter(p=>(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='at-risk')&&!(p.deliverables||[]).some(d=>!isDelComplete(d)&&getRisk(d.dueDate)==='overdue')).map(p=>({...p,type:'video'})),
   ];
 
-  // In progress projects (on track)
   const onTrackProjects=[
-    ...activePhoto.filter(p=>!(p.deliverables||[]).some(d=>['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'photo'})),
-    ...activeVideo.filter(p=>!(p.deliverables||[]).some(d=>['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'video'})),
+    ...activePhoto.filter(p=>!(p.deliverables||[]).some(d=>!isDelComplete(d)&&['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'photo'})),
+    ...activeVideo.filter(p=>!(p.deliverables||[]).some(d=>!isDelComplete(d)&&['overdue','at-risk'].includes(getRisk(d.dueDate)))).map(p=>({...p,type:'video'})),
   ];
 
   const maxLoad=Math.max(1,...Object.values(editorLoad));
@@ -382,14 +381,14 @@ function renderDashboard(){
             <span class="panel-count">active deliverables</span>
           </div>
           <div class="panel-body">
-            ${TMW.editors.map(e=>{
+            ${allEditors.map(e=>{
               const count=editorLoad[e]||0;
               const pct=Math.round(count/maxLoad*100);
               const cls=count>=5?'overloaded':count>=3?'heavy':'';
               return `<div class="editor-row">
                 <span class="editor-name">${e}</span>
-                <div class="editor-bar-wrap"><div class="editor-bar ${cls}" style="width:${pct}%"></div></div>
-                <span class="editor-count">${count}</span>
+                <div class="editor-bar-wrap"><div class="editor-bar ${cls}" style="width:${Math.max(pct,count>0?4:0)}%"></div></div>
+                <span class="editor-count" style="color:${count>0?'var(--text)':'var(--text-dim)'}">${count}</span>
               </div>`;
             }).join('')}
           </div>
