@@ -194,6 +194,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script src="/tmw-core.js"></script>
 <script>
+if(typeof TMW==='undefined'){
+  window.TMW={
+    supabase:{url:'https://rafygjaemcjhnououmwn.supabase.co',key:'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'},
+    admin:{password:'Post-Production_2026!'},
+    notify:{tony:'tonyellismartinez@gmail.com',brynn:'brynn.weller95@gmail.com',lexi:'leximartinez43@gmail.com'},
+    editors:['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach'],
+    photoEditors:['Tony','Brynn']
+  };
+  window.tmwInitEmail=function(){if(typeof emailjs!=='undefined')emailjs.init('3EteBapWG4a_hy5ol');};
+  window.tmwToast=function(msg){console.log(msg);};
+}
 tmwInitEmail();
 const SUPABASE_URL=TMW.supabase.url;
 const SUPABASE_KEY=TMW.supabase.key;
