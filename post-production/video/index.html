@@ -4,13 +4,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async function(){
-  const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-  const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-  const APPROVED=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
-  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const SB_URL="https://rafygjaemcjhnououmwn.supabase.co";
+  const SB_KEY="sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp";
+  const APPROVED=["tonyellismartinez@gmail.com","brynn.weller95@gmail.com","leximartinez43@gmail.com","bellamartinezphoto@gmail.com","zerwin1212@gmail.com","lukeh61403@gmail.com","nstewart2022@gmail.com","nolang999@gmail.com","pjmagic2404@gmail.com","natashat.photo@gmail.com","kauffman424@gmail.com","djspangler05@gmail.com","zsanchez2149@gmail.com","kaitlyncapturesphotography@gmail.com"];
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
   const {data:{session}}=await sb.auth.getSession();
-  if(!session||!APPROVED.includes(session.user.email)){window.location.href='/login.html?redirect=/post-production/video/';return;}
-  window.tmwSignOut=async()=>{await sb.auth.signOut();window.location.href='/login.html';};
+  if(!session||!APPROVED.includes(session.user.email)){
+    window.location.href="/login.html?redirect="+encodeURIComponent(window.location.pathname);
+    return;
+  }
+  window.tmwSignOut=async()=>{await sb.auth.signOut();window.location.href="/login.html";};
 })();
 </script>
 <meta charset="UTF-8"/>
