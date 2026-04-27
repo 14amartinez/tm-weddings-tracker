@@ -521,7 +521,15 @@ async function setDelEditor(pid,did,val){
   if(!isAdmin)return;
   const p=projects.find(x=>x.id===pid);if(!p)return;
   const d=p.deliverables.find(x=>x.id===did);
-  if(d){d.editor=val;renderEditors();await saveData();}
+  if(d){
+    const prev=d.editor;
+    d.editor=val;
+    renderEditors();await saveData();
+    // Notify on new assignment (not on unassign)
+    if(val&&val!==prev){
+      tmwNotifyAssignment(p.client,d.name,val);
+    }
+  }
 }
 
 async function setDelDue(pid,did,val){
