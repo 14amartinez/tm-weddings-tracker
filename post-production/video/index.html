@@ -284,6 +284,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script src="/tmw-core.js"></script>
 <script>
+// Fallback if tmw-core.js fails to load
+if(typeof TMW === 'undefined'){
+  window.TMW={
+    supabase:{url:'https://rafygjaemcjhnououmwn.supabase.co',key:'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'},
+    admin:{password:'Post-Production_2026!'},
+    notify:{tony:'tonyellismartinez@gmail.com',brynn:'brynn.weller95@gmail.com',lexi:'leximartinez43@gmail.com'},
+    editors:['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach']
+  };
+  window.tmwInitEmail=function(){if(typeof emailjs!=='undefined')emailjs.init('3EteBapWG4a_hy5ol');};
+  window.tmwToast=function(msg){console.log(msg);};
+  window.sbFetch=null;
+}
 const SUPABASE_URL=TMW.supabase.url;
 const SUPABASE_KEY=TMW.supabase.key;
 const ADMIN_HASH='8e5df3b4a2c1f0e9d6b7a8c5f2e3d4b1a9c8e7f6d5b4a3c2e1f0d9b8a7c6e5';
@@ -292,7 +304,6 @@ const TONY_EMAIL=TMW.notify.tony;
 const BRYNN_EMAIL=TMW.notify.brynn;
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'',Nick:'',Nathan:'',Luke:'',Zach:''};
 tmwInitEmail();
-t.textContent=msg;t.style.opacity='1';setTimeout(()=>{t.style.opacity='0';},3200);}
 async function sendNotification(client,deliverable,stage,editor,overrideTo){
   const params={client,deliverable,stage,editor:editor||'Unassigned',time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
   try{
