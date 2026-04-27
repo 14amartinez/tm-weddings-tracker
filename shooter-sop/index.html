@@ -747,24 +747,16 @@
     }
   }
 
-  window.addEventListener('load', initPlayers);
-
-  // Deep link via hash e.g. /shooter-sop#lead-film
-  (function(){
+  window.addEventListener('load', function(){
+    initPlayers();
+    // Deep link via hash e.g. /shooter-sop#lead-film
     const hash = window.location.hash.replace('#','');
-    if(!hash) return;
-    const roleMap = {
-      'lead': 'lead',
-      'second': 'second',
-      'lead-film': 'lead-film',
-      'second-film': 'second-film'
-    };
-    if(roleMap[hash]){
-      switchRole(roleMap[hash]);
-      // Update active pill back to overview
+    const validRoles = ['lead','second','lead-film','second-film'];
+    if(hash && validRoles.includes(hash)){
+      switchRole(hash);
       document.querySelectorAll('.section-pill').forEach((p,i)=>{ p.classList.toggle('active', i===0); });
     }
-  })();
+  });
 </script>
 </body>
 </html>
