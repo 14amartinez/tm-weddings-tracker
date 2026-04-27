@@ -203,22 +203,28 @@ async function signInWithGoogle() {
   spinner.style.display = 'block';
   error.style.display = 'none';
 
-  const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
-
   try {
-    const { error: err } = await getClient().auth.signInWithOAuth({
+    const { data, error: err } = await getClient().auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://team.tmweddings.com/auth/callback.html?redirect=${encodeURIComponent(redirect)}`,
+        redirectTo: 'https://team.tmweddings.com/auth/callback.html',
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
       }
     });
     if (err) throw err;
+    // If we get here without redirect something went wrong
+    if (!data?.url) throw new Error('No redirect URL returned from Supabase');
+    window.location.href = data.url;
   } catch(e) {
     btn.disabled = false;
     text.textContent = 'Continue with Google';
     spinner.style.display = 'none';
     error.style.display = 'block';
     error.textContent = 'Sign in failed: ' + e.message;
+    console.error('OAuth error:', e);
   }
 }
 </script>
