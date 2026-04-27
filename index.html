@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F6FEFE">
 <title>TM Weddings — Team Resources</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-a{text-decoration:none;color:inherit;}
-html{-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 
 :root{
   --bg:#F6FEFE;
@@ -24,6 +27,8 @@ html{-webkit-font-smoothing:antialiased;}
   --teal-light:#e8f5f5;
   --teal-mid:#c2e4e4;
   --dark:#0d1f1f;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 
 body{
@@ -33,9 +38,10 @@ body{
   min-height:100vh;
   overflow-x:hidden;
   font-size:14px;
+  padding-bottom:var(--safe-bottom);
 }
 
-/* ── NAV ── */
+/* ─────────────────────────  NAV  ───────────────────────── */
 nav{
   position:sticky;
   top:0;
@@ -44,22 +50,20 @@ nav{
   align-items:center;
   justify-content:space-between;
   padding:0 36px;
-  height:54px;
+  padding-top:var(--safe-top);
+  height:calc(54px + var(--safe-top));
   background:rgba(246,254,254,0.88);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
 }
-.nav-logo{
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
+.nav-logo{display:flex;align-items:center;gap:9px;min-width:0;}
 .nav-logo-mark{
   width:28px;height:28px;
   background:var(--dark);
   border-radius:7px;
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .nav-logo-mark svg{width:12px;height:12px;}
 .nav-logo-name{
@@ -67,16 +71,10 @@ nav{
   font-weight:600;
   color:var(--text);
   letter-spacing:-0.01em;
+  white-space:nowrap;
 }
-.nav-right{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-.nav-date{
-  font-size:0.72rem;
-  color:var(--text-dim);
-}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-date{font-size:0.72rem;color:var(--text-dim);white-space:nowrap;}
 .nav-badge{
   font-size:0.58rem;
   font-weight:600;
@@ -87,16 +85,17 @@ nav{
   border:1px solid var(--teal-mid);
   padding:3px 9px;
   border-radius:4px;
+  white-space:nowrap;
 }
 
-/* ── PAGE ── */
+/* ─────────────────────────  PAGE  ───────────────────────── */
 .page{
   max-width:1060px;
   margin:0 auto;
   padding:48px 36px 100px;
 }
 
-/* ── HERO — tight, 1 row ── */
+/* ─────────────────────────  HERO  ───────────────────────── */
 .hero{
   display:flex;
   align-items:baseline;
@@ -128,10 +127,7 @@ nav{
   letter-spacing:-0.02em;
   line-height:1;
 }
-.hero-title em{
-  font-style:italic;
-  color:var(--teal);
-}
+.hero-title em{font-style:italic;color:var(--teal);}
 .hero-desc{
   font-size:0.78rem;
   color:var(--text-mid);
@@ -141,7 +137,7 @@ nav{
   align-self:center;
 }
 
-/* ── SECTION LABEL ── */
+/* ─────────────────────────  LABEL  ───────────────────────── */
 .label{
   font-size:0.56rem;
   font-weight:600;
@@ -151,20 +147,21 @@ nav{
   margin-bottom:12px;
 }
 
-/* ── QUICK ACCESS ── */
+/* ─────────────────────────  QUICK ACCESS  ───────────────────────── */
 .qa-wrap{margin-bottom:48px;}
 .qa-grid{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(4,1fr);
   border:1.5px solid var(--border-strong);
   border-radius:14px;
   overflow:hidden;
-  gap:0;
 }
 .qa-col{
   border-right:1.5px solid var(--border-strong);
   background:var(--surface);
   transition:background 0.15s;
+  display:flex;
+  flex-direction:column;
 }
 .qa-col:last-child{border-right:none;}
 .qa-col:hover{background:var(--surface-2);}
@@ -202,20 +199,43 @@ nav{
   transition:all 0.12s;
   min-height:32px;
   line-height:1.2;
+  gap:6px;
 }
 .qa-item:hover{background:var(--teal-light);color:var(--teal-dark);}
-.qa-item.dim{color:var(--text-mid);font-weight:500;font-size:0.7rem;cursor:default;}
+.qa-item.dim{
+  color:var(--text-mid);
+  font-weight:500;
+  font-size:0.7rem;
+  cursor:default;
+}
 .qa-item.dim:hover{background:transparent;color:var(--text-dim);}
+.qa-item-label{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  flex:1;
+}
+.qa-item-name{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.qa-item-meta{
+  color:var(--text-dim);
+  font-weight:300;
+  font-size:0.92em;
+  flex-shrink:0;
+}
 .dot{
   width:5px;height:5px;
   border-radius:50%;
   background:#34c759;
   flex-shrink:0;
-  margin-left:5px;
   box-shadow:0 0 4px rgba(52,209,89,0.5);
 }
 
-/* ── RESOURCE CARDS ── */
+/* ─────────────────────────  RESOURCE CARDS  ───────────────────────── */
 .rc-wrap{margin-bottom:28px;}
 .rc-grid{
   display:grid;
@@ -256,16 +276,14 @@ nav{
   transform:translateY(-1px);
 }
 .rc:hover .rc-accent{transform:scaleX(1);}
+.rc-top{display:flex;align-items:center;justify-content:space-between;}
 .rc-num{
   font-size:0.6rem;
   font-weight:500;
   letter-spacing:0.1em;
   color:var(--text-dim);
 }
-.rc-icon{
-  font-size:20px;
-  line-height:1;
-}
+.rc-icon{font-size:20px;line-height:1;}
 .rc-name{
   font-family:'Cormorant Garamond',serif;
   font-size:1.45rem;
@@ -286,6 +304,7 @@ nav{
   border-radius:3px;
   margin-left:6px;
   vertical-align:middle;
+  white-space:nowrap;
 }
 .rc-desc{
   font-size:0.76rem;
@@ -314,7 +333,7 @@ nav{
 }
 .rc:hover .rc-cta{gap:7px;}
 
-/* ── COMING ── */
+/* ─────────────────────────  COMING SOON  ───────────────────────── */
 .coming{
   background:var(--surface);
   border:1.5px solid var(--border-strong);
@@ -341,19 +360,97 @@ nav{
   border:1px solid var(--teal-mid);
   border-radius:4px;
   padding:2px 8px;
+  white-space:nowrap;
 }
 
-@media(max-width:780px){
-  nav{padding:0 18px;}
-  .page{padding:32px 18px 80px;}
-  .hero-title{font-size:2rem;}
-  .qa-grid{grid-template-columns:1fr 1fr;}
-  .rc-grid{grid-template-columns:1fr 1fr;}
+/* ─────────────────────────  TABLET (≤900px)  ───────────────────────── */
+@media(max-width:900px){
+  .page{padding:40px 28px 80px;}
+  .hero-title{font-size:2.3rem;}
+  
+  .qa-grid{grid-template-columns:repeat(2,1fr);}
+  .qa-col:nth-child(2n){border-right:none;}
+  .qa-col:nth-child(-n+2){border-bottom:1.5px solid var(--border-strong);}
+  
+  .rc-grid{grid-template-columns:repeat(2,1fr);}
+  .rc:nth-child(3){grid-column:1 / -1;}
 }
-@media(max-width:480px){
-  .hero{flex-direction:column;gap:8px;}
-  .qa-grid{grid-template-columns:1fr;}
-  .rc-grid{grid-template-columns:1fr;}
+
+/* ─────────────────────────  MOBILE (≤600px)  ───────────────────────── */
+@media(max-width:600px){
+  nav{padding:0 16px;height:calc(50px + var(--safe-top));}
+  .nav-date{display:none;}
+  .nav-logo-name{font-size:0.78rem;}
+  .nav-logo-mark{width:26px;height:26px;}
+  
+  .page{padding:28px 16px 72px;}
+  
+  .hero{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+    margin-bottom:36px;
+  }
+  .hero-left{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    width:100%;
+  }
+  .hero-eyebrow{align-self:flex-start;}
+  .hero-title{font-size:2.2rem;line-height:1.05;}
+  .hero-desc{
+    max-width:100%;
+    font-size:0.82rem;
+    align-self:flex-start;
+  }
+  
+  .label{margin-bottom:10px;}
+  
+  .qa-wrap{margin-bottom:32px;}
+  .qa-grid{
+    grid-template-columns:1fr;
+    border-radius:12px;
+  }
+  .qa-col{
+    border-right:none !important;
+    border-bottom:1.5px solid var(--border-strong);
+  }
+  .qa-col:last-child{border-bottom:none;}
+  .qa-head{padding:12px 14px;}
+  .qa-items{padding:6px;}
+  .qa-item{
+    padding:11px 12px;
+    font-size:0.82rem;
+    min-height:44px;
+  }
+  .qa-item.dim{font-size:0.76rem;min-height:36px;}
+  
+  .rc-grid{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .rc:nth-child(3){grid-column:auto;}
+  .rc{padding:22px 20px 18px;gap:10px;}
+  .rc-name{font-size:1.32rem;}
+  .rc-desc{font-size:0.78rem;line-height:1.55;}
+  .rc-cta{font-size:0.78rem;}
+  .rc-icon{font-size:22px;}
+  
+  .coming{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+    padding:14px 16px;
+  }
+}
+
+/* ─────────────────────────  SMALL MOBILE (≤380px)  ───────────────────────── */
+@media(max-width:380px){
+  .page{padding:24px 14px 64px;}
+  .hero-title{font-size:1.95rem;}
+  .rc-name{font-size:1.22rem;}
+  .nav-badge{padding:3px 7px;font-size:0.54rem;}
 }
 </style>
 </head>
@@ -387,12 +484,15 @@ nav{
 
   <div class="qa-wrap">
     <div class="label">Quick Access</div>
-    <div class="qa-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="qa-grid">
 
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">💍</span><span class="qa-head-title">Wedding Day Info</span></div>
         <div class="qa-items" id="wdi-links">
-          <a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>
+          <a class="qa-item" href="/weddings/">
+            <span class="qa-item-label"><span class="qa-item-name">All Weddings</span></span>
+            <span class="dot"></span>
+          </a>
           <a class="qa-item dim">Loading...</a>
         </div>
       </div>
@@ -400,19 +500,40 @@ nav{
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">🎞️</span><span class="qa-head-title">Post Production</span></div>
         <div class="qa-items">
-          <a class="qa-item" href="/post-production/video">Video Dashboard <span class="dot"></span></a>
-          <a class="qa-item" href="/post-production/photo">Photo Dashboard <span class="dot"></span></a>
-          <a class="qa-item" href="/post-production/deliverables">Client Deliverables <span class="dot"></span></a>
+          <a class="qa-item" href="/post-production/video">
+            <span class="qa-item-label"><span class="qa-item-name">Video Dashboard</span></span>
+            <span class="dot"></span>
+          </a>
+          <a class="qa-item" href="/post-production/photo">
+            <span class="qa-item-label"><span class="qa-item-name">Photo Dashboard</span></span>
+            <span class="dot"></span>
+          </a>
+          <a class="qa-item" href="/post-production/deliverables">
+            <span class="qa-item-label"><span class="qa-item-name">Client Deliverables</span></span>
+            <span class="dot"></span>
+          </a>
         </div>
       </div>
 
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">📋</span><span class="qa-head-title">Training Info</span></div>
         <div class="qa-items">
-          <a class="qa-item" href="/shooter-sop#lead">Lead Photo SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sop#second">Second Photo SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sop#lead-film">Lead Film SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sop#second-film">Second Film SOP <span class="dot"></span></a>
+          <a class="qa-item" href="/shooter-sop#lead">
+            <span class="qa-item-label"><span class="qa-item-name">Lead Photo SOP</span></span>
+            <span class="dot"></span>
+          </a>
+          <a class="qa-item" href="/shooter-sop#second">
+            <span class="qa-item-label"><span class="qa-item-name">Second Photo SOP</span></span>
+            <span class="dot"></span>
+          </a>
+          <a class="qa-item" href="/shooter-sop#lead-film">
+            <span class="qa-item-label"><span class="qa-item-name">Lead Film SOP</span></span>
+            <span class="dot"></span>
+          </a>
+          <a class="qa-item" href="/shooter-sop#second-film">
+            <span class="qa-item-label"><span class="qa-item-name">Second Film SOP</span></span>
+            <span class="dot"></span>
+          </a>
           <a class="qa-item dim">+ 4 coming</a>
         </div>
       </div>
@@ -420,7 +541,10 @@ nav{
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">⚙️</span><span class="qa-head-title">General</span></div>
         <div class="qa-items">
-          <a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>
+          <a class="qa-item" href="/dashboard">
+            <span class="qa-item-label"><span class="qa-item-name">Owner Dashboard</span></span>
+            <span class="dot"></span>
+          </a>
           <a class="qa-item dim">+ 5 guides coming</a>
         </div>
       </div>
@@ -434,7 +558,7 @@ nav{
 
       <a class="rc" href="/shooter-sop">
         <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="rc-top">
           <span class="rc-num">01</span>
           <span class="rc-icon">📋</span>
         </div>
@@ -447,7 +571,7 @@ nav{
 
       <a class="rc" href="/post-production">
         <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="rc-top">
           <span class="rc-num">02</span>
           <span class="rc-icon">🎞️</span>
         </div>
@@ -460,7 +584,7 @@ nav{
 
       <a class="rc" href="/weddings/">
         <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="rc-top">
           <span class="rc-num">03</span>
           <span class="rc-icon">💍</span>
         </div>
@@ -497,7 +621,10 @@ document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{
 (async()=>{
   try{
     const res=await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
-      headers:{'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp','Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'}
+      headers:{
+        'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp',
+        'Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'
+      }
     });
     const rows=await res.json();
     if(!rows?.[0])return;
@@ -507,16 +634,34 @@ document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{
       .sort((a,b)=>new Date(a.date)-new Date(b.date))
       .slice(0,4);
     const c=document.getElementById('wdi-links');
-    let h=`<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>`;
-    if(!upcoming.length){h+=`<a class="qa-item dim">No upcoming</a>`;}
-    else upcoming.forEach(w=>{
-      const d=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      const parts=w.client.split('/')[0].trim().split(' ');
-      const name=parts[0]+(parts.length>1?' '+parts[parts.length-1]:'');
-      h+=`<a class="qa-item" href="/weddings/client.html?id=${w.id}" style="font-size:0.69rem;">${name}<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">${d}</span><span class="dot"></span></a>`;
-    });
+    let h=`<a class="qa-item" href="/weddings/">
+      <span class="qa-item-label"><span class="qa-item-name">All Weddings</span></span>
+      <span class="dot"></span>
+    </a>`;
+    if(!upcoming.length){
+      h+=`<a class="qa-item dim">No upcoming</a>`;
+    }else{
+      upcoming.forEach(w=>{
+        const d=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        const parts=w.client.split('/')[0].trim().split(' ');
+        const name=parts[0]+(parts.length>1?' '+parts[parts.length-1]:'');
+        h+=`<a class="qa-item" href="/weddings/client.html?id=${w.id}">
+          <span class="qa-item-label">
+            <span class="qa-item-name">${name}</span>
+            <span class="qa-item-meta">${d}</span>
+          </span>
+          <span class="dot"></span>
+        </a>`;
+      });
+    }
     c.innerHTML=h;
-  }catch{}
+  }catch(e){
+    const c=document.getElementById('wdi-links');
+    c.innerHTML=`<a class="qa-item" href="/weddings/">
+      <span class="qa-item-label"><span class="qa-item-name">All Weddings</span></span>
+      <span class="dot"></span>
+    </a><a class="qa-item dim">Connection error</a>`;
+  }
 })();
 </script>
 </body>
