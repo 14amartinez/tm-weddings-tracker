@@ -9,10 +9,21 @@
   const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 
   const APPROVED_EMAILS = [
-    'tonyellismartinez@gmail.com',
-    'brynn.weller95@gmail.com',
-    'leximartinez43@gmail.com',
-  ];
+  'tonyellismartinez@gmail.com',
+  'brynn.weller95@gmail.com',
+  'leximartinez43@gmail.com',
+  'bellamartinezphoto@gmail.com',
+  'zerwin1212@gmail.com',
+  'lukeh61403@gmail.com',
+  'nstewart2022@gmail.com',
+  'nolang999@gmail.com',
+  'pjmagic2404@gmail.com',
+  'natashat.photo@gmail.com',
+  'kauffman424@gmail.com',
+  'djspangler05@gmail.com',
+  'zsanchez2149@gmail.com',
+  'kaitlyncapturesphotography@gmail.com',
+];
 
   const OWNER_EMAILS = [
     'tonyellismartinez@gmail.com',
