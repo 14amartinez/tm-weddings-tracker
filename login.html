@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Sign In</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -150,13 +151,10 @@ body{
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Approved team emails
 const APPROVED_EMAILS = [
   'tonyellismartinez@gmail.com',
   'brynn.weller95@gmail.com',
@@ -174,19 +172,25 @@ const APPROVED_EMAILS = [
   'kaitlyncapturesphotography@gmail.com',
 ];
 
+let sbClient = null;
+
+function getClient() {
+  if (!sbClient) {
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return sbClient;
+}
+
 // Check if already logged in
-(async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    const email = session.user.email;
-    if (APPROVED_EMAILS.includes(email)) {
+window.addEventListener('load', async () => {
+  try {
+    const { data: { session } } = await getClient().auth.getSession();
+    if (session && APPROVED_EMAILS.includes(session.user.email)) {
       const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
       window.location.href = redirect;
-    } else {
-      await supabase.auth.signOut();
     }
-  }
-})();
+  } catch(e) { console.warn('Session check failed', e); }
+});
 
 async function signInWithGoogle() {
   const btn = document.getElementById('sign-in-btn');
@@ -201,19 +205,20 @@ async function signInWithGoogle() {
 
   const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
 
-  const { error: err } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback.html?redirect=${encodeURIComponent(redirect)}`,
-    }
-  });
-
-  if (err) {
+  try {
+    const { error: err } = await getClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `https://team.tmweddings.com/auth/callback.html?redirect=${encodeURIComponent(redirect)}`,
+      }
+    });
+    if (err) throw err;
+  } catch(e) {
     btn.disabled = false;
     text.textContent = 'Continue with Google';
     spinner.style.display = 'none';
     error.style.display = 'block';
-    error.textContent = 'Sign in failed: ' + err.message;
+    error.textContent = 'Sign in failed: ' + e.message;
   }
 }
 </script>
