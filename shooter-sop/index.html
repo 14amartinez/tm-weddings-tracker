@@ -3,521 +3,742 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TM Weddings — Team Resources</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>TM Weddings — Shooter SOPs</title>
+<script src="https://player.vimeo.com/api/player.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-a{text-decoration:none;color:inherit;}
-html{-webkit-font-smoothing:antialiased;}
-
-:root{
-  --bg:#F6FEFE;
-  --surface:#ffffff;
-  --surface-2:#f0fafa;
-  --border:#b8dede;
-  --border-strong:#7ec8c8;
-  --text:#1a2b2b;
-  --text-mid:#5a7070;
-  --text-dim:#9ab8b8;
-  --teal:#4aacac;
-  --teal-dark:#357e7e;
-  --teal-light:#e8f5f5;
-  --teal-mid:#c2e4e4;
-  --dark:#0d1f1f;
-}
-
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
-  font-size:14px;
-}
-
-/* ── NAV ── */
-nav{
-  position:sticky;
-  top:0;
-  z-index:100;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 36px;
-  height:54px;
-  background:rgba(246,254,254,0.88);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-}
-.nav-logo{
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
-.nav-logo-mark{
-  width:28px;height:28px;
-  background:var(--dark);
-  border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-}
-.nav-logo-mark svg{width:12px;height:12px;}
-.nav-logo-name{
-  font-size:0.82rem;
-  font-weight:600;
-  color:var(--text);
-  letter-spacing:-0.01em;
-}
-.nav-right{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-.nav-date{
-  font-size:0.72rem;
-  color:var(--text-dim);
-}
-.nav-badge{
-  font-size:0.58rem;
-  font-weight:600;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  color:var(--text-mid);
-  background:var(--teal-light);
-  border:1px solid var(--teal-mid);
-  padding:3px 9px;
-  border-radius:4px;
-}
-
-/* ── PAGE ── */
-.page{
-  max-width:1060px;
-  margin:0 auto;
-  padding:48px 36px 100px;
-}
-
-/* ── HERO — tight, 1 row ── */
-.hero{
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:24px;
-  margin-bottom:52px;
-  flex-wrap:wrap;
-}
-.hero-left{
-  display:flex;
-  align-items:baseline;
-  gap:16px;
-  flex-wrap:wrap;
-}
-.hero-eyebrow{
-  font-size:0.6rem;
-  font-weight:600;
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  color:var(--teal);
-  white-space:nowrap;
-  align-self:center;
-}
-.hero-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:2.6rem;
-  font-weight:400;
-  color:var(--text);
-  letter-spacing:-0.02em;
-  line-height:1;
-}
-.hero-title em{
-  font-style:italic;
-  color:var(--teal);
-}
-.hero-desc{
-  font-size:0.78rem;
-  color:var(--text-mid);
-  font-weight:400;
-  line-height:1.5;
-  max-width:260px;
-  align-self:center;
-}
-
-/* ── SECTION LABEL ── */
-.label{
-  font-size:0.56rem;
-  font-weight:600;
-  letter-spacing:0.2em;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  margin-bottom:12px;
-}
-
-/* ── QUICK ACCESS ── */
-.qa-wrap{margin-bottom:48px;}
-.qa-grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  border:1.5px solid var(--border-strong);
-  border-radius:14px;
-  overflow:hidden;
-  gap:0;
-}
-.qa-col{
-  border-right:1.5px solid var(--border-strong);
-  background:var(--surface);
-  transition:background 0.15s;
-}
-.qa-col:last-child{border-right:none;}
-.qa-col:hover{background:var(--surface-2);}
-.qa-head{
-  padding:13px 16px;
-  border-bottom:1.5px solid var(--border-strong);
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:linear-gradient(180deg,#f8fdfd,#f0fafa);
-}
-.qa-head-icon{font-size:12px;line-height:1;}
-.qa-head-title{
-  font-size:0.62rem;
-  font-weight:700;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  color:var(--teal-dark);
-}
-.qa-items{
-  padding:6px;
-  display:flex;
-  flex-direction:column;
-  gap:1px;
-}
-.qa-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:8px 10px;
-  border-radius:7px;
-  font-size:0.75rem;
-  font-weight:600;
-  color:var(--text);
-  transition:all 0.12s;
-  min-height:32px;
-  line-height:1.2;
-}
-.qa-item:hover{background:var(--teal-light);color:var(--teal-dark);}
-.qa-item.dim{color:var(--text-mid);font-weight:500;font-size:0.7rem;cursor:default;}
-.qa-item.dim:hover{background:transparent;color:var(--text-dim);}
-.dot{
-  width:5px;height:5px;
-  border-radius:50%;
-  background:#34c759;
-  flex-shrink:0;
-  margin-left:5px;
-  box-shadow:0 0 4px rgba(52,209,89,0.5);
-}
-
-/* ── RESOURCE CARDS ── */
-.rc-wrap{margin-bottom:28px;}
-.rc-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-.rc{
-  background:var(--surface);
-  border:1.5px solid var(--border-strong);
-  border-radius:14px;
-  padding:26px 22px 20px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  position:relative;
-  overflow:hidden;
-  cursor:pointer;
-  transition:all 0.2s ease;
-  animation:up 0.4s ease forwards;
-  opacity:0;
-}
-@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.rc:nth-child(1){animation-delay:0.04s}
-.rc:nth-child(2){animation-delay:0.08s}
-.rc:nth-child(3){animation-delay:0.12s}
-.rc-accent{
-  position:absolute;
-  top:0;left:0;right:0;
-  height:2px;
-  background:linear-gradient(90deg,var(--teal),var(--teal-dark));
-  transform:scaleX(0);
-  transform-origin:left;
-  transition:transform 0.25s ease;
-}
-.rc:hover{
-  border-color:var(--teal);
-  box-shadow:0 4px 20px rgba(74,172,172,0.12);
-  transform:translateY(-1px);
-}
-.rc:hover .rc-accent{transform:scaleX(1);}
-.rc-num{
-  font-size:0.6rem;
-  font-weight:500;
-  letter-spacing:0.1em;
-  color:var(--text-dim);
-}
-.rc-icon{
-  font-size:20px;
-  line-height:1;
-}
-.rc-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.45rem;
-  font-weight:600;
-  color:var(--text);
-  line-height:1.15;
-  letter-spacing:-0.01em;
-}
-.rc-badge{
-  font-size:0.5rem;
-  font-weight:700;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  color:#28a745;
-  background:rgba(40,167,69,0.08);
-  border:0.5px solid rgba(40,167,69,0.2);
-  padding:2px 6px;
-  border-radius:3px;
-  margin-left:6px;
-  vertical-align:middle;
-}
-.rc-desc{
-  font-size:0.76rem;
-  color:var(--text-mid);
-  line-height:1.6;
-  font-weight:400;
-  flex:1;
-}
-.rc-foot{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding-top:12px;
-  border-top:1.5px solid var(--border-strong);
-  margin-top:auto;
-}
-.rc-cta{
-  font-size:0.72rem;
-  font-weight:700;
-  color:var(--teal-dark);
-  letter-spacing:0.04em;
-  display:flex;
-  align-items:center;
-  gap:4px;
-  transition:gap 0.15s;
-}
-.rc:hover .rc-cta{gap:7px;}
-
-/* ── COMING ── */
-.coming{
-  background:var(--surface);
-  border:1.5px solid var(--border-strong);
-  border-radius:10px;
-  padding:12px 18px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
-.coming-lbl{
-  font-size:0.56rem;
-  font-weight:600;
-  letter-spacing:0.16em;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  flex-shrink:0;
-}
-.chips{display:flex;flex-wrap:wrap;gap:5px;}
-.chip{
-  font-size:0.65rem;
-  color:var(--text-dim);
-  background:var(--teal-light);
-  border:1px solid var(--teal-mid);
-  border-radius:4px;
-  padding:2px 8px;
-}
-
-@media(max-width:780px){
-  nav{padding:0 18px;}
-  .page{padding:32px 18px 80px;}
-  .hero-title{font-size:2rem;}
-  .qa-grid{grid-template-columns:1fr 1fr;}
-  .rc-grid{grid-template-columns:1fr 1fr;}
-}
-@media(max-width:480px){
-  .hero{flex-direction:column;gap:8px;}
-  .qa-grid{grid-template-columns:1fr;}
-  .rc-grid{grid-template-columns:1fr;}
-}
+  :root {
+    --teal: #4aacac;
+    --teal-dark: #357e7e;
+    --teal-light: #e8f5f5;
+    --teal-mid: #c2e4e4;
+    --bg: #F6FEFE;
+    --white: #ffffff;
+    --text: #1a2b2b;
+    --text-muted: #5a7070;
+    --border: #d4ecec;
+    --red: #c0392b;
+    --green: #2e7d5e;
+    --shadow: 0 2px 16px rgba(74,172,172,0.10);
+    --shadow-hover: 0 6px 32px rgba(74,172,172,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Jost', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  .role-switcher { display: flex; gap: 16px; padding: 20px 32px 0; max-width: 960px; margin: 0 auto; }
+  .role-group { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .role-group-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); padding-left: 4px; }
+  .role-group-buttons { display: flex; gap: 8px; }
+  .role-btn { flex: 1; padding: 14px 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--white); cursor: pointer; transition: all 0.25s ease; text-align: left; box-shadow: var(--shadow); }
+  .role-btn:hover { border-color: var(--teal); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .role-btn.active { border-color: var(--teal); background: linear-gradient(135deg, #f0fafa 0%, var(--white) 100%); box-shadow: var(--shadow-hover); }
+  .role-btn-label { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-btn-sub { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .role-btn.active .role-btn-label { color: var(--teal-dark); }
+  .role-btn.active .role-btn-sub { color: var(--teal); }
+  .role-btn-cta { display: none; font-size: 0.72rem; font-weight: 500; color: var(--teal); margin-top: 6px; }
+  .section-pill { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--white); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
+  .section-pill:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .section-pill.active { background: var(--teal); border-color: var(--teal); color: var(--white); }
+  .main { max-width: 960px; margin: 24px auto 60px; padding: 0 32px; }
+  .hero-card { background: var(--white); border-radius: 16px; border: 1px solid var(--border); padding: 18px 28px; margin-bottom: 12px; box-shadow: var(--shadow); display: none; animation: fadeUp 0.35s ease forwards; }
+  .hero-card.visible { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 6px; }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--text); line-height: 1.2; margin-bottom: 8px; }
+  .hero-desc { color: var(--text-muted); font-size: 0.88rem; max-width: 600px; line-height: 1.6; }
+  .section-panel { display: none; animation: fadeUp 0.3s ease forwards; }
+  .section-panel.visible { display: block; }
+  .content-card { background: var(--white); border-radius: 14px; border: 1px solid var(--border); padding: 28px 32px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .card-title-icon { width: 28px; height: 28px; background: var(--teal-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+  .sop-list { list-style: none; }
+  .sop-list li { padding: 10px 0; border-bottom: 1px solid var(--teal-light); display: flex; align-items: flex-start; gap: 12px; font-size: 0.92rem; color: var(--text); }
+  .sop-list li:last-child { border-bottom: none; padding-bottom: 0; }
+  .sop-list li::before { content: ''; width: 6px; height: 6px; background: var(--teal); border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .sop-list li strong { color: var(--teal-dark); }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .mini-card { background: var(--teal-light); border-radius: 10px; padding: 16px 18px; border: 1px solid var(--teal-mid); }
+  .mini-card-title { font-weight: 600; font-size: 0.85rem; color: var(--teal-dark); margin-bottom: 5px; }
+  .mini-card-body { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .success-block, .failure-block { border-radius: 12px; padding: 22px 24px; }
+  .success-block { background: #f0faf6; border: 1.5px solid #a8d8c0; }
+  .failure-block { background: #fdf3f2; border: 1.5px solid #e8b4b0; }
+  .block-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .success-block .block-label { color: var(--green); }
+  .failure-block .block-label { color: var(--red); }
+  .sf-list { list-style: none; }
+  .sf-list li { font-size: 0.87rem; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .sf-list li:last-child { border-bottom: none; }
+  .success-block .sf-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .failure-block .sf-list li::before { content: '✕'; color: var(--red); font-weight: 700; flex-shrink: 0; }
+  .protocol-steps { display: flex; flex-direction: column; gap: 10px; }
+  .protocol-step { display: flex; align-items: flex-start; gap: 14px; background: var(--teal-light); border-radius: 10px; padding: 14px 18px; border: 1px solid var(--teal-mid); }
+  .step-num { width: 26px; height: 26px; background: var(--teal); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; }
+  .step-content-title { font-weight: 600; font-size: 0.88rem; color: var(--teal-dark); margin-bottom: 2px; }
+  .step-content-body { font-size: 0.82rem; color: var(--text-muted); }
+  .authority-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .authority-block { border-radius: 10px; padding: 20px 22px; }
+  .authority-may { background: #f0faf6; border: 1.5px solid #a8d8c0; }
+  .authority-defer { background: #fdf8f0; border: 1.5px solid #e8d4a0; }
+  .authority-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; }
+  .authority-may .authority-label { color: var(--green); }
+  .authority-defer .authority-label { color: #a07020; }
+  .authority-list { list-style: none; }
+  .authority-list li { font-size: 0.84rem; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05); color: var(--text); line-height: 1.5; }
+  .authority-list li:last-child { border-bottom: none; }
+  .notresp-list { list-style: none; }
+  .notresp-list li { padding: 10px 14px; background: #fdf3f2; border-radius: 8px; margin-bottom: 8px; font-size: 0.88rem; display: flex; align-items: flex-start; gap: 10px; border: 1px solid #e8b4b0; line-height: 1.5; }
+  .notresp-list li::before { content: '✕'; color: var(--red); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .notresp-list li:last-child { margin-bottom: 0; }
+  .escalation-path { display: flex; flex-direction: column; gap: 0; }
+  .escalation-level { display: flex; align-items: flex-start; gap: 0; position: relative; }
+  .escalation-level:not(:last-child)::after { content: ''; position: absolute; left: 19px; top: 42px; width: 2px; height: calc(100% - 20px); background: var(--teal-mid); }
+  .level-circle { width: 38px; height: 38px; border-radius: 50%; background: var(--teal); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; flex-shrink: 0; z-index: 1; margin-right: 16px; margin-bottom: 24px; }
+  .level-body { padding-top: 6px; padding-bottom: 24px; }
+  .level-title { font-weight: 600; font-size: 0.92rem; color: var(--text); margin-bottom: 4px; }
+  .level-desc { font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; }
+  .conduct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .conduct-item { background: var(--teal-light); border-radius: 10px; padding: 16px 18px; border: 1px solid var(--teal-mid); }
+  .conduct-item-title { font-weight: 600; font-size: 0.85rem; color: var(--teal-dark); margin-bottom: 6px; }
+  .conduct-item-body { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .download-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .download-btn { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 10px; border: 1.5px solid var(--teal); background: var(--white); color: var(--teal-dark); font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; text-decoration: none; transition: all 0.2s ease; box-shadow: var(--shadow); }
+  .download-btn:hover { background: var(--teal); color: var(--white); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .download-btn-icon { font-size: 1rem; }
+  .quality-list { list-style: none; }
+  .quality-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--teal-light); }
+  .quality-item:last-child { border-bottom: none; }
+  .quality-num { width: 30px; height: 30px; background: var(--teal); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; }
+  .quality-title { font-weight: 600; font-size: 0.92rem; color: var(--text); margin-bottom: 3px; }
+  .quality-desc { font-size: 0.83rem; color: var(--text-muted); }
+  .accent-line { width: 40px; height: 2px; background: var(--teal); border-radius: 2px; margin: 6px 0 10px; }
+  .mission-block { background: linear-gradient(135deg, var(--teal-light) 0%, #f0fafa 100%); border-radius: 12px; padding: 22px 26px; border-left: 4px solid var(--teal); margin-bottom: 20px; }
+  .mission-block p { font-size: 0.95rem; color: var(--text); line-height: 1.7; }
+  .section-intro { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; font-style: italic; }
+  .section-nav-wrap { position: relative; max-width: 960px; margin: 14px auto 0; }
+  .section-nav-wrap::after { content: ''; position: absolute; right: 0; top: 0; bottom: 4px; width: 40px; background: linear-gradient(to right, transparent, var(--bg)); pointer-events: none; }
+  .section-nav { display: flex; gap: 6px; padding: 0 32px; flex-wrap: wrap; }
+  @media (max-width: 768px) {
+    .role-switcher { padding: 14px 20px 0; gap: 14px; }
+    .section-nav { padding: 0 20px; }
+    .main { padding: 16px 20px 60px; }
+    .two-col, .authority-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .role-switcher { flex-direction: column; padding: 12px 16px 0; gap: 12px; }
+    .role-btn { padding: 12px 14px; }
+    .role-btn-sub { display: none; }
+    .role-btn-cta { display: block; }
+    .section-nav { padding: 0 16px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+    .section-nav::-webkit-scrollbar { display: none; }
+    .section-pill { white-space: nowrap; flex-shrink: 0; min-height: 36px; display: flex; align-items: center; }
+    .main { padding: 14px 16px 80px; margin-top: 16px; }
+    .content-card { padding: 18px 16px; }
+    .two-col, .card-grid, .authority-grid, .conduct-grid { grid-template-columns: 1fr; gap: 10px; }
+    .download-row { flex-direction: column; }
+    .download-btn { width: 100%; justify-content: center; }
+  }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo">
-    <div class="nav-logo-mark">
-      <svg viewBox="0 0 12 12" fill="none">
-        <circle cx="6" cy="6" r="4" stroke="white" stroke-width="1.2"/>
-        <circle cx="6" cy="6" r="1.5" fill="white"/>
-      </svg>
-    </div>
-    <span class="nav-logo-name">TM Weddings</span>
-  </div>
-  <div class="nav-right">
-    <span class="nav-date" id="nav-date"></span>
-    <span class="nav-badge">Internal</span>
-  </div>
-</nav>
-
-<div class="page">
-
-  <div class="hero">
-    <div class="hero-left">
-      <span class="hero-eyebrow">Team Hub</span>
-      <h1 class="hero-title">Team <em>Resources</em></h1>
-    </div>
-    <p class="hero-desc">SOPs, post production, and wedding day intel — everything in one place.</p>
-  </div>
-
-  <div class="qa-wrap">
-    <div class="label">Quick Access</div>
-    <div class="qa-grid" style="grid-template-columns:repeat(4,1fr);">
-
-      <div class="qa-col">
-        <div class="qa-head"><span class="qa-head-icon">💍</span><span class="qa-head-title">Wedding Day Info</span></div>
-        <div class="qa-items" id="wdi-links">
-          <a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>
-          <a class="qa-item dim">Loading...</a>
-        </div>
-      </div>
-
-      <div class="qa-col">
-        <div class="qa-head"><span class="qa-head-icon">🎞️</span><span class="qa-head-title">Post Production</span></div>
-        <div class="qa-items">
-          <a class="qa-item" href="/post-production/video">Video Dashboard <span class="dot"></span></a>
-          <a class="qa-item" href="/post-production/photo">Photo Dashboard <span class="dot"></span></a>
-          <a class="qa-item" href="/post-production/deliverables">Client Deliverables <span class="dot"></span></a>
-        </div>
-      </div>
-
-      <div class="qa-col">
-        <div class="qa-head"><span class="qa-head-icon">📋</span><span class="qa-head-title">Training Info</span></div>
-        <div class="qa-items">
-          <a class="qa-item" href="/shooter-sops">Lead Photo SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sops">Second Photo SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sops">Lead Film SOP <span class="dot"></span></a>
-          <a class="qa-item" href="/shooter-sops">Second Film SOP <span class="dot"></span></a>
-          <a class="qa-item dim">+ 4 coming</a>
-        </div>
-      </div>
-
-      <div class="qa-col">
-        <div class="qa-head"><span class="qa-head-icon">⚙️</span><span class="qa-head-title">General</span></div>
-        <div class="qa-items">
-          <a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>
-          <a class="qa-item dim">+ 5 guides coming</a>
-        </div>
-      </div>
-
+<div class="role-switcher">
+  <div class="role-group">
+    <div class="role-group-label">📷 Photography</div>
+    <div class="role-group-buttons">
+      <button class="role-btn active" onclick="switchRole('lead')" id="btn-lead">
+        <span class="role-btn-label">Lead Photographer</span>
+        <span class="role-btn-sub">Decision-maker · Lead</span>
+        <span class="role-btn-cta">→ Your role, your rules</span>
+      </button>
+      <button class="role-btn" onclick="switchRole('second')" id="btn-second">
+        <span class="role-btn-label">Second Photographer</span>
+        <span class="role-btn-sub">Support · Defer to Lead</span>
+        <span class="role-btn-cta">→ Support, execute, defer</span>
+      </button>
     </div>
   </div>
-
-  <div class="rc-wrap">
-    <div class="label">Live Resources</div>
-    <div class="rc-grid">
-
-      <a class="rc" href="/shooter-sops">
-        <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span class="rc-num">01</span>
-          <span class="rc-icon">📋</span>
-        </div>
-        <div class="rc-name">Standard Operating Procedures <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Role-by-role SOPs for all four shooter positions. Decision authority, protocols, and failure modes.</div>
-        <div class="rc-foot">
-          <span class="rc-cta">View SOPs →</span>
-        </div>
-      </a>
-
-      <a class="rc" href="/post-production">
-        <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span class="rc-num">02</span>
-          <span class="rc-icon">🎞️</span>
-        </div>
-        <div class="rc-name">Post Production Portal <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Video queue, client deliverables, and photo post production — the full pipeline in one dashboard.</div>
-        <div class="rc-foot">
-          <span class="rc-cta">Open Portal →</span>
-        </div>
-      </a>
-
-      <a class="rc" href="/weddings/">
-        <div class="rc-accent"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span class="rc-num">03</span>
-          <span class="rc-icon">💍</span>
-        </div>
-        <div class="rc-name">Wedding Day Info <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Every client's vendors, locations, shooters, shot list, and timeline — one sheet per wedding.</div>
-        <div class="rc-foot">
-          <span class="rc-cta">View Weddings →</span>
-        </div>
-      </a>
-
+  <div class="role-group">
+    <div class="role-group-label">🎬 Film</div>
+    <div class="role-group-buttons">
+      <button class="role-btn" onclick="switchRole('lead-film')" id="btn-lead-film">
+        <span class="role-btn-label">Lead Filmmaker</span>
+        <span class="role-btn-sub">Director · Audio · Timeline</span>
+        <span class="role-btn-cta">→ Your role, your film</span>
+      </button>
+      <button class="role-btn" onclick="switchRole('second-film')" id="btn-second-film">
+        <span class="role-btn-label">Second Filmmaker</span>
+        <span class="role-btn-sub">B-Cam · Audio · Defer to Lead</span>
+        <span class="role-btn-cta">→ Support, execute, defer</span>
+      </button>
     </div>
   </div>
-
-  <div class="coming">
-    <span class="coming-lbl">Coming Soon</span>
-    <div class="chips">
-      <span class="chip">Shot Lists</span>
-      <span class="chip">Technical Guides</span>
-      <span class="chip">On-Site Workflow</span>
-      <span class="chip">Gear Checklists</span>
-      <span class="chip">Brand & Conduct</span>
-      <span class="chip">Post-Wedding Protocol</span>
-      <span class="chip">Onboarding</span>
-      <span class="chip">Editing Standards</span>
-    </div>
-  </div>
-
 </div>
 
-<script>
-const now=new Date();
-document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+<div class="section-nav-wrap">
+<nav class="section-nav" id="section-nav">
+  <button class="section-pill active" onclick="switchSection('overview')">Overview</button>
+  <button class="section-pill" onclick="switchSection('responsibilities')">Duties</button>
+  <button class="section-pill" onclick="switchSection('authority')">Authority</button>
+  <button class="section-pill" onclick="switchSection('quality')">Quality</button>
+  <button class="section-pill" onclick="switchSection('failure')">If Things Go Wrong</button>
+  <button class="section-pill" onclick="switchSection('escalation')">Escalation</button>
+  <button class="section-pill" onclick="switchSection('conduct')">Conduct</button>
+  <button class="section-pill" onclick="switchSection('success')">Success / Fail</button>
+</nav>
+</div>
 
-(async()=>{
-  try{
-    const res=await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
-      headers:{'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp','Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'}
+<main class="main">
+
+  <div id="lead-overview" class="section-panel visible">
+    <div class="hero-card visible">
+      <div class="hero-eyebrow">TM Weddings · Lead Photographer SOP</div>
+      <h1 class="hero-title">Lead Photographer — Role SOP</h1>
+      <div class="accent-line"></div>
+      <p class="hero-desc">Complete photographic coverage, timeline ownership, and client communication throughout the wedding day.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎬</span> Training Video</div>
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:12px;overflow:hidden;">
+        <iframe id="vimeo-lead" src="https://player.vimeo.com/video/1183713529?badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Lead Photographer SOP"></iframe>
+      </div>
+      <div class="download-row" style="margin-top:16px;">
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e14dea89419c502b57f6b5/1776373226861/Lead-Photographer-Role-SOP.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Lead SOP — Slide Deck PDF</a>
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e14eb51dca221e80e90de3/1776373429987/ROLE+SOP+%E2%80%94+PHOTOGRAPHER+%28LEAD%29.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Lead SOP — Outline PDF</a>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎯</span> Role Purpose</div>
+      <div class="mission-block"><p>The Lead Photographer is responsible for <strong>complete photographic coverage, timeline awareness, and client communication</strong> throughout the entire wedding day. You are the decision-maker, communicator, and quality standard. Everything photo-related flows through you.</p></div>
+      <ul class="sop-list">
+        <li>You own all major moments — no exceptions</li>
+        <li>You are the final decision-maker for photo-related timing and flow</li>
+        <li>You communicate directly with planners, coordinators, and the second photographer</li>
+        <li>Represent TM Weddings professionally at all times</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-responsibilities" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📋</span> Primary Responsibilities</div>
+      <p class="section-intro">You own these moments — no exceptions.</p>
+      <div class="card-grid">
+        <div class="mini-card"><div class="mini-card-title">Getting Ready</div><div class="mini-card-body">First Looks, Posed Portraits, Ceremony coverage</div></div>
+        <div class="mini-card"><div class="mini-card-title">Family Portraits</div><div class="mini-card-body">Directed efficiently, respectful of timeline at all times</div></div>
+        <div class="mini-card"><div class="mini-card-title">Reception</div><div class="mini-card-body">Entrances, Dances, Toasts, Special Moments, Cake</div></div>
+        <div class="mini-card"><div class="mini-card-title">Off-Camera Lighting</div><div class="mini-card-body">Strobes when ambient light is insufficient. <strong>This is a MUST.</strong></div></div>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">➕</span> Additional Ownership</div>
+      <ul class="sop-list">
+        <li><strong>Timeline Awareness:</strong> Maintain constant awareness of photo timeline and pacing throughout the day</li>
+        <li><strong>Vendor Communication:</strong> Communicate proactively with planner, coordinator, or DJ as it relates to photo needs</li>
+        <li><strong>Second Photographer Coordination:</strong> Assign tasks and angles to balance coverage</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-authority" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚡</span> Decision Authority</div>
+      <p class="section-intro">The Lead Photographer is the final decision-maker for all photo-related timing and flow.</p>
+      <div class="authority-grid">
+        <div class="authority-block authority-may">
+          <div class="authority-label">✓ You Have Authority To</div>
+          <ul class="authority-list">
+            <li>Adjust photo plans based on real-world constraints</li>
+            <li>Assign tasks and angles to the second photographer</li>
+            <li>Resolve minor vendor conflicts related to photography</li>
+            <li>Decide all photo-related timing and flow</li>
+          </ul>
+        </div>
+        <div class="authority-block authority-defer" style="background:#fff8ee;border-color:#e8c870;">
+          <div class="authority-label" style="color:#a07020;">⚠ Key Example: Portraits Running Long</div>
+          <ul class="authority-list">
+            <li>Family members are missing or slow</li>
+            <li>Planner wants to move on</li>
+            <li>Couple still wants photos</li>
+            <li style="padding-top:10px;"><strong>Lead decides:</strong> shorten, reorder, pull people now, or move locations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🚫</span> Non-Responsibilities</div>
+      <ul class="notresp-list">
+        <li>Video coverage decisions or audio capture</li>
+        <li>Post-production or editing</li>
+        <li>Managing vendor conflicts unrelated to photography</li>
+        <li>Overseeing the second photographer's gear or technical setup</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-quality" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">✅</span> Quality Minimums</div>
+      <p class="section-intro">Binary standards — either met or not.</p>
+      <ul class="quality-list">
+        <li class="quality-item"><div class="quality-num">1</div><div><div class="quality-title">In Focus & Properly Exposed</div><div class="quality-desc">Every delivered image must be sharp and properly exposed.</div></div></li>
+        <li class="quality-item"><div class="quality-num">2</div><div><div class="quality-title">Complete Coverage</div><div class="quality-desc">No missed key moments. All major events must be captured.</div></div></li>
+        <li class="quality-item"><div class="quality-num">3</div><div><div class="quality-title">Efficient Portrait Sessions</div><div class="quality-desc">Respectful of timeline. No disorganized or drawn-out sessions.</div></div></li>
+        <li class="quality-item"><div class="quality-num">4</div><div><div class="quality-title">No Excessive Shooting</div><div class="quality-desc">Avoid 10–15 of the same photo per pose. Shoot with intention.</div></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-failure" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🔥</span> Failure Protocol</div>
+      <p class="section-intro">Respond with calm decisiveness — not panic.</p>
+      <div class="protocol-steps">
+        <div class="protocol-step"><div class="step-num">1</div><div><div class="step-content-title">Behind Timeline</div><div class="step-content-body">Communicate immediately with planner and TM contact (Brynn or Tony). Do not silently fall further behind.</div></div></div>
+        <div class="protocol-step"><div class="step-num">2</div><div><div class="step-content-title">Key Moment at Risk</div><div class="step-content-body">Prioritize coverage over aesthetics — get the shot first.</div></div></div>
+        <div class="protocol-step"><div class="step-num">3</div><div><div class="step-content-title">Equipment Fails</div><div class="step-content-body">Switch to backup immediately and continue without interruption.</div></div></div>
+        <div class="protocol-step"><div class="step-num">4</div><div><div class="step-content-title">Second Photographer Underperforms</div><div class="step-content-body">Adapt your coverage to compensate. Do not confront on-site.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-escalation" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📡</span> Escalation Path</div>
+      <div class="escalation-path">
+        <div class="escalation-level"><div class="level-circle">L1</div><div class="level-body"><div class="level-title">Resolve On-Site</div><div class="level-desc">Use your judgment. Adjust poses, timing, lighting, or flow.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">L2</div><div class="level-body"><div class="level-title">Contact TM Point-of-Contact</div><div class="level-desc">Text or call the designated TM Weddings contact if assigned.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">L3</div><div class="level-body"><div class="level-title">Escalate to Tony or Brynn</div><div class="level-desc">Only if client experience or coverage is genuinely at risk.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-conduct" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🤝</span> Professional Conduct</div>
+      <div class="conduct-grid">
+        <div class="conduct-item"><div class="conduct-item-title">Presence on Site</div><div class="conduct-item-body">Be calm, confident, and decisive. Minimal phone usage when shooting.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Keep Internal, Internal</div><div class="conduct-item-body">Never discuss staffing issues or team challenges with clients or guests.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Personal Branding</div><div class="conduct-item-body">Do not promote your personal brand while working a TM Weddings event.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Dress Standards</div><div class="conduct-item-body">Appearance must align with TM Weddings standards. No blue jeans. No hoodies.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-success" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚖️</span> Success vs. Failure</div>
+      <div class="two-col">
+        <div class="success-block"><div class="block-label">✓ Success Looks Like</div><ul class="sf-list"><li>Clients feel confident and cared for</li><li>Timeline stays intact or gracefully adapts</li><li>Coverage is complete without stress</li><li>Second photographer knows exactly what to do</li><li>Precise, intentional shooting throughout</li></ul></div>
+        <div class="failure-block"><div class="block-label">✕ Failure Looks Like</div><ul class="sf-list"><li>Missed key moments</li><li>Disorganized portrait flow</li><li>Poor communication with planner or team</li><li>Client uncertainty or visible stress</li><li>Over-shooting 10–15 of the same pose</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-overview" class="section-panel">
+    <div class="hero-card visible">
+      <div class="hero-eyebrow">TM Weddings · Second Photographer SOP</div>
+      <h1 class="hero-title">Second Photographer — Role SOP</h1>
+      <div class="accent-line"></div>
+      <p class="hero-desc">Responsibilities, authority limits, conduct, and success standards for seamless coverage support.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎬</span> Training Video</div>
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:12px;overflow:hidden;">
+        <iframe id="vimeo-second" src="https://player.vimeo.com/video/1183753953?badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Second Photographer SOP"></iframe>
+      </div>
+      <div class="download-row" style="margin-top:16px;">
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e14e317bd243206945cf3e/1776373297106/Second-Photographer-Role-SOP.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Second SOP — Slide Deck PDF</a>
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e14ee30d2c1d72585a5cdd/1776373475078/ROLE+SOP+%E2%80%94+PHOTOGRAPHER+%28SECOND%29+.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Second SOP — Outline PDF</a>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎯</span> Role Purpose</div>
+      <div class="mission-block"><p>The Second Photographer supports the Lead by <strong>executing assigned coverage, capturing complementary angles, and ensuring redundancy</strong> — without directing the timeline or client experience.</p></div>
+      <ul class="sop-list">
+        <li>Execute assigned coverage reliably — no guessing, no gaps</li>
+        <li>Proactively seek complementary angles and reactions</li>
+        <li>Defer to the Lead Photographer on all timeline and client decisions</li>
+        <li>Represent TM Weddings professionally at all times</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-responsibilities" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📋</span> Primary Responsibilities</div>
+      <div class="card-grid">
+        <div class="mini-card"><div class="mini-card-title">Capture Assigned Moments</div><div class="mini-card-body">Execute angles and details exactly as directed by the Lead.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Seek Complementary Coverage</div><div class="mini-card-body">Proactively find alternate angles, reactions, and details.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Maintain Readiness</div><div class="mini-card-body">Stay prepared to shift coverage if needs change throughout the day.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Coordinate & Represent</div><div class="mini-card-body">Avoid duplicated coverage. Represent TM Weddings professionally.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-authority" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚡</span> Decision Authority</div>
+      <div class="authority-grid">
+        <div class="authority-block authority-may"><div class="authority-label">✓ You May Decide</div><ul class="authority-list"><li>Moment-to-moment creative decisions within assigned tasks</li><li>Adjusting positioning or angles to maintain coverage</li></ul></div>
+        <div class="authority-block authority-defer"><div class="authority-label">⚠ Defer to Lead</div><ul class="authority-list"><li>Timeline decisions</li><li>Portrait flow and sequencing</li><li>Client-facing direction</li><li>Vendor communication related to schedule</li></ul></div>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🚫</span> What You Are NOT Responsible For</div>
+      <ul class="notresp-list">
+        <li>Managing the overall wedding day timeline</li>
+        <li>Directing family or formal portrait sessions (unless explicitly split by Lead)</li>
+        <li>Communicating schedule changes to planner or DJ</li>
+        <li>Making final creative or logistical decisions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-quality" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">✅</span> Quality Minimums</div>
+      <ul class="quality-list">
+        <li class="quality-item"><div class="quality-num">1</div><div><div class="quality-title">In Focus & Properly Exposed</div><div class="quality-desc">Every delivered image must be technically sound.</div></div></li>
+        <li class="quality-item"><div class="quality-num">2</div><div><div class="quality-title">Reliable Coverage</div><div class="quality-desc">Quality and reliability over volume.</div></div></li>
+        <li class="quality-item"><div class="quality-num">3</div><div><div class="quality-title">Complete Assigned Moments</div><div class="quality-desc">Every assigned moment must be captured. Missing moments is unacceptable.</div></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-failure" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🔥</span> Failure Protocol</div>
+      <div class="protocol-steps">
+        <div class="protocol-step"><div class="step-num">1</div><div><div class="step-content-title">Can't Capture Assigned Coverage</div><div class="step-content-body">Notify the Lead Photographer immediately. Do not guess or improvise.</div></div></div>
+        <div class="protocol-step"><div class="step-num">2</div><div><div class="step-content-title">Equipment Fails</div><div class="step-content-body">Switch to backup gear and continue without interruption.</div></div></div>
+        <div class="protocol-step"><div class="step-num">3</div><div><div class="step-content-title">Behind Timeline</div><div class="step-content-body">Notify Lead Photographer immediately. Do not independently adjust the plan.</div></div></div>
+        <div class="protocol-step"><div class="step-num">4</div><div><div class="step-content-title">Uncertain About Anything</div><div class="step-content-body">Ask the Lead Photographer. Never guess on timeline or client decisions.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-escalation" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📡</span> Escalation Path</div>
+      <div class="escalation-path">
+        <div class="escalation-level"><div class="level-circle">1</div><div class="level-body"><div class="level-title">Contact Lead Photographer</div><div class="level-desc">Communicate all issues directly to the Lead.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">2</div><div class="level-body"><div class="level-title">Do Not Escalate Further</div><div class="level-desc">Do not contact TM Weddings unless instructed by the Lead.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">!</div><div class="level-body"><div class="level-title">Emergency Escalation</div><div class="level-desc">For safety issues or critical coverage threats, escalate immediately.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-conduct" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🤝</span> Professional Conduct</div>
+      <div class="conduct-grid">
+        <div class="conduct-item"><div class="conduct-item-title">Attentive & Calm</div><div class="conduct-item-body">Stay composed and adaptable throughout the day.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Public Contradiction</div><div class="conduct-item-body">Never contradict the Lead Photographer publicly.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Personal Branding</div><div class="conduct-item-body">Do not promote your personal brand while working a TM Weddings event.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Dress Standards</div><div class="conduct-item-body">Appearance and conduct must align with TM Weddings standards.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-success" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚖️</span> Success vs. Failure</div>
+      <div class="two-col">
+        <div class="success-block"><div class="block-label">✓ Success Looks Like</div><ul class="sf-list"><li>Lead never worries about coverage gaps</li><li>Moments captured from multiple perspectives</li><li>Communication is smooth and proactive</li><li>Client experience remains seamless</li></ul></div>
+        <div class="failure-block"><div class="block-label">✕ Failure Looks Like</div><ul class="sf-list"><li>Missed assigned moments</li><li>Public disagreement with Lead</li><li>Independent timeline changes</li><li>Client confusion or visible tension</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-film-overview" class="section-panel">
+    <div class="hero-card visible">
+      <div class="hero-eyebrow">TM Weddings · Lead Filmmaker SOP</div>
+      <h1 class="hero-title">Lead Filmmaker — Role SOP</h1>
+      <div class="accent-line"></div>
+      <p class="hero-desc">Complete film coverage, audio ownership, timeline awareness, and client communication throughout the wedding day.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎬</span> Training Video</div>
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:12px;overflow:hidden;">
+        <iframe id="vimeo-lead-film" src="https://player.vimeo.com/video/1184196653?badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Lead Filmmaker SOP"></iframe>
+      </div>
+      <div class="download-row" style="margin-top:16px;">
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e261b09e96e5408bb417f9/1776443824270/Lead-Filmmaker-Role-SOP.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Lead Filmmaker SOP — Slide Deck PDF</a>
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e266ae49a59e00d61818d3/1776445102432/ROLE+SOP+%E2%80%94+FILMMAKER+%28LEAD%29.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Lead Filmmaker SOP — Outline PDF</a>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎯</span> Role Purpose</div>
+      <div class="mission-block"><p>The Lead Filmmaker is responsible for <strong>complete film coverage, audio capture, timeline awareness, and client communication</strong>. You are the storyteller, the audio engineer, and the creative director of the film.</p></div>
+      <ul class="sop-list">
+        <li>You own all major film moments — no exceptions</li>
+        <li>You are the final decision-maker for film-related timing and creative flow</li>
+        <li>You own audio — mic placement, levels, backup recording</li>
+        <li>Represent TM Weddings professionally at all times</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-film-responsibilities" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📋</span> Primary Responsibilities</div>
+      <div class="card-grid">
+        <div class="mini-card"><div class="mini-card-title">Getting Ready</div><div class="mini-card-body">Bride and groom prep, detail shots, ambient audio</div></div>
+        <div class="mini-card"><div class="mini-card-title">Ceremony</div><div class="mini-card-body">Primary camera, officiant mic, vow audio capture</div></div>
+        <div class="mini-card"><div class="mini-card-title">Portraits & Transitions</div><div class="mini-card-body">Cinematic couple coverage, venue b-roll, ambient sound</div></div>
+        <div class="mini-card"><div class="mini-card-title">Reception</div><div class="mini-card-body">Speeches, first dance, toasts — all must have clean audio</div></div>
+        <div class="mini-card"><div class="mini-card-title">Audio Ownership</div><div class="mini-card-body">Mic the couple, monitor levels, run backup recorder. <strong>This is a MUST.</strong></div></div>
+        <div class="mini-card"><div class="mini-card-title">Second Filmmaker Direction</div><div class="mini-card-body">Assign angles and b-cam tasks; coordinate coverage balance</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-film-authority" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚡</span> Decision Authority</div>
+      <div class="authority-grid">
+        <div class="authority-block authority-may"><div class="authority-label">✓ You Have Authority To</div><ul class="authority-list"><li>Adjust film coverage plan based on real-world conditions</li><li>Direct the second filmmaker's angles and tasks</li><li>Make all audio decisions — mic placement, levels, backup</li><li>Resolve minor vendor conflicts related to film</li></ul></div>
+        <div class="authority-block authority-defer" style="background:#fff8ee;border-color:#e8c870;"><div class="authority-label" style="color:#a07020;">⚠ Coordinate With Lead Photo</div><ul class="authority-list"><li>Positioning conflicts during ceremony or portraits</li><li>Timeline decisions affecting both photo and film</li><li>Client-facing direction during shared moments</li></ul></div>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🚫</span> Non-Responsibilities</div>
+      <ul class="notresp-list">
+        <li>Photography decisions or directing photo coverage</li>
+        <li>Post-production editing</li>
+        <li>Managing vendor conflicts unrelated to film or audio</li>
+        <li>Overseeing second filmmaker's personal gear setup</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-film-quality" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">✅</span> Quality Minimums</div>
+      <ul class="quality-list">
+        <li class="quality-item"><div class="quality-num">1</div><div><div class="quality-title">Clean Audio on All Key Moments</div><div class="quality-desc">Vows, speeches, and toasts must have usable, clean audio. No exceptions.</div></div></li>
+        <li class="quality-item"><div class="quality-num">2</div><div><div class="quality-title">In Focus & Properly Exposed</div><div class="quality-desc">Every clip must be sharp, exposed correctly, stable.</div></div></li>
+        <li class="quality-item"><div class="quality-num">3</div><div><div class="quality-title">Complete Coverage</div><div class="quality-desc">No missed key moments. All major events must have film coverage.</div></div></li>
+        <li class="quality-item"><div class="quality-num">4</div><div><div class="quality-title">Backup Audio Running</div><div class="quality-desc">A redundant audio source must run during ceremony and speeches at all times.</div></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="lead-film-failure" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🔥</span> Failure Protocol</div>
+      <div class="protocol-steps">
+        <div class="protocol-step"><div class="step-num">1</div><div><div class="step-content-title">Audio Failure</div><div class="step-content-body">Switch to backup immediately. Do not announce to clients. Recover silently.</div></div></div>
+        <div class="protocol-step"><div class="step-num">2</div><div><div class="step-content-title">Behind Timeline</div><div class="step-content-body">Communicate immediately with planner and TM contact (Brynn or Tony).</div></div></div>
+        <div class="protocol-step"><div class="step-num">3</div><div><div class="step-content-title">Equipment Fails</div><div class="step-content-body">Switch to backup camera immediately and continue without interruption.</div></div></div>
+        <div class="protocol-step"><div class="step-num">4</div><div><div class="step-content-title">Second Filmmaker Underperforms</div><div class="step-content-body">Adapt your coverage to compensate. Do not confront on-site.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-film-escalation" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📡</span> Escalation Path</div>
+      <div class="escalation-path">
+        <div class="escalation-level"><div class="level-circle">L1</div><div class="level-body"><div class="level-title">Resolve On-Site</div><div class="level-desc">Adjust angles, audio sources, or positioning. Coordinate with Lead Photo if needed.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">L2</div><div class="level-body"><div class="level-title">Contact TM Point-of-Contact</div><div class="level-desc">Text or call the designated TM contact for guidance.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">L3</div><div class="level-body"><div class="level-title">Escalate to Tony or Brynn</div><div class="level-desc">Only if client experience or film coverage is genuinely at risk.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-film-conduct" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🤝</span> Professional Conduct</div>
+      <div class="conduct-grid">
+        <div class="conduct-item"><div class="conduct-item-title">Presence on Site</div><div class="conduct-item-body">Be calm, confident, and unobtrusive. Blend in, don't disrupt.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Keep Internal, Internal</div><div class="conduct-item-body">Never discuss audio issues or team challenges with clients or guests.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Personal Branding</div><div class="conduct-item-body">Do not promote your personal brand while working a TM Weddings event.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Dress Standards</div><div class="conduct-item-body">Appearance must align with TM Weddings standards. No blue jeans. No hoodies.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-film-success" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚖️</span> Success vs. Failure</div>
+      <div class="two-col">
+        <div class="success-block"><div class="block-label">✓ Success Looks Like</div><ul class="sf-list"><li>Every key moment has clean, usable audio</li><li>Coverage is cinematic, complete, and intentional</li><li>Second filmmaker knew exactly what to shoot</li><li>Clients never sensed any tension or technical issues</li></ul></div>
+        <div class="failure-block"><div class="block-label">✕ Failure Looks Like</div><ul class="sf-list"><li>Missing or unusable audio on vows or speeches</li><li>Missed key film moments</li><li>Second filmmaker had no direction</li><li>Visible disruption to the ceremony</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-film-overview" class="section-panel">
+    <div class="hero-card visible">
+      <div class="hero-eyebrow">TM Weddings · Second Filmmaker SOP</div>
+      <h1 class="hero-title">Second Filmmaker — Role SOP</h1>
+      <div class="accent-line"></div>
+      <p class="hero-desc">B-camera coverage, audio support, and seamless execution under the Lead Filmmaker's direction.</p>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎬</span> Training Video</div>
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:12px;overflow:hidden;">
+        <iframe id="vimeo-second-film" src="https://player.vimeo.com/video/1184198754?badge=0&autopause=0&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Second Filmmaker SOP"></iframe>
+      </div>
+      <div class="download-row" style="margin-top:16px;">
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e261e73dcfc0317740ecc0/1776443879802/Role-SOP-Filmmaker-Second.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Second Filmmaker SOP — Slide Deck PDF</a>
+        <a href="https://static1.squarespace.com/static/5eed35ccde9d101d26dff15f/t/69e266f1dceffd102bf74ca5/1776445169151/ROLE+SOP+%E2%80%94+FILMMAKER+%28SECOND%29.pdf" target="_blank" class="download-btn"><span class="download-btn-icon">📄</span> Second Filmmaker SOP — Outline PDF</a>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🎯</span> Role Purpose</div>
+      <div class="mission-block"><p>The Second Filmmaker supports the Lead by <strong>operating the B-camera, capturing complementary angles, and assisting with audio</strong> — without directing the creative flow or client experience.</p></div>
+      <ul class="sop-list">
+        <li>Execute assigned B-camera coverage reliably — no guessing, no gaps</li>
+        <li>Assist with audio setup and monitoring when directed</li>
+        <li>Proactively capture reactions, details, and alternate angles</li>
+        <li>Defer to the Lead Filmmaker on all creative and timeline decisions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-film-responsibilities" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📋</span> Primary Responsibilities</div>
+      <div class="card-grid">
+        <div class="mini-card"><div class="mini-card-title">B-Camera Coverage</div><div class="mini-card-body">Execute assigned angles. Capture the complementary perspective to the Lead's A-camera.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Reactions & Details</div><div class="mini-card-body">Proactively find guest reactions, emotional moments, and detail shots.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Audio Assistance</div><div class="mini-card-body">Assist with mic placement and monitor levels when directed by Lead.</div></div>
+        <div class="mini-card"><div class="mini-card-title">Maintain Readiness</div><div class="mini-card-body">Stay prepared to shift coverage if needs change. Always know where the Lead is.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-film-authority" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚡</span> Decision Authority</div>
+      <div class="authority-grid">
+        <div class="authority-block authority-may"><div class="authority-label">✓ You May Decide</div><ul class="authority-list"><li>B-camera framing and angle choices within assigned tasks</li><li>Repositioning to maintain better coverage</li><li>Which reaction shots or details to capture proactively</li></ul></div>
+        <div class="authority-block authority-defer"><div class="authority-label">⚠ Defer to Lead</div><ul class="authority-list"><li>All audio decisions and mic placement</li><li>Creative direction and story approach</li><li>Timeline decisions and coverage priority</li><li>Any client-facing communication</li></ul></div>
+      </div>
+    </div>
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🚫</span> What You Are NOT Responsible For</div>
+      <ul class="notresp-list">
+        <li>Audio capture or mic management (unless explicitly directed)</li>
+        <li>Overall film creative direction or story decisions</li>
+        <li>Communicating with clients, planners, or vendors</li>
+        <li>Making final coverage or timeline decisions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-film-quality" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">✅</span> Quality Minimums</div>
+      <ul class="quality-list">
+        <li class="quality-item"><div class="quality-num">1</div><div><div class="quality-title">In Focus & Properly Exposed</div><div class="quality-desc">Every clip must be sharp, exposed, and stable.</div></div></li>
+        <li class="quality-item"><div class="quality-num">2</div><div><div class="quality-title">Reliable B-Camera Coverage</div><div class="quality-desc">Every assigned angle must be captured. Missing coverage is unacceptable.</div></div></li>
+        <li class="quality-item"><div class="quality-num">3</div><div><div class="quality-title">No Unnecessary Audio Interference</div><div class="quality-desc">Do not touch audio equipment unless explicitly directed by the Lead.</div></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="second-film-failure" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🔥</span> Failure Protocol</div>
+      <div class="protocol-steps">
+        <div class="protocol-step"><div class="step-num">1</div><div><div class="step-content-title">Can't Capture Assigned Coverage</div><div class="step-content-body">Notify Lead Filmmaker immediately. Do not guess or improvise.</div></div></div>
+        <div class="protocol-step"><div class="step-num">2</div><div><div class="step-content-title">Equipment Fails</div><div class="step-content-body">Switch to backup and continue without interruption.</div></div></div>
+        <div class="protocol-step"><div class="step-num">3</div><div><div class="step-content-title">Behind or Confused</div><div class="step-content-body">Ask the Lead Filmmaker immediately. Never guess.</div></div></div>
+        <div class="protocol-step"><div class="step-num">4</div><div><div class="step-content-title">Uncertain About Anything</div><div class="step-content-body">Ask. Do not guess. The Lead Filmmaker is your single point of contact.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-film-escalation" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">📡</span> Escalation Path</div>
+      <div class="escalation-path">
+        <div class="escalation-level"><div class="level-circle">1</div><div class="level-body"><div class="level-title">Contact Lead Filmmaker</div><div class="level-desc">Communicate all issues directly. Keep it clear and concise.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">2</div><div class="level-body"><div class="level-title">Do Not Escalate Further</div><div class="level-desc">Do not contact TM Weddings unless instructed by the Lead.</div></div></div>
+        <div class="escalation-level"><div class="level-circle">!</div><div class="level-body"><div class="level-title">Emergency Escalation</div><div class="level-desc">For safety issues or critical coverage threats, escalate immediately.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-film-conduct" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">🤝</span> Professional Conduct</div>
+      <div class="conduct-grid">
+        <div class="conduct-item"><div class="conduct-item-title">Attentive & Invisible</div><div class="conduct-item-body">Stay composed, blend in, never draw attention to yourself or your gear.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Public Contradiction</div><div class="conduct-item-body">Never contradict the Lead Filmmaker publicly.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">No Personal Branding</div><div class="conduct-item-body">Do not promote your personal brand while working a TM Weddings event.</div></div>
+        <div class="conduct-item"><div class="conduct-item-title">Dress Standards</div><div class="conduct-item-body">Appearance and conduct must align with TM Weddings standards.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="second-film-success" class="section-panel">
+    <div class="content-card">
+      <div class="card-title"><span class="card-title-icon">⚖️</span> Success vs. Failure</div>
+      <div class="two-col">
+        <div class="success-block"><div class="block-label">✓ Success Looks Like</div><ul class="sf-list"><li>Lead never worried about B-camera coverage</li><li>Reactions and details captured from complementary angles</li><li>Communication was proactive and clear all day</li><li>Client experience was completely seamless</li></ul></div>
+        <div class="failure-block"><div class="block-label">✕ Failure Looks Like</div><ul class="sf-list"><li>Missed assigned B-camera coverage</li><li>Touched audio equipment without direction</li><li>Independent decisions on coverage or timeline</li><li>Visible disruption or confusion on the day</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let currentRole = 'lead';
+  let currentSection = 'overview';
+  var players = {};
+
+  function initPlayers() {
+    var ids = {lead:'vimeo-lead',second:'vimeo-second',leadFilm:'vimeo-lead-film',secondFilm:'vimeo-second-film'};
+    Object.entries(ids).forEach(([key,id])=>{
+      var el = document.getElementById(id);
+      if(el && window.Vimeo) players[key] = new Vimeo.Player(el);
     });
-    const rows=await res.json();
-    if(!rows?.[0])return;
-    const today=new Date();today.setHours(0,0,0,0);
-    const upcoming=(rows[0].data.weddings||[])
-      .filter(w=>w.date&&new Date(w.date+'T12:00:00')>=today)
-      .sort((a,b)=>new Date(a.date)-new Date(b.date))
-      .slice(0,4);
-    const c=document.getElementById('wdi-links');
-    let h=`<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>`;
-    if(!upcoming.length){h+=`<a class="qa-item dim">No upcoming</a>`;}
-    else upcoming.forEach(w=>{
-      const d=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      const parts=w.client.split('/')[0].trim().split(' ');
-      const name=parts[0]+(parts.length>1?' '+parts[parts.length-1]:'');
-      h+=`<a class="qa-item" href="/weddings/client.html?id=${w.id}" style="font-size:0.69rem;">${name}<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">${d}</span><span class="dot"></span></a>`;
+  }
+
+  function stopAllVideos() {
+    Object.values(players).forEach(p=>{ try{p.pause();}catch(e){} });
+  }
+
+  function switchRole(role) {
+    stopAllVideos();
+    currentRole = role;
+    ['btn-lead','btn-second','btn-lead-film','btn-second-film'].forEach(id=>{
+      var el = document.getElementById(id);
+      if(el) el.classList.remove('active');
     });
-    c.innerHTML=h;
-  }catch{}
-})();
+    var btn = document.getElementById('btn-'+role);
+    if(btn) btn.classList.add('active');
+    showSection(currentSection);
+  }
+
+  function switchSection(section) {
+    stopAllVideos();
+    currentSection = section;
+    document.querySelectorAll('.section-pill').forEach(p=>p.classList.remove('active'));
+    event.target.classList.add('active');
+    event.target.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    showSection(section);
+  }
+
+  function showSection(section) {
+    document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('visible'));
+    var target = document.getElementById(currentRole+'-'+section);
+    if(target){
+      target.classList.add('visible');
+      target.style.animation='none';
+      target.offsetHeight;
+      target.style.animation='';
+    }
+  }
+
+  window.addEventListener('load', initPlayers);
 </script>
 </body>
 </html>
