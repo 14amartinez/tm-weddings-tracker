@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="/tmw-auth.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TM Weddings — Team Resources</title>
@@ -422,8 +421,7 @@ nav{
 
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">⚙️</span><span class="qa-head-title">General</span></div>
-        <div class="qa-items">
-          <a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>
+        <div class="qa-items" id="general-links">
           <a class="qa-item dim">+ 5 guides coming</a>
         </div>
       </div>
@@ -497,11 +495,15 @@ nav{
 const now=new Date();
 document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 
-// Show user name once auth loads
 const _ui=setInterval(()=>{
   if(window.TMW_USER){
     clearInterval(_ui);
     document.getElementById('nav-user').textContent=TMW_USER.name;
+    // Show owner dashboard link only for Tony + Brynn
+    if(TMW_USER.isOwner){
+      const gl=document.getElementById('general-links');
+      gl.innerHTML=`<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>` + gl.innerHTML;
+    }
   }
 },100);
 
