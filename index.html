@@ -4,337 +4,354 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TM Weddings — Team Resources</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 a{text-decoration:none;color:inherit;}
-html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+html{-webkit-font-smoothing:antialiased;}
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f2f2f7;
-  color: #1c1c1e;
-  min-height: 100vh;
-  overflow-x: hidden;
+:root{
+  --bg:#F6FEFE;
+  --surface:#ffffff;
+  --surface-2:#f0fafa;
+  --border:#b8dede;
+  --border-strong:#7ec8c8;
+  --text:#1a2b2b;
+  --text-mid:#5a7070;
+  --text-dim:#9ab8b8;
+  --teal:#4aacac;
+  --teal-dark:#357e7e;
+  --teal-light:#e8f5f5;
+  --teal-mid:#c2e4e4;
+  --dark:#0d1f1f;
 }
 
-/* ── BACKGROUND — single deep gradient, no animation ── */
-.bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(74,172,172,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(45,128,128,0.12) 0%, transparent 55%),
-    #f2f2f7;
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  font-size:14px;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 36px;
+  height:54px;
+  background:rgba(246,254,254,0.88);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.nav-logo-mark{
+  width:28px;height:28px;
+  background:var(--dark);
+  border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-logo-mark svg{width:12px;height:12px;}
+.nav-logo-name{
+  font-size:0.82rem;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-0.01em;
+}
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.nav-date{
+  font-size:0.72rem;
+  color:var(--text-dim);
+}
+.nav-badge{
+  font-size:0.58rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-mid);
+  background:var(--teal-light);
+  border:1px solid var(--teal-mid);
+  padding:3px 9px;
+  border-radius:4px;
 }
 
 /* ── PAGE ── */
-.page {
-  position: relative;
-  z-index: 1;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 0 28px 120px;
+.page{
+  max-width:1060px;
+  margin:0 auto;
+  padding:48px 36px 100px;
 }
 
-/* ── TOPBAR ── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 0 0;
-  margin-bottom: 64px;
+/* ── HERO — tight, 1 row ── */
+.hero{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:52px;
+  flex-wrap:wrap;
 }
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+.hero-left{
+  display:flex;
+  align-items:baseline;
+  gap:16px;
+  flex-wrap:wrap;
 }
-.logo-icon {
-  width: 30px; height: 30px;
-  background: #1c1c1e;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+.hero-eyebrow{
+  font-size:0.6rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--teal);
+  white-space:nowrap;
+  align-self:center;
 }
-.logo-icon svg { width: 14px; height: 14px; }
-.logo-text {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #1c1c1e;
-  letter-spacing: -0.01em;
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.6rem;
+  font-weight:400;
+  color:var(--text);
+  letter-spacing:-0.02em;
+  line-height:1;
 }
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.hero-title em{
+  font-style:italic;
+  color:var(--teal);
 }
-.topbar-date {
-  font-size: 0.78rem;
-  color: #8e8e93;
-  font-weight: 400;
-}
-.topbar-badge {
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #8e8e93;
-  background: rgba(142,142,147,0.1);
-  border: 1px solid rgba(142,142,147,0.18);
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-/* ── HERO ── */
-.hero {
-  margin-bottom: 64px;
-}
-.hero-eyebrow {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #3a8f8f;
-  margin-bottom: 12px;
-}
-.hero-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 4.8rem;
-  font-weight: 300;
-  line-height: 0.95;
-  color: #1c1c1e;
-  letter-spacing: -0.02em;
-  margin-bottom: 20px;
-}
-.hero-title strong {
-  font-weight: 600;
-  font-style: italic;
-  color: #2d8080;
-}
-.hero-desc {
-  font-size: 0.88rem;
-  color: #8e8e93;
-  line-height: 1.6;
-  max-width: 380px;
-  font-weight: 400;
+.hero-desc{
+  font-size:0.78rem;
+  color:var(--text-mid);
+  font-weight:400;
+  line-height:1.5;
+  max-width:260px;
+  align-self:center;
 }
 
 /* ── SECTION LABEL ── */
-.label {
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #aeaeb2;
-  margin-bottom: 12px;
+.label{
+  font-size:0.56rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin-bottom:12px;
 }
 
 /* ── QUICK ACCESS ── */
-.qa-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin-bottom: 48px;
+.qa-wrap{margin-bottom:48px;}
+.qa-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border:1.5px solid var(--border-strong);
+  border-radius:14px;
+  overflow:hidden;
+  gap:0;
 }
-.qa-card {
-  background: rgba(255,255,255,0.82);
-  border: 0.5px solid rgba(0,0,0,0.08);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04);
+.qa-col{
+  border-right:1.5px solid var(--border-strong);
+  background:var(--surface);
+  transition:background 0.15s;
 }
-.qa-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+.qa-col:last-child{border-right:none;}
+.qa-col:hover{background:var(--surface-2);}
+.qa-head{
+  padding:13px 16px;
+  border-bottom:1.5px solid var(--border-strong);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(180deg,#f8fdfd,#f0fafa);
 }
-.qa-card-header {
-  padding: 12px 13px 10px;
-  border-bottom: 0.5px solid rgba(0,0,0,0.06);
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.qa-head-icon{font-size:12px;line-height:1;}
+.qa-head-title{
+  font-size:0.62rem;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--teal-dark);
 }
-.qa-card-icon { font-size: 13px; line-height: 1; }
-.qa-card-title {
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #3c3c43;
-  opacity: 0.6;
+.qa-items{
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  gap:1px;
 }
-.qa-links {
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+.qa-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 10px;
+  border-radius:7px;
+  font-size:0.75rem;
+  font-weight:600;
+  color:var(--text);
+  transition:all 0.12s;
+  min-height:32px;
+  line-height:1.2;
 }
-.qa-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 8px;
-  border-radius: 10px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: #1c1c1e;
-  transition: background 0.12s ease;
-  min-height: 32px;
-  line-height: 1.25;
-}
-.qa-link:hover { background: rgba(74,172,172,0.1); }
-.qa-link.dim {
-  color: #aeaeb2;
-  font-weight: 400;
-  font-size: 0.68rem;
-  cursor: default;
-}
-.qa-link.dim:hover { background: transparent; }
-.dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #34c759;
-  flex-shrink: 0;
-  margin-left: 4px;
+.qa-item:hover{background:var(--teal-light);color:var(--teal-dark);}
+.qa-item.dim{color:var(--text-mid);font-weight:500;font-size:0.7rem;cursor:default;}
+.qa-item.dim:hover{background:transparent;color:var(--text-dim);}
+.dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#34c759;
+  flex-shrink:0;
+  margin-left:5px;
+  box-shadow:0 0 4px rgba(52,209,89,0.5);
 }
 
 /* ── RESOURCE CARDS ── */
-.rc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+.rc-wrap{margin-bottom:28px;}
+.rc-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
 }
-.rc {
-  background: rgba(255,255,255,0.9);
-  border: 0.5px solid rgba(0,0,0,0.07);
-  border-radius: 20px;
-  padding: 22px 20px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.04);
-  animation: up 0.45s ease forwards;
-  opacity: 0;
+.rc{
+  background:var(--surface);
+  border:1.5px solid var(--border-strong);
+  border-radius:14px;
+  padding:26px 22px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  animation:up 0.4s ease forwards;
+  opacity:0;
 }
-@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .rc:nth-child(1){animation-delay:0.04s}
 .rc:nth-child(2){animation-delay:0.08s}
 .rc:nth-child(3){animation-delay:0.12s}
-.rc-bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2.5px;
-  background: linear-gradient(90deg, #4aacac, #2d8f8f);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+.rc-accent{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--teal),var(--teal-dark));
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform 0.25s ease;
 }
-.rc:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06); }
-.rc:hover .rc-bar { opacity: 1; }
-.rc-icon-wrap {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, rgba(74,172,172,0.12), rgba(74,172,172,0.2));
-  border-radius: 12px;
-  border: 0.5px solid rgba(74,172,172,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+.rc:hover{
+  border-color:var(--teal);
+  box-shadow:0 4px 20px rgba(74,172,172,0.12);
+  transform:translateY(-1px);
 }
-.rc-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.18rem;
-  font-weight: 600;
-  color: #1c1c1e;
-  line-height: 1.2;
-  margin-bottom: 5px;
+.rc:hover .rc-accent{transform:scaleX(1);}
+.rc-num{
+  font-size:0.6rem;
+  font-weight:500;
+  letter-spacing:0.1em;
+  color:var(--text-dim);
 }
-.rc-badge {
-  font-size: 0.52rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #34c759;
-  background: rgba(52,199,89,0.1);
-  border: 0.5px solid rgba(52,199,89,0.2);
-  padding: 2px 6px;
-  border-radius: 20px;
-  margin-left: 5px;
-  vertical-align: middle;
+.rc-icon{
+  font-size:20px;
+  line-height:1;
 }
-.rc-desc {
-  font-size: 0.76rem;
-  color: #8e8e93;
-  line-height: 1.55;
+.rc-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.45rem;
+  font-weight:600;
+  color:var(--text);
+  line-height:1.15;
+  letter-spacing:-0.01em;
 }
-.rc-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-  border-top: 0.5px solid rgba(0,0,0,0.06);
-  margin-top: auto;
+.rc-badge{
+  font-size:0.5rem;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:#28a745;
+  background:rgba(40,167,69,0.08);
+  border:0.5px solid rgba(40,167,69,0.2);
+  padding:2px 6px;
+  border-radius:3px;
+  margin-left:6px;
+  vertical-align:middle;
 }
-.rc-cta {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #3a8f8f;
-  letter-spacing: 0.04em;
+.rc-desc{
+  font-size:0.76rem;
+  color:var(--text-mid);
+  line-height:1.6;
+  font-weight:400;
+  flex:1;
 }
-.rc-arr {
-  width: 24px; height: 24px;
-  background: rgba(74,172,172,0.1);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  color: #3a8f8f;
-  transition: all 0.18s ease;
+.rc-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-top:12px;
+  border-top:1.5px solid var(--border-strong);
+  margin-top:auto;
 }
-.rc:hover .rc-arr { background: #4aacac; color: white; }
+.rc-cta{
+  font-size:0.72rem;
+  font-weight:700;
+  color:var(--teal-dark);
+  letter-spacing:0.04em;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  transition:gap 0.15s;
+}
+.rc:hover .rc-cta{gap:7px;}
 
-/* ── COMING ROW ── */
-.coming {
-  background: rgba(255,255,255,0.6);
-  border: 0.5px solid rgba(0,0,0,0.06);
-  border-radius: 14px;
-  padding: 13px 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+/* ── COMING ── */
+.coming{
+  background:var(--surface);
+  border:1.5px solid var(--border-strong);
+  border-radius:10px;
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
 }
-.coming-lbl {
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #aeaeb2;
-  flex-shrink: 0;
+.coming-lbl{
+  font-size:0.56rem;
+  font-weight:600;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  flex-shrink:0;
 }
-.chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.chip {
-  font-size: 0.66rem;
-  color: #aeaeb2;
-  background: rgba(142,142,147,0.08);
-  border: 0.5px solid rgba(142,142,147,0.14);
-  border-radius: 20px;
-  padding: 3px 9px;
+.chips{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{
+  font-size:0.65rem;
+  color:var(--text-dim);
+  background:var(--teal-light);
+  border:1px solid var(--teal-mid);
+  border-radius:4px;
+  padding:2px 8px;
 }
 
-/* ── MOBILE ── */
 @media(max-width:780px){
-  .page{padding:0 18px 80px;}
-  .hero-title{font-size:3.2rem;}
-  .qa-grid{grid-template-columns:1fr 1fr;gap:8px;}
-  .rc-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  nav{padding:0 18px;}
+  .page{padding:32px 18px 80px;}
+  .hero-title{font-size:2rem;}
+  .qa-grid{grid-template-columns:1fr 1fr;}
+  .rc-grid{grid-template-columns:1fr 1fr;}
 }
-@media(max-width:500px){
-  .hero-title{font-size:2.6rem;}
+@media(max-width:480px){
+  .hero{flex-direction:column;gap:8px;}
   .qa-grid{grid-template-columns:1fr;}
   .rc-grid{grid-template-columns:1fr;}
 }
@@ -342,112 +359,125 @@ body {
 </head>
 <body>
 
-<div class="bg"></div>
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="4" stroke="white" stroke-width="1.2"/>
+        <circle cx="6" cy="6" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="nav-logo-name">TM Weddings</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-date" id="nav-date"></span>
+    <span class="nav-badge">Internal</span>
+  </div>
+</nav>
 
 <div class="page">
 
-  <div class="topbar">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 14 14" fill="none">
-          <circle cx="7" cy="7" r="4.5" stroke="white" stroke-width="1.2"/>
-          <circle cx="7" cy="7" r="1.8" fill="white"/>
-        </svg>
-      </div>
-      <span class="logo-text">TM Weddings</span>
-    </div>
-    <div class="topbar-right">
-      <span class="topbar-date" id="topbar-date"></span>
-      <span class="topbar-badge">Internal</span>
-    </div>
-  </div>
-
   <div class="hero">
-    <div class="hero-eyebrow">Team Resources</div>
-    <h1 class="hero-title">Everything<br>your team<br><strong>needs.</strong></h1>
-    <p class="hero-desc">SOPs, post production dashboards, wedding day intel — all in one place.</p>
+    <div class="hero-left">
+      <span class="hero-eyebrow">Team Hub</span>
+      <h1 class="hero-title">Team <em>Resources</em></h1>
+    </div>
+    <p class="hero-desc">SOPs, post production, and wedding day intel — everything in one place.</p>
   </div>
 
-  <div class="label">Quick Access</div>
-  <div class="qa-grid">
+  <div class="qa-wrap">
+    <div class="label">Quick Access</div>
+    <div class="qa-grid">
 
-    <div class="qa-card">
-      <div class="qa-card-header"><span class="qa-card-icon">📷</span><span class="qa-card-title">Photography</span></div>
-      <div class="qa-links">
-        <a class="qa-link" href="/shooter-sops">Lead Photo SOP <span class="dot"></span></a>
-        <a class="qa-link" href="/shooter-sops">Second Photo SOP <span class="dot"></span></a>
-        <a class="qa-link dim">+ 4 coming</a>
+      <div class="qa-col">
+        <div class="qa-head"><span class="qa-head-icon">📷</span><span class="qa-head-title">Photography</span></div>
+        <div class="qa-items">
+          <a class="qa-item" href="/shooter-sops">Lead Photo SOP <span class="dot"></span></a>
+          <a class="qa-item" href="/shooter-sops">Second Photo SOP <span class="dot"></span></a>
+          <a class="qa-item dim">+ 4 coming</a>
+        </div>
       </div>
-    </div>
 
-    <div class="qa-card">
-      <div class="qa-card-header"><span class="qa-card-icon">🎬</span><span class="qa-card-title">Film</span></div>
-      <div class="qa-links">
-        <a class="qa-link" href="/shooter-sops">Lead Film SOP <span class="dot"></span></a>
-        <a class="qa-link" href="/shooter-sops">Second Film SOP <span class="dot"></span></a>
-        <a class="qa-link dim">+ 4 coming</a>
+      <div class="qa-col">
+        <div class="qa-head"><span class="qa-head-icon">🎬</span><span class="qa-head-title">Film</span></div>
+        <div class="qa-items">
+          <a class="qa-item" href="/shooter-sops">Lead Film SOP <span class="dot"></span></a>
+          <a class="qa-item" href="/shooter-sops">Second Film SOP <span class="dot"></span></a>
+          <a class="qa-item dim">+ 4 coming</a>
+        </div>
       </div>
-    </div>
 
-    <div class="qa-card">
-      <div class="qa-card-header"><span class="qa-card-icon">🎞️</span><span class="qa-card-title">Post Production</span></div>
-      <div class="qa-links">
-        <a class="qa-link" href="/post-production/video">Video Dashboard <span class="dot"></span></a>
-        <a class="qa-link" href="/post-production/photo">Photo Dashboard <span class="dot"></span></a>
-        <a class="qa-link" href="/post-production/deliverables">Client Deliverables <span class="dot"></span></a>
+      <div class="qa-col">
+        <div class="qa-head"><span class="qa-head-icon">🎞️</span><span class="qa-head-title">Post Production</span></div>
+        <div class="qa-items">
+          <a class="qa-item" href="/post-production/video">Video Dashboard <span class="dot"></span></a>
+          <a class="qa-item" href="/post-production/photo">Photo Dashboard <span class="dot"></span></a>
+          <a class="qa-item" href="/post-production/deliverables">Client Deliverables <span class="dot"></span></a>
+        </div>
       </div>
-    </div>
 
-    <div class="qa-card">
-      <div class="qa-card-header"><span class="qa-card-icon">💍</span><span class="qa-card-title">Wedding Day</span></div>
-      <div class="qa-links" id="wdi-links">
-        <a class="qa-link" href="/weddings/">All Weddings <span class="dot"></span></a>
-        <a class="qa-link dim">Loading...</a>
+      <div class="qa-col">
+        <div class="qa-head"><span class="qa-head-icon">💍</span><span class="qa-head-title">Wedding Day</span></div>
+        <div class="qa-items" id="wdi-links">
+          <a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>
+          <a class="qa-item dim">Loading...</a>
+        </div>
       </div>
-    </div>
 
-    <div class="qa-card">
-      <div class="qa-card-header"><span class="qa-card-icon">⚙️</span><span class="qa-card-title">General</span></div>
-      <div class="qa-links">
-        <a class="qa-link dim">+ 6 guides coming</a>
+      <div class="qa-col">
+        <div class="qa-head"><span class="qa-head-icon">⚙️</span><span class="qa-head-title">General</span></div>
+        <div class="qa-items">
+          <a class="qa-item dim">+ 6 guides coming</a>
+        </div>
       </div>
-    </div>
 
+    </div>
   </div>
 
-  <div class="label">Live Resources</div>
-  <div class="rc-grid">
+  <div class="rc-wrap">
+    <div class="label">Live Resources</div>
+    <div class="rc-grid">
 
-    <a class="rc" href="/shooter-sops">
-      <div class="rc-bar"></div>
-      <div class="rc-icon-wrap">📋</div>
-      <div>
-        <div class="rc-name">SOPs <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Role-by-role standards for all four shooter positions. Decision authority, protocols, failure modes.</div>
-      </div>
-      <div class="rc-foot"><span class="rc-cta">View SOPs</span><span class="rc-arr">→</span></div>
-    </a>
+      <a class="rc" href="/shooter-sops">
+        <div class="rc-accent"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span class="rc-num">01</span>
+          <span class="rc-icon">📋</span>
+        </div>
+        <div class="rc-name">Standard Operating Procedures <span class="rc-badge">Live</span></div>
+        <div class="rc-desc">Role-by-role SOPs for all four shooter positions. Decision authority, protocols, and failure modes.</div>
+        <div class="rc-foot">
+          <span class="rc-cta">View SOPs →</span>
+        </div>
+      </a>
 
-    <a class="rc" href="/post-production">
-      <div class="rc-bar"></div>
-      <div class="rc-icon-wrap">🎞️</div>
-      <div>
-        <div class="rc-name">Post Production <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Video queue, client deliverables, and photo post production — all in one portal.</div>
-      </div>
-      <div class="rc-foot"><span class="rc-cta">Open Portal</span><span class="rc-arr">→</span></div>
-    </a>
+      <a class="rc" href="/post-production">
+        <div class="rc-accent"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span class="rc-num">02</span>
+          <span class="rc-icon">🎞️</span>
+        </div>
+        <div class="rc-name">Post Production Portal <span class="rc-badge">Live</span></div>
+        <div class="rc-desc">Video queue, client deliverables, and photo post production — the full pipeline in one dashboard.</div>
+        <div class="rc-foot">
+          <span class="rc-cta">Open Portal →</span>
+        </div>
+      </a>
 
-    <a class="rc" href="/weddings/">
-      <div class="rc-bar"></div>
-      <div class="rc-icon-wrap">💍</div>
-      <div>
+      <a class="rc" href="/weddings/">
+        <div class="rc-accent"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span class="rc-num">03</span>
+          <span class="rc-icon">💍</span>
+        </div>
         <div class="rc-name">Wedding Day Info <span class="rc-badge">Live</span></div>
-        <div class="rc-desc">Every client's vendors, locations, shooters, shot list, and day timeline.</div>
-      </div>
-      <div class="rc-foot"><span class="rc-cta">View Weddings</span><span class="rc-arr">→</span></div>
-    </a>
+        <div class="rc-desc">Every client's vendors, locations, shooters, shot list, and timeline — one sheet per wedding.</div>
+        <div class="rc-foot">
+          <span class="rc-cta">View Weddings →</span>
+        </div>
+      </a>
 
+    </div>
   </div>
 
   <div class="coming">
@@ -457,7 +487,7 @@ body {
       <span class="chip">Technical Guides</span>
       <span class="chip">On-Site Workflow</span>
       <span class="chip">Gear Checklists</span>
-      <span class="chip">Brand &amp; Conduct</span>
+      <span class="chip">Brand & Conduct</span>
       <span class="chip">Post-Wedding Protocol</span>
       <span class="chip">Onboarding</span>
       <span class="chip">Editing Standards</span>
@@ -468,7 +498,7 @@ body {
 
 <script>
 const now=new Date();
-document.getElementById('topbar-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 
 (async()=>{
   try{
@@ -478,17 +508,18 @@ document.getElementById('topbar-date').textContent=now.toLocaleDateString('en-US
     const rows=await res.json();
     if(!rows?.[0])return;
     const today=new Date();today.setHours(0,0,0,0);
-    const up=(rows[0].data.weddings||[])
+    const upcoming=(rows[0].data.weddings||[])
       .filter(w=>w.date&&new Date(w.date+'T12:00:00')>=today)
       .sort((a,b)=>new Date(a.date)-new Date(b.date))
       .slice(0,4);
     const c=document.getElementById('wdi-links');
-    let h=`<a class="qa-link" href="/weddings/">All Weddings <span class="dot"></span></a>`;
-    if(!up.length){h+=`<a class="qa-link dim">No upcoming</a>`;}
-    else up.forEach(w=>{
+    let h=`<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>`;
+    if(!upcoming.length){h+=`<a class="qa-item dim">No upcoming</a>`;}
+    else upcoming.forEach(w=>{
       const d=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      const name=w.client.split('/')[0].trim().split(' ').filter((_,i,a)=>i===0||i===a.length-1).join(' ');
-      h+=`<a class="qa-link" href="/weddings/client.html?id=${w.id}" style="font-size:0.7rem;">${name}<span style="color:#aeaeb2;font-weight:400;"> ${d}</span><span class="dot"></span></a>`;
+      const parts=w.client.split('/')[0].trim().split(' ');
+      const name=parts[0]+(parts.length>1?' '+parts[parts.length-1]:'');
+      h+=`<a class="qa-item" href="/weddings/client.html?id=${w.id}" style="font-size:0.69rem;">${name}<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">${d}</span><span class="dot"></span></a>`;
     });
     c.innerHTML=h;
   }catch{}
