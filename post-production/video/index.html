@@ -1,32 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-(async function(){
-  const SB_URL="https://rafygjaemcjhnououmwn.supabase.co";
-  const SB_KEY="sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp";
-  const APPROVED=["tonyellismartinez@gmail.com","brynn.weller95@gmail.com","leximartinez43@gmail.com","bellamartinezphoto@gmail.com","zerwin1212@gmail.com","lukeh61403@gmail.com","nstewart2022@gmail.com","nolang999@gmail.com","pjmagic2404@gmail.com","natashat.photo@gmail.com","kauffman424@gmail.com","djspangler05@gmail.com","zsanchez2149@gmail.com","kaitlyncapturesphotography@gmail.com"];
-  // Read session from localStorage directly — no CDN needed
-  try {
-    const storageKey = 'sb-rafygjaemcjhnououmwn-auth-token';
-    const raw = localStorage.getItem(storageKey);
-    if(raw) {
-      const parsed = JSON.parse(raw);
-      const email = parsed?.user?.email;
-      const expires = parsed?.expires_at;
-      if(email && APPROVED.includes(email) && expires && Date.now()/1000 < expires) {
-        // Valid session found
-        window.tmwSignOut = async function(){
-          localStorage.removeItem(storageKey);
-          window.location.href='/login.html';
-        };
-        return;
-      }
-    }
-  } catch(e) {}
-  window.location.href='/login.html?redirect='+encodeURIComponent(window.location.pathname);
-})();
-</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Post Production</title>
