@@ -192,13 +192,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   </div>
 </div>
 
+<script src="/tmw-core.js"></script>
 <script>
-emailjs.init('3EteBapWG4a_hy5ol');
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const ADMIN_PW='Post-Production_2026!';
-const TONY_EMAIL='tonyellismartinez@gmail.com';
-const BRYNN_EMAIL='brynn.weller95@gmail.com';
+tmwInitEmail();
+const SUPABASE_URL=TMW.supabase.url;
+const SUPABASE_KEY=TMW.supabase.key;
+const ADMIN_PW=TMW.admin.password;
+const TONY_EMAIL=TMW.notify.tony;
+const BRYNN_EMAIL=TMW.notify.brynn;
 const EDITORS=['Tony','Brynn'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Brynn:'brynn.weller95@gmail.com'};
 const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Custom'];
@@ -220,7 +221,7 @@ let projects=[];let expanded={};let saving=false;let isAdmin=false;
 
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
 
 function toggleAdmin(){
   if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();}
@@ -239,14 +240,7 @@ function applyAdmin(){
   renderAll();
 }
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const t=await res.text();return t?JSON.parse(t):null;
-}
+// sbFetch → loaded from tmw-core.js
 
 async function loadData(){
   setSS('','Connecting...');
@@ -329,7 +323,7 @@ async function sendNotification(client,deliverable,stage,editor){
   try{
     await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:TONY_EMAIL});
     await emailjs.send('service_qoodzdb','template_p1hyj87',{...params,to_email:BRYNN_EMAIL});
-    showToast('✓ Notification sent');
+    tmwToast('✓ Notification sent');
   }catch(e){console.warn('Email failed:',e);}
 }
 
