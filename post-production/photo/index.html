@@ -240,7 +240,15 @@ function applyAdmin(){
   renderAll();
 }
 
-// sbFetch → loaded from tmw-core.js
+// sbFetch → loaded from tmw-core.js (inline backup)
+async function sbFetch(path,opts={}){
+  const res=await fetch(TMW.supabase.url+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':TMW.supabase.key,'Authorization':'Bearer '+TMW.supabase.key,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  const t=await res.text();return t?JSON.parse(t):null;
+}
 
 async function loadData(){
   setSS('','Connecting...');
@@ -407,7 +415,14 @@ async function setDelEditor(pid,did,val){
   if(!isAdmin)return;
   const p=projects.find(x=>x.id===pid);if(!p)return;
   const d=p.deliverables.find(x=>x.id===did);
-  if(d){d.editor=val;renderAll();await saveData();}
+  if(d){
+    const prev=d.editor;
+    d.editor=val;
+    renderAll();await saveData();
+    if(val&&val!==prev){
+      tmwNotifyAssignment(p.client,d.name,val);
+    }
+  }
 }
 async function setDelDue(pid,did,val){
   if(!isAdmin)return;
