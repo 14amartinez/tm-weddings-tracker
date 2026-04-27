@@ -185,7 +185,15 @@ function applyAdmin(){
   document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
 }
 
-// sbFetch → loaded from tmw-core.js
+// sbFetch inline backup
+async function sbFetch(path,opts={}){
+  const res=await fetch(TMW.supabase.url+"/rest/v1/"+path,{
+    ...opts,
+    headers:{"apikey":TMW.supabase.key,"Authorization":"Bearer "+TMW.supabase.key,"Content-Type":"application/json","Prefer":"return=representation",...(opts.headers||{})}
+  });
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  const t=await res.text();return t?JSON.parse(t):null;
+}
 
 const SEED_WEDDINGS=[
   {
