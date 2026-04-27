@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>TM Weddings — Authenticating</title>
+<style>
+body{font-family:'Inter',sans-serif;background:#0d1f1f;min-height:100vh;display:flex;align-items:center;justify-content:center;color:#fff;}
+.wrap{text-align:center;gap:16px;display:flex;flex-direction:column;align-items:center;}
+.spinner{width:32px;height:32px;border:2px solid rgba(255,255,255,0.2);border-top-color:#4aacac;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{font-size:0.82rem;color:rgba(255,255,255,0.5);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="spinner"></div>
+  <div class="msg">Signing you in...</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const APPROVED_EMAILS = [
+  'tonyellismartinez@gmail.com',
+  'brynn.weller95@gmail.com',
+  'leximartinez43@gmail.com',
+];
+
+(async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    window.location.href = '/login.html?error=auth_failed';
+    return;
+  }
+
+  const email = session.user.email;
+  if (!APPROVED_EMAILS.includes(email)) {
+    await supabase.auth.signOut();
+    window.location.href = '/login.html?error=unauthorized';
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get('redirect') || '/';
+  window.location.href = redirect;
+})();
+</script>
+</body>
+</html>
