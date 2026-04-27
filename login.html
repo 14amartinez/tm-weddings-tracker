@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  background:#0d1f1f;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.card{
+  background:#f6fefe;
+  border-radius:20px;
+  padding:52px 48px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+}
+.logo-mark{
+  width:48px;height:48px;
+  background:#0d1f1f;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+}
+.logo-mark svg{width:20px;height:20px;}
+.eyebrow{
+  font-size:0.6rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:#4aacac;
+  margin-bottom:10px;
+}
+.title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;
+  font-weight:400;
+  color:#1a2b2b;
+  letter-spacing:-0.02em;
+  margin-bottom:8px;
+}
+.subtitle{
+  font-size:0.78rem;
+  color:#5a7070;
+  line-height:1.6;
+  margin-bottom:36px;
+}
+.google-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  width:100%;
+  padding:14px 20px;
+  background:#fff;
+  border:1.5px solid #b8dede;
+  border-radius:10px;
+  font-family:'Inter',sans-serif;
+  font-size:0.85rem;
+  font-weight:600;
+  color:#1a2b2b;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  letter-spacing:-0.01em;
+}
+.google-btn:hover{
+  border-color:#4aacac;
+  box-shadow:0 4px 16px rgba(74,172,172,0.15);
+  transform:translateY(-1px);
+}
+.google-btn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
+.google-icon{width:18px;height:18px;flex-shrink:0;}
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin:20px 0;
+  color:#9ab8b8;font-size:0.7rem;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#d4ecec;}
+.error{
+  display:none;
+  background:#fdf0ef;
+  border:1px solid #f0b8b4;
+  border-radius:8px;
+  padding:10px 14px;
+  font-size:0.75rem;
+  color:#c0392b;
+  margin-top:16px;
+  text-align:left;
+}
+.footer{
+  margin-top:28px;
+  font-size:0.65rem;
+  color:#9ab8b8;
+  line-height:1.6;
+}
+.spinner{
+  width:16px;height:16px;
+  border:2px solid #d4ecec;
+  border-top-color:#4aacac;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-mark">
+    <svg viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/>
+      <circle cx="10" cy="10" r="2.5" fill="white"/>
+    </svg>
+  </div>
+  <div class="eyebrow">Internal Portal</div>
+  <div class="title">TM Weddings</div>
+  <div class="subtitle">Sign in with your Google account to access the team portal. Only approved team members can log in.</div>
+
+  <button class="google-btn" id="sign-in-btn" onclick="signInWithGoogle()">
+    <svg class="google-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
+    <span id="btn-text">Continue with Google</span>
+    <div class="spinner" id="spinner"></div>
+  </button>
+
+  <div class="error" id="error-msg"></div>
+
+  <div class="footer">
+    Team access only — tonyellismartinez@gmail.com &amp; approved team members.<br/>
+    Contact Tony if you need access.
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Approved team emails
+const APPROVED_EMAILS = [
+  'tonyellismartinez@gmail.com',
+  'brynn.weller95@gmail.com',
+  'leximartinez43@gmail.com',
+];
+
+// Check if already logged in
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const email = session.user.email;
+    if (APPROVED_EMAILS.includes(email)) {
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+      window.location.href = redirect;
+    } else {
+      await supabase.auth.signOut();
+    }
+  }
+})();
+
+async function signInWithGoogle() {
+  const btn = document.getElementById('sign-in-btn');
+  const text = document.getElementById('btn-text');
+  const spinner = document.getElementById('spinner');
+  const error = document.getElementById('error-msg');
+
+  btn.disabled = true;
+  text.textContent = 'Redirecting...';
+  spinner.style.display = 'block';
+  error.style.display = 'none';
+
+  const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+
+  const { error: err } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback.html?redirect=${encodeURIComponent(redirect)}`,
+    }
+  });
+
+  if (err) {
+    btn.disabled = false;
+    text.textContent = 'Continue with Google';
+    spinner.style.display = 'none';
+    error.style.display = 'block';
+    error.textContent = 'Sign in failed: ' + err.message;
+  }
+}
+</script>
+</body>
+</html>
