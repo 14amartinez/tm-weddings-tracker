@@ -154,12 +154,13 @@ td{padding:10px 14px;vertical-align:middle;}
   </div>
 </div>
 
+<script src="/tmw-core.js"></script>
 <script>
-emailjs.init('3EteBapWG4a_hy5ol');
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const ADMIN_PW='Post-Production_2026!';
-const TONY_EMAIL='tonyellismartinez@gmail.com';
+tmwInitEmail();
+const SUPABASE_URL=TMW.supabase.url;
+const SUPABASE_KEY=TMW.supabase.key;
+const ADMIN_PW=TMW.admin.password;
+const TONY_EMAIL=TMW.notify.tony;
 
 // Deliverable columns
 const COLS=[
@@ -202,14 +203,7 @@ function applyAdmin(){
   document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
 }
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const t=await res.text();return t?JSON.parse(t):null;
-}
+// sbFetch → loaded from tmw-core.js
 
 async function loadData(){
   setSS('','Connecting...');
