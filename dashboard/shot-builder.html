@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shot List Builder — TM Weddings</title>
+
+<!-- ═══ TMW AUTH GUARD v2 — owner-only ═══ -->
+<script>
+(function(){
+  try {
+    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
+    var APPROVED = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
+    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
+    window.tmwSignOut = function(){
+      try { for (var i = localStorage.length - 1; i >= 0; i--) { var k = localStorage.key(i); if (k && (k.indexOf('sb-') === 0 || k.indexOf('supabase') === 0)) localStorage.removeItem(k); } sessionStorage.clear(); } catch(e) {}
+      window.location.replace('/login.html');
+    };
+    var raw = null; try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+    var session = null;
+    if (raw) { try { session = JSON.parse(raw); } catch(e) {} }
+    var valid = false; var email = '';
+    if (session && session.user && session.user.email) {
+      email = String(session.user.email).toLowerCase();
+      var notExpired = !session.expires_at || (session.expires_at * 1000 > Date.now());
+      valid = notExpired && APPROVED.indexOf(email) !== -1;
+    }
+    if (!valid) { window.location.replace('/login.html?redirect=' + encodeURIComponent(window.location.pathname)); return; }
+    if (OWNERS.indexOf(email) === -1) { window.location.replace('/'); return; }
+    window.TMW_USER = { email: email, isOwner: true, name: (session.user.user_metadata && session.user.user_metadata.full_name) || email.split('@')[0] };
+  } catch(err) { window.location.replace('/login.html'); }
+})();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F6FEFE;--surface:#fff;--surface-2:#f0fafa;
+  --border:#b8dede;--border-strong:#7ec8c8;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --dark:#0d1f1f;
+  --rose:#c9a48a;--rose-dark:#8b5e4a;--rose-light:#f0e4d8;
+  --warn:#d4a878;--danger:#c0392b;
+}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:54px;background:rgba(246,254,254,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-back{font-size:0.72rem;color:var(--text-mid);padding:6px 10px;border-radius:6px;}
+.nav-back:hover{background:var(--teal-light);color:var(--teal-dark);}
+.nav-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;font-style:italic;color:var(--text);}
+.nav-right{display:flex;align-items:center;gap:12px;font-size:0.7rem;color:var(--text-mid);}
+.nav-signout{font-size:0.65rem;color:var(--text-dim);background:none;border:none;text-decoration:underline;padding:6px;}
+
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 80px;}
+
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;letter-spacing:-0.02em;line-height:1;}
+.page-title em{font-style:italic;color:var(--teal);}
+.page-sub{font-size:0.78rem;color:var(--text-mid);margin-top:6px;}
+
+.picker-card{background:var(--surface);border:1.5px solid var(--border-strong);border-radius:12px;padding:18px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.picker-label{font-size:0.55rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);flex-shrink:0;}
+.picker-select{flex:1;min-width:240px;padding:10px 14px;border:1.5px solid var(--border-strong);border-radius:8px;font-family:inherit;font-size:0.85rem;background:var(--surface);color:var(--text);outline:none;cursor:pointer;}
+.picker-select:focus{border-color:var(--teal);}
+.picker-status{font-size:0.7rem;color:var(--text-mid);}
+.status-built{color:var(--teal-dark);font-weight:600;}
+.status-empty{color:var(--rose-dark);font-weight:600;}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.btn{padding:9px 16px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-size:0.78rem;font-weight:500;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:var(--teal-light);border-color:var(--teal);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+.btn-danger{color:var(--danger);border-color:rgba(192,57,43,0.3);}
+.btn-danger:hover{background:rgba(192,57,43,0.06);}
+.btn-template{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
+.btn-template:hover{background:var(--rose);color:white;}
+
+.builder-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--border-strong);margin-bottom:24px;}
+.b-tab{padding:12px 20px;font-size:0.78rem;font-weight:500;color:var(--text-mid);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;}
+.b-tab.active{color:var(--teal-dark);border-bottom-color:var(--teal);}
+
+.section{background:var(--surface);border:1.5px solid var(--border-strong);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title h3{font-size:0.62rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal-dark);}
+.add-inline-btn{font-size:0.7rem;color:var(--teal-dark);background:none;border:1px dashed var(--teal);border-radius:6px;padding:5px 10px;}
+.add-inline-btn:hover{background:var(--teal-light);}
+
+.loc-row{display:grid;grid-template-columns:24px 130px 1fr 120px 36px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.loc-row:last-child{border-bottom:none;}
+.loc-color-swatch{width:18px;height:18px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border-strong);cursor:pointer;}
+.loc-row input{padding:8px 11px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.78rem;background:var(--bg);color:var(--text);outline:none;width:100%;}
+.loc-row input:focus{border-color:var(--teal);background:var(--surface);}
+.del-btn{background:none;border:none;color:var(--text-dim);font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;}
+.del-btn:hover{background:rgba(192,57,43,0.08);color:var(--danger);}
+
+.group-card{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.group-head{display:grid;grid-template-columns:1fr 160px 36px;gap:10px;align-items:center;margin-bottom:10px;}
+.group-head input,.group-head select{padding:8px 11px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.8rem;background:var(--surface);color:var(--text);outline:none;width:100%;}
+.group-head input:focus,.group-head select:focus{border-color:var(--teal);}
+.shot-row{display:grid;grid-template-columns:24px 1fr 80px 36px;gap:8px;align-items:center;padding:5px 0;}
+.shot-row .shot-handle{font-size:0.7rem;color:var(--text-dim);text-align:center;font-weight:600;}
+.shot-row input[type="text"]{padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:0.78rem;background:var(--surface);color:var(--text);outline:none;width:100%;}
+.shot-row input[type="text"]:focus{border-color:var(--teal);}
+.must-toggle{display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text-mid);cursor:pointer;}
+.must-toggle input{margin:0;}
+.must-toggle.active{color:var(--rose-dark);font-weight:600;}
+
+.brief-card{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.brief-head{display:grid;grid-template-columns:160px 100px 1fr 36px;gap:8px;margin-bottom:8px;}
+.brief-head input{padding:8px 11px;border:1px solid var(--border);border-radius:6px;font-size:0.78rem;background:var(--surface);color:var(--text);outline:none;width:100%;font-family:inherit;}
+.brief-head input[type="color"]{padding:2px;height:36px;cursor:pointer;}
+.brief-text{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.8rem;line-height:1.5;background:var(--surface);color:var(--text);outline:none;resize:vertical;min-height:80px;}
+.brief-text:focus{border-color:var(--teal);}
+.brief-help{font-size:0.65rem;color:var(--text-dim);margin-top:4px;}
+
+.save-bar{position:sticky;bottom:0;background:rgba(246,254,254,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:14px 20px;border-top:1.5px solid var(--border-strong);margin:24px -28px -80px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.save-info{font-size:0.72rem;color:var(--text-mid);}
+.save-info .saved{color:var(--teal-dark);}
+.save-info .unsaved{color:var(--rose-dark);font-weight:600;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:white;padding:11px 20px;border-radius:8px;font-size:0.82rem;z-index:1000;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+.toast.show{opacity:1;}
+.toast.error{background:var(--danger);}
+
+.empty-pre{padding:60px 20px;text-align:center;color:var(--text-mid);font-size:0.85rem;}
+.empty-pre .em-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;color:var(--text);margin-bottom:8px;}
+
+@media(max-width:780px){
+  .page{padding:20px 16px 80px;}
+  nav{padding:0 16px;}
+  .loc-row{grid-template-columns:20px 1fr;grid-template-rows:auto auto auto;gap:6px;}
+  .loc-row .loc-color-swatch{grid-column:1;grid-row:1;}
+  .loc-row > input:nth-child(2){grid-column:2;grid-row:1;}
+  .loc-row > input:nth-child(3){grid-column:1/3;grid-row:2;}
+  .loc-row > input:nth-child(4){grid-column:1/3;grid-row:3;}
+  .loc-row .del-btn{grid-column:2;grid-row:1;justify-self:end;}
+  .group-head{grid-template-columns:1fr;}
+  .shot-row{grid-template-columns:20px 1fr 60px 28px;}
+  .brief-head{grid-template-columns:1fr 60px 36px;}
+  .brief-head input:first-child{grid-column:1/4;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/dashboard" class="nav-back">← Dashboard</a>
+    <span class="nav-title">Shot List Builder</span>
+  </div>
+  <div class="nav-right">
+    <span id="user-name"></span>
+    <button class="nav-signout" onclick="tmwSignOut()">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Shot List <em>Builder</em></h1>
+      <div class="page-sub">Build the per-wedding shot list, briefing, and locations. Shooters access via the Shot Caller using the wedding's ID.</div>
+    </div>
+  </div>
+
+  <div class="picker-card">
+    <span class="picker-label">Wedding</span>
+    <select class="picker-select" id="wedding-picker" onchange="onWeddingChange()">
+      <option value="">— Select a wedding —</option>
+    </select>
+    <span class="picker-status" id="picker-status"></span>
+  </div>
+
+  <div id="builder-area" style="display:none;">
+
+    <div class="actions">
+      <button class="btn btn-template" onclick="loadTemplate()">⊕ Load standard template</button>
+      <button class="btn" onclick="copyShooterURL()">⎘ Copy shot caller link</button>
+      <button class="btn" onclick="previewShotCaller()">↗ Preview shot caller</button>
+      <button class="btn btn-danger" onclick="deleteShotList()" style="margin-left:auto;">⨯ Delete shot list</button>
+    </div>
+
+    <div class="builder-tabs">
+      <button class="b-tab active" data-tab="locations" onclick="switchTab('locations')">Locations</button>
+      <button class="b-tab" data-tab="shots" onclick="switchTab('shots')">Shot Groups</button>
+      <button class="b-tab" data-tab="briefing" onclick="switchTab('briefing')">Briefing Notes</button>
+    </div>
+
+    <div id="tab-locations" class="tab-pane">
+      <div class="section">
+        <div class="section-title">
+          <h3>Locations · color-coded for the day</h3>
+          <button class="add-inline-btn" onclick="addLocation()">+ Add location</button>
+        </div>
+        <div id="locations-list"></div>
+      </div>
+    </div>
+
+    <div id="tab-shots" class="tab-pane" style="display:none;">
+      <div id="groups-list"></div>
+      <button class="add-inline-btn" style="margin-top:6px;" onclick="addGroup()">+ Add shot group</button>
+    </div>
+
+    <div id="tab-briefing" class="tab-pane" style="display:none;">
+      <div id="brief-list"></div>
+      <button class="add-inline-btn" style="margin-top:6px;" onclick="addBrief()">+ Add briefing card</button>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-info" id="save-info">No changes yet.</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="reloadFromServer()">Discard changes</button>
+        <button class="btn btn-primary" onclick="saveShotList()" id="save-btn">Save</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="empty-state" class="empty-pre">
+    <div class="em-title">Pick a wedding above</div>
+    <div>to build or edit its shot list.</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+
+let weddings=[];
+let currentWeddingId=null;
+let currentWedding=null;
+let shotList={locations:[],shotGroups:[],briefing:[]};
+let originalShotList=null;
+let dirty=false;
+
+document.getElementById('user-name').textContent=window.TMW_USER?TMW_USER.name:'';
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+
+function toast(msg,isError){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show'+(isError?' error':'');
+  setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+function markDirty(){
+  dirty=true;
+  document.getElementById('save-info').innerHTML='<span class="unsaved">● Unsaved changes</span>';
+  document.getElementById('save-btn').textContent='Save changes';
+}
+
+function markClean(){
+  dirty=false;
+  document.getElementById('save-info').innerHTML='<span class="saved">✓ All changes saved</span>';
+  document.getElementById('save-btn').textContent='Saved';
+}
+
+async function boot(){
+  try {
+    const rows=await sbFetch('projects?id=eq.tmw_weddings&select=data');
+    if(!rows||!rows[0]){toast('Could not load weddings list',true);return;}
+    weddings=(rows[0].data.weddings||[]).slice().sort((a,b)=>{
+      if(!a.date)return 1;if(!b.date)return -1;
+      return new Date(a.date)-new Date(b.date);
+    });
+
+    const built=await sbFetch('projects?id=like.tmw_shotlist_*&select=id');
+    const builtIds=new Set((built||[]).map(r=>r.id.replace('tmw_shotlist_','')));
+
+    const sel=document.getElementById('wedding-picker');
+    weddings.forEach(w=>{
+      const o=document.createElement('option');
+      o.value=w.id;
+      const dateStr=w.date?new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'(no date)';
+      const flag=builtIds.has(w.id)?'✓ ':'';
+      o.textContent=flag+(w.client||w.id)+' · '+dateStr;
+      sel.appendChild(o);
+    });
+
+    const params=new URLSearchParams(window.location.search);
+    const preselect=params.get('id');
+    if(preselect&&weddings.find(w=>w.id===preselect)){
+      sel.value=preselect;
+      onWeddingChange();
+    }
+  } catch(e){
+    console.error(e);
+    toast('Boot error: '+e.message,true);
+  }
+}
+
+async function onWeddingChange(){
+  const wid=document.getElementById('wedding-picker').value;
+  if(!wid){
+    document.getElementById('builder-area').style.display='none';
+    document.getElementById('empty-state').style.display='block';
+    currentWeddingId=null;
+    return;
+  }
+  if(dirty&&!confirm('You have unsaved changes. Switch weddings and discard them?'))return;
+
+  currentWeddingId=wid;
+  currentWedding=weddings.find(w=>w.id===wid);
+  document.getElementById('empty-state').style.display='none';
+
+  const newUrl=window.location.pathname+'?id='+encodeURIComponent(wid);
+  window.history.replaceState({},'',newUrl);
+
+  try {
+    const rows=await sbFetch('projects?id=eq.tmw_shotlist_'+wid+'&select=data');
+    if(rows&&rows[0]){
+      shotList=normalizeShotList(rows[0].data);
+      document.getElementById('picker-status').innerHTML='<span class="status-built">✓ Shot list exists</span>';
+    } else {
+      shotList={locations:[],shotGroups:[],briefing:[]};
+      document.getElementById('picker-status').innerHTML='<span class="status-empty">○ No shot list yet — start with template or build manually</span>';
+    }
+    originalShotList=JSON.parse(JSON.stringify(shotList));
+    dirty=false;
+    document.getElementById('builder-area').style.display='block';
+    document.getElementById('save-info').innerHTML='<span class="saved">Loaded.</span>';
+    document.getElementById('save-btn').textContent='Save';
+    renderAll();
+  } catch(e){
+    toast('Failed to load shot list: '+e.message,true);
+  }
+}
+
+function normalizeShotList(data){
+  return {
+    locations:Array.isArray(data.locations)?data.locations:[],
+    shotGroups:Array.isArray(data.shotGroups)?data.shotGroups:[],
+    briefing:Array.isArray(data.briefing)?data.briefing:[]
+  };
+}
+
+function renderAll(){
+  renderLocations();
+  renderGroups();
+  renderBriefing();
+}
+
+function renderLocations(){
+  const c=document.getElementById('locations-list');c.innerHTML='';
+  if(!shotList.locations.length){
+    c.innerHTML='<div style="font-size:0.78rem;color:var(--text-mid);padding:14px;text-align:center;">No locations yet. Add one to start.</div>';
+    return;
+  }
+  shotList.locations.forEach((loc,i)=>{
+    const row=document.createElement('div');row.className='loc-row';
+    row.innerHTML=`
+      <input type="color" class="loc-color-swatch" value="${loc.color||'#c9a48a'}" oninput="updateLoc(${i},'color',this.value)" title="Color" style="padding:0;width:24px;height:24px;border:none;background:transparent;border-radius:50%;">
+      <input type="text" placeholder="ID (slug)" value="${escapeAttr(loc.id||'')}" oninput="updateLoc(${i},'id',this.value)" title="Location ID — short slug">
+      <input type="text" placeholder="Display name (e.g. Hotel)" value="${escapeAttr(loc.name||'')}" oninput="updateLoc(${i},'name',this.value)">
+      <input type="text" placeholder="Time (1:30–2:30)" value="${escapeAttr(loc.time||'')}" oninput="updateLoc(${i},'time',this.value)">
+      <button class="del-btn" onclick="deleteLoc(${i})" title="Delete">×</button>
+    `;
+    c.appendChild(row);
+    const noteRow=document.createElement('div');
+    noteRow.style.cssText='padding:0 0 10px 34px;';
+    noteRow.innerHTML=`<input type="text" placeholder="Optional note shown to shooters" value="${escapeAttr(loc.note||'')}" oninput="updateLoc(${i},'note',this.value)" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:0.72rem;width:100%;background:var(--bg);color:var(--text-mid);outline:none;font-family:inherit;">`;
+    c.appendChild(noteRow);
+  });
+}
+
+function renderGroups(){
+  const c=document.getElementById('groups-list');c.innerHTML='';
+  if(!shotList.shotGroups.length){
+    c.innerHTML='<div style="font-size:0.78rem;color:var(--text-mid);padding:30px;text-align:center;">No shot groups yet. Add one or load the template.</div>';
+    return;
+  }
+  shotList.shotGroups.forEach((g,gi)=>{
+    const card=document.createElement('div');card.className='group-card';
+    const head=document.createElement('div');head.className='group-head';
+    head.innerHTML=`
+      <input type="text" placeholder="Group name (e.g. Bridal details)" value="${escapeAttr(g.group||'')}" oninput="updateGroup(${gi},'group',this.value)">
+      <select onchange="updateGroup(${gi},'loc',this.value)">
+        <option value="">— No location —</option>
+        ${shotList.locations.map(l=>`<option value="${escapeAttr(l.id)}" ${l.id===g.loc?'selected':''}>${escapeAttr(l.name||l.id)}</option>`).join('')}
+      </select>
+      <button class="del-btn" onclick="deleteGroup(${gi})" title="Delete group">×</button>
+    `;
+    card.appendChild(head);
+
+    const shotsContainer=document.createElement('div');
+    (g.shots||[]).forEach((s,si)=>{
+      const row=document.createElement('div');row.className='shot-row';
+      row.innerHTML=`
+        <div class="shot-handle">${si+1}</div>
+        <input type="text" placeholder="Shot description" value="${escapeAttr(s.name||'')}" oninput="updateShot(${gi},${si},'name',this.value)">
+        <label class="must-toggle ${s.must?'active':''}"><input type="checkbox" ${s.must?'checked':''} onchange="updateShot(${gi},${si},'must',this.checked); this.parentElement.classList.toggle('active',this.checked);"> must</label>
+        <button class="del-btn" onclick="deleteShot(${gi},${si})" title="Delete">×</button>
+      `;
+      shotsContainer.appendChild(row);
+    });
+    card.appendChild(shotsContainer);
+
+    const addBtn=document.createElement('button');
+    addBtn.className='add-inline-btn';
+    addBtn.style.cssText='margin-top:8px;font-size:0.7rem;';
+    addBtn.textContent='+ Add shot';
+    addBtn.onclick=()=>addShotToGroup(gi);
+    card.appendChild(addBtn);
+
+    c.appendChild(card);
+  });
+}
+
+function renderBriefing(){
+  const c=document.getElementById('brief-list');c.innerHTML='';
+  if(!shotList.briefing.length){
+    c.innerHTML='<div style="font-size:0.78rem;color:var(--text-mid);padding:30px;text-align:center;">No briefing cards yet. Add timeline, key people, ceremony notes, etc.</div>';
+    return;
+  }
+  shotList.briefing.forEach((b,i)=>{
+    const card=document.createElement('div');card.className='brief-card';
+    const head=document.createElement('div');head.className='brief-head';
+    head.innerHTML=`
+      <input type="text" placeholder="Label (e.g. Timeline, Key people)" value="${escapeAttr(b.label||'')}" oninput="updateBrief(${i},'label',this.value)">
+      <input type="color" value="${b.color||'#c9a48a'}" oninput="updateBrief(${i},'color',this.value)" title="Accent color">
+      <input type="text" placeholder="(unused)" disabled style="opacity:0;pointer-events:none;">
+      <button class="del-btn" onclick="deleteBrief(${i})" title="Delete">×</button>
+    `;
+    card.appendChild(head);
+    const ta=document.createElement('textarea');
+    ta.className='brief-text';
+    ta.placeholder='Briefing text. HTML is supported (use <strong>bold</strong>, <br>, <em>italic</em>, etc.)';
+    ta.value=b.text||'';
+    ta.oninput=()=>updateBrief(i,'text',ta.value);
+    card.appendChild(ta);
+    const help=document.createElement('div');help.className='brief-help';
+    help.innerHTML='HTML allowed: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>';
+    card.appendChild(help);
+    c.appendChild(card);
+  });
+}
+
+function escapeAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+function updateLoc(i,field,val){shotList.locations[i][field]=val;markDirty();}
+function deleteLoc(i){if(confirm('Delete this location?')){shotList.locations.splice(i,1);renderLocations();renderGroups();markDirty();}}
+function addLocation(){
+  shotList.locations.push({id:'loc_'+Date.now(),name:'',color:'#9aac99',time:'',note:''});
+  renderLocations();renderGroups();markDirty();
+}
+
+function updateGroup(gi,field,val){shotList.shotGroups[gi][field]=val;markDirty();}
+function deleteGroup(gi){if(confirm('Delete this entire shot group and all its shots?')){shotList.shotGroups.splice(gi,1);renderGroups();markDirty();}}
+function addGroup(){
+  shotList.shotGroups.push({group:'',loc:'',shots:[]});
+  renderGroups();markDirty();
+}
+
+function updateShot(gi,si,field,val){shotList.shotGroups[gi].shots[si][field]=val;markDirty();}
+function deleteShot(gi,si){shotList.shotGroups[gi].shots.splice(si,1);renderGroups();markDirty();}
+function addShotToGroup(gi){
+  shotList.shotGroups[gi].shots.push({id:Date.now(),name:'',must:false});
+  renderGroups();markDirty();
+  const card=document.querySelectorAll('.group-card')[gi];
+  if(card){const inputs=card.querySelectorAll('.shot-row input[type="text"]');const last=inputs[inputs.length-1];if(last)last.focus();}
+}
+
+function updateBrief(i,field,val){shotList.briefing[i][field]=val;markDirty();}
+function deleteBrief(i){if(confirm('Delete this briefing card?')){shotList.briefing.splice(i,1);renderBriefing();markDirty();}}
+function addBrief(){
+  shotList.briefing.push({label:'',color:'#c9a48a',text:''});
+  renderBriefing();markDirty();
+}
+
+function switchTab(t){
+  document.querySelectorAll('.b-tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));
+  document.querySelectorAll('.tab-pane').forEach(el=>el.style.display='none');
+  document.getElementById('tab-'+t).style.display='block';
+}
+
+async function saveShotList(){
+  if(!currentWeddingId)return;
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try {
+    const id='tmw_shotlist_'+currentWeddingId;
+    const existing=await sbFetch('projects?id=eq.'+id+'&select=id');
+    if(existing&&existing.length){
+      await sbFetch('projects?id=eq.'+id,{method:'PATCH',body:JSON.stringify({data:shotList})});
+    } else {
+      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:id,data:shotList})});
+    }
+    originalShotList=JSON.parse(JSON.stringify(shotList));
+    markClean();
+    toast('Shot list saved');
+    document.getElementById('picker-status').innerHTML='<span class="status-built">✓ Shot list exists</span>';
+  } catch(e){
+    toast('Save failed: '+e.message,true);
+  } finally {
+    btn.disabled=false;
+  }
+}
+
+function reloadFromServer(){
+  if(!confirm('Discard all unsaved changes?'))return;
+  shotList=JSON.parse(JSON.stringify(originalShotList||{locations:[],shotGroups:[],briefing:[]}));
+  dirty=false;
+  document.getElementById('save-info').innerHTML='<span class="saved">✓ Reloaded from server</span>';
+  document.getElementById('save-btn').textContent='Save';
+  renderAll();
+}
+
+async function deleteShotList(){
+  if(!currentWeddingId)return;
+  if(!confirm('Permanently delete this wedding\'s shot list? Shooter progress will also be lost.'))return;
+  try {
+    await sbFetch('projects?id=eq.tmw_shotlist_'+currentWeddingId,{method:'DELETE'});
+    await sbFetch('projects?id=eq.tmw_shot_'+currentWeddingId,{method:'DELETE'});
+    shotList={locations:[],shotGroups:[],briefing:[]};
+    originalShotList=JSON.parse(JSON.stringify(shotList));
+    dirty=false;
+    document.getElementById('picker-status').innerHTML='<span class="status-empty">○ No shot list yet</span>';
+    renderAll();
+    toast('Shot list deleted');
+  } catch(e){
+    toast('Delete failed: '+e.message,true);
+  }
+}
+
+function copyShooterURL(){
+  if(!currentWeddingId)return;
+  const url=window.location.origin+'/shot-caller/?id='+encodeURIComponent(currentWeddingId);
+  navigator.clipboard.writeText(url).then(()=>toast('Link copied: '+url),()=>toast('Copy failed',true));
+}
+
+function previewShotCaller(){
+  if(!currentWeddingId)return;
+  if(dirty&&!confirm('You have unsaved changes. Open preview anyway? (Preview shows last saved version.)'))return;
+  window.open('/shot-caller/?id='+encodeURIComponent(currentWeddingId),'_blank');
+}
+
+async function loadTemplate(){
+  if(shotList.locations.length||shotList.shotGroups.length||shotList.briefing.length){
+    if(!confirm('This will REPLACE the current shot list with the standard TM Weddings template. Continue?'))return;
+  }
+  try {
+    const rows=await sbFetch('projects?id=eq.tmw_shotlist_template&select=data');
+    if(rows&&rows[0]){
+      shotList=normalizeShotList(rows[0].data);
+      shotList.shotGroups.forEach(g=>{g.shots.forEach((s,i)=>{s.id=Date.now()+i;});});
+    } else {
+      shotList=getBaselineTemplate();
+    }
+    markDirty();
+    renderAll();
+    toast('Template loaded — customize and save');
+  } catch(e){
+    toast('Load template failed: '+e.message,true);
+  }
+}
+
+function getBaselineTemplate(){
+  const t=Date.now();
+  return {
+    locations:[
+      {id:'hotel',name:'Hotel / Getting ready',color:'#c9a48a',time:'',note:'Bridal + groom prep, details, first looks with parents.'},
+      {id:'venue_pre',name:'Venue — pre ceremony',color:'#9aac99',time:'',note:'Family formals + bridal party portraits before ceremony. Keep bride/groom sides separate if no first look.'},
+      {id:'ceremony',name:'Ceremony',color:'#b8a9c9',time:'',note:'Processional, vows, recessional.'},
+      {id:'cocktail',name:'Cocktail hour',color:'#8fa8a0',time:'',note:'Couple portraits + extended family while guests enjoy cocktail hour.'},
+      {id:'reception',name:'Reception',color:'#d4a878',time:'',note:'Grand entrance through last dance.'}
+    ],
+    shotGroups:[
+      {group:'Bridal details',loc:'hotel',shots:[
+        {id:t+1,name:'Wedding dress on hanger',must:true},
+        {id:t+2,name:'Bride\'s shoes',must:true},
+        {id:t+3,name:'Bride\'s jewelry',must:true},
+        {id:t+4,name:'Engagement ring + wedding bands together',must:true},
+        {id:t+5,name:'Bride\'s bouquet',must:true},
+        {id:t+6,name:'Veil details',must:true},
+        {id:t+7,name:'Invitation suite',must:false}
+      ]},
+      {group:'Bride getting ready',loc:'hotel',shots:[
+        {id:t+10,name:'Finishing touches — hair',must:true},
+        {id:t+11,name:'Bride + bridesmaids in PJs/robes',must:true},
+        {id:t+12,name:'Putting on the veil',must:true},
+        {id:t+13,name:'Bridesmaids helping bride into dress',must:true},
+        {id:t+14,name:'Mom helping with dress',must:true},
+        {id:t+15,name:'Bride looking at herself in mirror',must:true},
+        {id:t+16,name:'Bride + bridesmaids group shots',must:true}
+      ]},
+      {group:'Groom details + getting ready',loc:'hotel',shots:[
+        {id:t+20,name:'Suit + shoes',must:true},
+        {id:t+21,name:'Watch + cufflinks',must:true},
+        {id:t+22,name:'Boutonniere',must:true},
+        {id:t+23,name:'Groom + groomsmen putting on suits',must:true},
+        {id:t+24,name:'Groom fixing tie',must:true},
+        {id:t+25,name:'Groomsmen group shots',must:true},
+        {id:t+26,name:'Groom solo portraits',must:true}
+      ]},
+      {group:'Family formals + bridal party',loc:'venue_pre',shots:[
+        {id:t+30,name:'Bride + bridesmaids posed',must:true},
+        {id:t+31,name:'Groom + groomsmen posed',must:true},
+        {id:t+32,name:'Bride\'s immediate family',must:true},
+        {id:t+33,name:'Groom\'s immediate family',must:true},
+        {id:t+34,name:'Bride + grandparents',must:true},
+        {id:t+35,name:'Groom + grandparents',must:true}
+      ]},
+      {group:'Ceremony',loc:'ceremony',shots:[
+        {id:t+40,name:'Front altar + decor wide',must:true},
+        {id:t+41,name:'Guests being seated',must:true},
+        {id:t+42,name:'Family processional — grandparents, parents',must:true},
+        {id:t+43,name:'Bridal party processional',must:true},
+        {id:t+44,name:'Groom\'s reaction seeing bride',must:true},
+        {id:t+45,name:'Bride + dad walking down aisle',must:true},
+        {id:t+46,name:'Vow exchange',must:true},
+        {id:t+47,name:'Ring exchange',must:true},
+        {id:t+48,name:'First kiss',must:true},
+        {id:t+49,name:'Recessional',must:true}
+      ]},
+      {group:'Couple + bridal party portraits',loc:'cocktail',shots:[
+        {id:t+60,name:'Bride solo portraits',must:true},
+        {id:t+61,name:'Groom solo portraits',must:true},
+        {id:t+62,name:'Bride + groom traditional',must:true},
+        {id:t+63,name:'Bride + groom candid',must:true},
+        {id:t+64,name:'Bride + groom kissing',must:true},
+        {id:t+65,name:'Full bridal party group',must:true},
+        {id:t+66,name:'Bridal party candids',must:true}
+      ]},
+      {group:'Extended family + couple portraits',loc:'cocktail',shots:[
+        {id:t+70,name:'Bride + groom with both sets of parents',must:true},
+        {id:t+71,name:'Bride + groom with siblings',must:true},
+        {id:t+72,name:'Bride + groom with grandparents',must:true}
+      ]},
+      {group:'Reception events',loc:'reception',shots:[
+        {id:t+80,name:'Full room reception wide',must:true},
+        {id:t+81,name:'Grand entrance',must:true},
+        {id:t+82,name:'First dance',must:true},
+        {id:t+83,name:'Father/daughter dance',must:true},
+        {id:t+84,name:'Mother/son dance',must:true},
+        {id:t+85,name:'Speeches/toasts',must:true},
+        {id:t+86,name:'Cake cutting',must:true},
+        {id:t+87,name:'Party dancing + candids',must:true},
+        {id:t+88,name:'Dessert table',must:false}
+      ]}
+    ],
+    briefing:[
+      {label:'Timeline',color:'#c9a48a',text:'Fill in the day-of timeline:<br><br><strong>1:30</strong> — Photographers arrive at...<br><strong>X:XX</strong> — ...<br>'},
+      {label:'Key people — bride side',color:'#9aac99',text:'<strong>[Bride name]</strong> = bride<br><strong>[Father]</strong> = father of bride<br>...'},
+      {label:'Key people — groom side',color:'#9aac99',text:'<strong>[Groom name]</strong> = groom<br><strong>[Father]</strong> = father of groom<br>...'},
+      {label:'Bridal party',color:'#c9a48a',text:'<strong>Bridesmaids:</strong><br><strong>Groomsmen:</strong>'},
+      {label:'Ceremony entrance order',color:'#b8a9c9',text:'1. Officiant<br>2. Grandparents<br>3. Parents<br>4. ...'},
+      {label:'Reception order',color:'#d4a878',text:'Grand entrance order:<br>First dance song:<br>Parent dance songs:'},
+      {label:'Critical logistics',color:'#c9a48a',text:'· Day-of coordinator: [name + phone]<br>· Special considerations<br>· Notes the team must know'}
+    ]
+  };
+}
+
+boot();
+
+window.addEventListener('beforeunload',e=>{
+  if(dirty){e.preventDefault();e.returnValue='';}
+});
+</script>
+</body>
+</html>
