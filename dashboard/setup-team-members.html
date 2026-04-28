@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMW · Setup Team Members Table</title>
+
+<script>
+(function(){
+  try {
+    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
+    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
+    var raw = null; try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+    var session = null; if (raw) { try { session = JSON.parse(raw); } catch(e) {} }
+    var email = session && session.user && session.user.email ? String(session.user.email).toLowerCase() : '';
+    if (!session || OWNERS.indexOf(email) === -1) { window.location.replace('/login.html'); return; }
+  } catch(err) { window.location.replace('/login.html'); }
+})();
+</script>
+
+<style>
+body{font-family:-apple-system,sans-serif;background:#0d1f1f;color:#f6fefe;padding:24px;max-width:720px;margin:0 auto;line-height:1.6;}
+h1{font-size:1.4rem;margin-bottom:8px;}
+p{font-size:0.9rem;color:#b8dede;margin-bottom:14px;}
+button{padding:14px 24px;background:#4aacac;color:white;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-right:8px;font-family:inherit;}
+button:hover{background:#357e7e;}
+button:disabled{opacity:0.4;cursor:not-allowed;}
+.log{background:#000;color:#0f0;font:11px/1.5 monospace;padding:14px;border-radius:8px;margin-top:20px;white-space:pre-wrap;word-break:break-all;max-height:500px;overflow-y:auto;}
+.warn{background:#3a2a1a;border-left:3px solid #d4a878;padding:12px 14px;border-radius:6px;margin:14px 0;font-size:0.85rem;}
+.success{background:#1a3a2a;border-left:3px solid #4ace4a;padding:12px 14px;border-radius:6px;margin:14px 0;font-size:0.85rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.82rem;}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #1a2b2b;}
+th{background:#0a1818;color:#7ec8c8;font-weight:600;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;}
+.role-pill{display:inline-block;padding:2px 7px;border-radius:6px;font-size:0.65rem;margin-right:3px;font-weight:500;}
+.role-owner{background:rgba(192,57,43,0.2);color:#e8b0aa;}
+.role-admin{background:rgba(212,168,120,0.2);color:#e8d2b0;}
+.role-editor{background:rgba(74,172,172,0.2);color:#aae8e8;}
+.role-shooter{background:rgba(154,172,153,0.2);color:#c8d8c7;}
+a{color:#4aacac;}
+</style>
+</head>
+<body>
+
+<h1>Set up team members table</h1>
+<p>One-time setup. Creates a <code>tmw_team_members</code> row in Supabase containing all approved team members and their roles. Replaces the hardcoded approved-email arrays scattered across 13 files.</p>
+
+<div class="warn">
+  <strong>Before running:</strong> Click "Check current state" first to confirm whether the row already exists. If it does, this script will OVERWRITE it (with confirmation prompt).
+</div>
+
+<h3 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;color:#7ec8c8;margin-top:24px;margin-bottom:8px;">Roster to seed</h3>
+<table>
+  <thead>
+    <tr><th>Email</th><th>Name</th><th>Roles</th></tr>
+  </thead>
+  <tbody id="preview-tbody"></tbody>
+</table>
+
+<div style="margin-top:18px;">
+  <button onclick="runSetup()" id="run-btn">▶ Create / overwrite team members table</button>
+  <button onclick="checkOnly()" id="check-btn" style="background:transparent;border:1.5px solid #4aacac;">Check current state</button>
+</div>
+
+<div class="log" id="log">Ready.</div>
+
+<p style="margin-top:24px;font-size:0.78rem;color:#7a8e8e;">
+  After running this once, go to <a href="/dashboard/team-members.html">/dashboard/team-members.html</a> to manage the team via UI instead of editing files.
+</p>
+
+<script>
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+
+const SEED_MEMBERS = [
+  {email:'tonyellismartinez@gmail.com',     name:'Tony Martinez',    roles:['owner'],            active:true},
+  {email:'brynn.weller95@gmail.com',        name:'Brynn Weller',     roles:['owner'],            active:true},
+  {email:'leximartinez43@gmail.com',        name:'Lexi Martinez',    roles:['editor','shooter'], active:true},
+  {email:'zsanchez2149@gmail.com',          name:'Zyara Sanchez',    roles:['editor','shooter'], active:true},
+  {email:'zerwin1212@gmail.com',            name:'Zach Erwin',       roles:['editor','shooter'], active:true},
+  {email:'lukeh61403@gmail.com',            name:'Luke Heffelfinger',roles:['editor','shooter'], active:true},
+  {email:'bellamartinezphoto@gmail.com',    name:'Bella Martinez',   roles:['shooter'],          active:true},
+  {email:'nstewart2022@gmail.com',          name:'Nick Stewart',     roles:['shooter'],          active:true},
+  {email:'nolang999@gmail.com',             name:'Nolan Guzman',     roles:['shooter'],          active:true},
+  {email:'pjmagic2404@gmail.com',           name:'PJ Knight',        roles:['shooter'],          active:true},
+  {email:'natashat.photo@gmail.com',        name:'Natasha DeAngelo', roles:['shooter'],          active:true},
+  {email:'kauffman424@gmail.com',           name:'Chris Kauffman',   roles:['shooter'],          active:true},
+  {email:'djspangler05@gmail.com',          name:'DJ Spangler',      roles:['shooter'],          active:true},
+  {email:'kaitlyncapturesphotography@gmail.com', name:'Kaitlyn Esteves', roles:['shooter'],     active:true}
+];
+
+(function(){
+  var tbody = document.getElementById('preview-tbody');
+  SEED_MEMBERS.forEach(function(m){
+    var tr = document.createElement('tr');
+    var rolesHtml = m.roles.map(function(r){return '<span class="role-pill role-'+r+'">'+r+'</span>';}).join('');
+    tr.innerHTML = '<td>'+m.email+'</td><td>'+m.name+'</td><td>'+rolesHtml+'</td>';
+    tbody.appendChild(tr);
+  });
+})();
+
+function log(msg,type){
+  const el=document.getElementById('log');
+  const prefix=type==='ok'?'✓ ':type==='err'?'✗ ':type==='warn'?'⚠ ':'';
+  el.textContent+='\n'+prefix+msg;
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  const t=await res.text();
+  if(!res.ok)throw new Error('HTTP '+res.status+': '+t);
+  return t?JSON.parse(t):null;
+}
+
+async function checkOnly(){
+  document.getElementById('log').textContent='Checking…';
+  try {
+    const rows=await sbFetch('projects?id=eq.tmw_team_members&select=data');
+    if(rows&&rows[0]){
+      const data=rows[0].data;
+      const members=data.members||[];
+      log('tmw_team_members EXISTS','ok');
+      log('Member count: '+members.length);
+      log('Schema version: '+(data.schema_version||'(none)'));
+      log('Updated at: '+(data.updated_at||'(unknown)'));
+      log('','');
+      log('Current members:');
+      members.forEach(function(m){
+        log('  '+(m.active?'●':'○')+' '+m.email+' — '+(m.name||'(no name)')+' — ['+(m.roles||[]).join(', ')+']');
+      });
+    } else {
+      log('tmw_team_members NOT FOUND — needs setup','warn');
+    }
+  } catch(e){log('Error: '+e.message,'err');}
+}
+
+async function runSetup(){
+  if(!confirm('Create / overwrite tmw_team_members with '+SEED_MEMBERS.length+' members?\n\nIf row exists, this OVERWRITES it.'))return;
+
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('log').textContent='Running setup…';
+
+  try {
+    const payload = {
+      schema_version: 1,
+      updated_at: new Date().toISOString(),
+      updated_by: 'setup-script',
+      members: SEED_MEMBERS
+    };
+
+    const existing=await sbFetch('projects?id=eq.tmw_team_members&select=id');
+    if(existing&&existing.length){
+      if(!confirm('tmw_team_members already exists. OVERWRITE with seed data?\n\nAny manual changes will be lost.')){
+        log('Aborted.','warn');
+        document.getElementById('run-btn').disabled=false;
+        return;
+      }
+      await sbFetch('projects?id=eq.tmw_team_members',{method:'PATCH',body:JSON.stringify({data:payload})});
+      log('Updated existing tmw_team_members','ok');
+    } else {
+      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_team_members',data:payload})});
+      log('Created tmw_team_members','ok');
+    }
+
+    log('Seeded '+SEED_MEMBERS.length+' members:');
+    SEED_MEMBERS.forEach(function(m){
+      log('  ● '+m.email+' — '+m.name+' — ['+m.roles.join(', ')+']');
+    });
+    log('','');
+    log('Setup complete!','ok');
+    log('Next step: visit /dashboard/team-members.html to manage the team.','');
+
+  } catch(e){
+    log('Setup failed: '+e.message,'err');
+  } finally {
+    document.getElementById('run-btn').disabled=false;
+  }
+}
+</script>
+
+</body>
+</html>

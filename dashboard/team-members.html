@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Team Members — TM Weddings</title>
+
+<!-- Centralized auth — admin-or-owner only -->
+<script src="/tmw-auth.js" data-required-role="admin"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F6FEFE;--surface:#fff;--surface-2:#f0fafa;
+  --border:#b8dede;--border-strong:#7ec8c8;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --dark:#0d1f1f;
+  --rose:#c9a48a;--rose-dark:#8b5e4a;--rose-light:#f0e4d8;
+  --warn:#d4a878;--danger:#c0392b;
+}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:54px;background:rgba(246,254,254,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.nav-back{font-size:0.72rem;color:var(--text-mid);padding:6px 10px;border-radius:6px;}
+.nav-back:hover{background:var(--teal-light);color:var(--teal-dark);}
+.nav-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;font-style:italic;color:var(--text);}
+.nav-right{display:flex;align-items:center;gap:12px;font-size:0.7rem;color:var(--text-mid);}
+.nav-signout{font-size:0.65rem;color:var(--text-dim);background:none;border:none;text-decoration:underline;padding:6px;}
+
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 80px;}
+
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;letter-spacing:-0.02em;line-height:1;}
+.page-title em{font-style:italic;color:var(--teal);}
+.page-sub{font-size:0.78rem;color:var(--text-mid);margin-top:6px;max-width:560px;line-height:1.5;}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.btn{padding:9px 16px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-size:0.78rem;font-weight:500;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:var(--teal-light);border-color:var(--teal);}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+.btn-danger{color:var(--danger);border-color:rgba(192,57,43,0.3);}
+.btn-danger:hover{background:rgba(192,57,43,0.06);}
+
+.section{background:var(--surface);border:1.5px solid var(--border-strong);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-head h3{font-size:0.62rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal-dark);}
+.section-count{font-size:0.7rem;color:var(--text-mid);}
+
+table.team{width:100%;border-collapse:collapse;font-size:0.82rem;}
+table.team th{text-align:left;font-size:0.55rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);padding:10px 8px;border-bottom:1.5px solid var(--border-strong);}
+table.team td{padding:11px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+table.team tr:last-child td{border-bottom:none;}
+table.team tr.inactive td{opacity:0.45;}
+
+.cell-name input,.cell-email input{padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-family:inherit;font-size:0.82rem;background:var(--bg);color:var(--text);outline:none;width:100%;}
+.cell-name input:focus,.cell-email input:focus{border-color:var(--teal);background:var(--surface);}
+.cell-email{font-family:'SF Mono',monospace;font-size:0.78rem;color:var(--text-mid);}
+.cell-name{font-weight:500;width:200px;}
+
+.role-toggle-group{display:flex;flex-wrap:wrap;gap:4px;}
+.role-toggle{font-size:0.62rem;padding:4px 9px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-weight:500;color:var(--text-mid);transition:all 0.12s;}
+.role-toggle.active{background:var(--teal);color:white;border-color:var(--teal);}
+.role-toggle.active.role-owner{background:var(--rose-dark);border-color:var(--rose-dark);}
+.role-toggle.active.role-admin{background:var(--warn);border-color:var(--warn);color:#3a2a0a;}
+.role-toggle.active.role-editor{background:var(--teal);border-color:var(--teal);}
+.role-toggle.active.role-shooter{background:#7a9a78;border-color:#7a9a78;}
+.role-toggle:hover:not(.active){background:var(--teal-light);}
+
+.cell-active{width:80px;text-align:center;}
+.toggle-active{display:inline-flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--text-mid);cursor:pointer;}
+.toggle-active input{margin:0;}
+.toggle-active.is-active{color:var(--teal-dark);font-weight:600;}
+
+.cell-actions{width:80px;text-align:right;}
+.del-btn{background:none;border:none;color:var(--text-dim);font-size:1.1rem;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;}
+.del-btn:hover{background:rgba(192,57,43,0.08);color:var(--danger);}
+
+.add-form{background:var(--bg);border:1.5px dashed var(--border-strong);border-radius:10px;padding:14px;margin-top:14px;}
+.add-form h4{font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:10px;}
+.add-form-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:center;}
+.add-form-row input{padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.82rem;background:var(--surface);color:var(--text);outline:none;}
+.add-form-row input:focus{border-color:var(--teal);}
+.add-form-row .roles-mini{display:flex;gap:4px;flex-wrap:wrap;}
+
+.save-bar{position:sticky;bottom:0;background:rgba(246,254,254,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:14px 20px;border-top:1.5px solid var(--border-strong);margin:24px -28px -80px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.save-info{font-size:0.72rem;color:var(--text-mid);}
+.save-info .saved{color:var(--teal-dark);}
+.save-info .unsaved{color:var(--rose-dark);font-weight:600;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:white;padding:11px 20px;border-radius:8px;font-size:0.82rem;z-index:1000;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+.toast.show{opacity:1;}
+.toast.error{background:var(--danger);}
+
+.empty-pre{padding:60px 20px;text-align:center;color:var(--text-mid);font-size:0.85rem;}
+
+@media(max-width:780px){
+  .page{padding:20px 16px 80px;}
+  nav{padding:0 16px;}
+  table.team{font-size:0.76rem;}
+  table.team th,table.team td{padding:8px 4px;}
+  .cell-name{width:auto;}
+  .cell-email{font-size:0.7rem;word-break:break-all;}
+  .role-toggle{font-size:0.58rem;padding:3px 6px;}
+  .add-form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/dashboard" class="nav-back">← Dashboard</a>
+    <span class="nav-title">Team Members</span>
+  </div>
+  <div class="nav-right">
+    <span id="user-name"></span>
+    <button class="nav-signout" onclick="tmwSignOut()">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Team <em>Members</em></h1>
+      <div class="page-sub">Manage who can access the portal and what they can see. Inactive members are kept for history but can't log in.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>Active members</h3>
+      <span class="section-count" id="active-count">—</span>
+    </div>
+    <div id="active-table-wrap"></div>
+
+    <div class="add-form">
+      <h4>Add new member</h4>
+      <div class="add-form-row">
+        <input type="text" id="new-name" placeholder="Name (e.g. Jane Doe)" autocomplete="off">
+        <input type="email" id="new-email" placeholder="email@example.com" autocomplete="off" autocapitalize="none">
+        <div class="roles-mini" id="new-roles"></div>
+        <button class="btn btn-primary" onclick="addMember()">+ Add</button>
+      </div>
+      <div style="font-size:0.7rem;color:var(--text-dim);margin-top:8px;">After adding, click Save changes below. The new member also needs to be added as a Google OAuth test user (until you publish the OAuth app).</div>
+    </div>
+  </div>
+
+  <div class="section" id="inactive-section" style="display:none;">
+    <div class="section-head">
+      <h3>Inactive members</h3>
+      <span class="section-count" id="inactive-count">—</span>
+    </div>
+    <div id="inactive-table-wrap"></div>
+  </div>
+
+  <div class="save-bar">
+    <div class="save-info" id="save-info">Loading…</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="reloadFromServer()">Discard changes</button>
+      <button class="btn btn-primary" onclick="saveAll()" id="save-btn">Save changes</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
+const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+const TEAM_CACHE_KEY='tmw_team_cache_v1';
+
+const ALL_ROLES=['owner','admin','editor','shooter'];
+
+let members=[];
+let originalMembers=null;
+let dirty=false;
+let newMemberRoles={shooter:true};
+
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+  renderNewMemberRoles();
+  boot();
+});
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
+  });
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+
+function toast(msg,isError){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show'+(isError?' error':'');
+  setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+function markDirty(){
+  dirty=true;
+  document.getElementById('save-info').innerHTML='<span class="unsaved">● Unsaved changes</span>';
+}
+function markClean(){
+  dirty=false;
+  document.getElementById('save-info').innerHTML='<span class="saved">✓ All changes saved</span>';
+}
+
+async function boot(){
+  try{
+    const rows=await sbFetch('projects?id=eq.tmw_team_members&select=data');
+    if(!rows||!rows[0]){
+      document.getElementById('save-info').innerHTML='<span class="unsaved">⚠ Team table not found — run /dashboard/setup-team-members.html first</span>';
+      return;
+    }
+    members=(rows[0].data.members||[]).slice();
+    originalMembers=JSON.parse(JSON.stringify(members));
+    markClean();
+    renderAll();
+  }catch(e){toast('Load failed: '+e.message,true);}
+}
+
+function renderAll(){
+  const active=members.filter(m=>m.active!==false);
+  const inactive=members.filter(m=>m.active===false);
+  document.getElementById('active-count').textContent=active.length+' member'+(active.length===1?'':'s');
+  document.getElementById('inactive-count').textContent=inactive.length+' inactive';
+  document.getElementById('inactive-section').style.display=inactive.length?'block':'none';
+  renderTable('active-table-wrap',active);
+  renderTable('inactive-table-wrap',inactive);
+}
+
+function renderTable(containerId,list){
+  const c=document.getElementById(containerId);
+  if(!list.length){c.innerHTML='<div class="empty-pre">No members.</div>';return;}
+  let html='<table class="team"><thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Active</th><th></th></tr></thead><tbody>';
+  list.forEach(function(m){
+    const idx=members.indexOf(m);
+    const isInactive=m.active===false;
+    html+='<tr class="'+(isInactive?'inactive':'')+'">';
+    html+='<td class="cell-name"><input type="text" value="'+escapeAttr(m.name||'')+'" onchange="updateMember('+idx+',\'name\',this.value)" placeholder="Name"></td>';
+    html+='<td class="cell-email"><input type="email" value="'+escapeAttr(m.email||'')+'" onchange="updateMember('+idx+',\'email\',this.value.toLowerCase().trim())" placeholder="email@example.com"></td>';
+    html+='<td><div class="role-toggle-group">'+ALL_ROLES.map(function(r){
+      var hasRole=(m.roles||[]).indexOf(r)!==-1;
+      return '<button class="role-toggle role-'+r+(hasRole?' active':'')+'" onclick="toggleRole('+idx+',\''+r+'\')">'+r+'</button>';
+    }).join('')+'</div></td>';
+    html+='<td class="cell-active"><label class="toggle-active'+(!isInactive?' is-active':'')+'"><input type="checkbox" '+(!isInactive?'checked':'')+' onchange="toggleActive('+idx+',this.checked)">'+(isInactive?'Inactive':'Active')+'</label></td>';
+    html+='<td class="cell-actions"><button class="del-btn" onclick="deleteMember('+idx+')" title="Permanently delete">×</button></td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  c.innerHTML=html;
+}
+
+function escapeAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+function updateMember(idx,field,value){
+  members[idx][field]=value;
+  markDirty();
+}
+
+function toggleRole(idx,role){
+  const m=members[idx];
+  m.roles=m.roles||[];
+  const pos=m.roles.indexOf(role);
+  if(pos===-1)m.roles.push(role);
+  else m.roles.splice(pos,1);
+  markDirty();
+  renderAll();
+}
+
+function toggleActive(idx,checked){
+  members[idx].active=checked;
+  markDirty();
+  renderAll();
+}
+
+function deleteMember(idx){
+  const m=members[idx];
+  if(!confirm('Permanently delete '+m.email+'?\n\nIf you just want to revoke access, set them to Inactive instead — that preserves history.'))return;
+  members.splice(idx,1);
+  markDirty();
+  renderAll();
+}
+
+function renderNewMemberRoles(){
+  const c=document.getElementById('new-roles');
+  c.innerHTML=ALL_ROLES.map(function(r){
+    return '<button class="role-toggle role-'+r+(newMemberRoles[r]?' active':'')+'" onclick="toggleNewRole(\''+r+'\')">'+r+'</button>';
+  }).join('');
+}
+
+function toggleNewRole(role){
+  newMemberRoles[role]=!newMemberRoles[role];
+  renderNewMemberRoles();
+}
+
+function addMember(){
+  const name=document.getElementById('new-name').value.trim();
+  const email=document.getElementById('new-email').value.trim().toLowerCase();
+  if(!email){toast('Email required',true);return;}
+  if(!email.includes('@')){toast('Invalid email',true);return;}
+  if(members.some(function(m){return m.email&&m.email.toLowerCase()===email;})){
+    toast('Email already in list',true);return;
+  }
+  const roles=ALL_ROLES.filter(function(r){return newMemberRoles[r];});
+  if(!roles.length){toast('Pick at least one role',true);return;}
+  members.push({email:email,name:name,roles:roles,active:true});
+  document.getElementById('new-name').value='';
+  document.getElementById('new-email').value='';
+  newMemberRoles={shooter:true};
+  renderNewMemberRoles();
+  markDirty();
+  renderAll();
+  toast('Added — click Save to commit');
+}
+
+async function saveAll(){
+  const seen={};
+  for(const m of members){
+    if(!m.email){toast('A member is missing email',true);return;}
+    if(seen[m.email.toLowerCase()]){toast('Duplicate email: '+m.email,true);return;}
+    seen[m.email.toLowerCase()]=true;
+    if(!m.roles||!m.roles.length){toast(m.email+' has no roles',true);return;}
+  }
+  const activeOwners=members.filter(function(m){return m.active!==false&&(m.roles||[]).indexOf('owner')!==-1;});
+  if(!activeOwners.length){
+    if(!confirm('⚠ No active owners! You will lock yourself out of admin tools. Save anyway?'))return;
+  }
+
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  try{
+    const payload={
+      schema_version:1,
+      updated_at:new Date().toISOString(),
+      updated_by:TMW_USER.email,
+      members:members
+    };
+    await sbFetch('projects?id=eq.tmw_team_members',{method:'PATCH',body:JSON.stringify({data:payload})});
+    originalMembers=JSON.parse(JSON.stringify(members));
+    try{localStorage.removeItem(TEAM_CACHE_KEY);}catch(e){}
+    markClean();
+    btn.textContent='Save changes';
+    toast('Saved ('+members.length+' members) — others may need to refresh');
+  }catch(e){
+    toast('Save failed: '+e.message,true);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function reloadFromServer(){
+  if(!confirm('Discard all unsaved changes?'))return;
+  members=JSON.parse(JSON.stringify(originalMembers||[]));
+  markClean();
+  renderAll();
+}
+
+window.addEventListener('beforeunload',function(e){
+  if(dirty){e.preventDefault();e.returnValue='';}
+});
+</script>
+
+</body>
+</html>
