@@ -4,7 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Owner Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ═══ Centralized auth guard — owner only ═══ -->
+<script src="/tmw-auth.js" data-required-role="owner"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -103,9 +106,8 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
     <a class="nav-link active" href="/dashboard">Dashboard</a>
     <div id="sync-wrap"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">Loading...</span></div>
     <div style="display:flex;align-items:center;gap:8px;margin-left:8px;">
-      <img id="user-avatar" style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(74,172,172,0.4);display:none;"/>
       <span id="user-name" style="font-size:0.68rem;color:rgba(255,255,255,0.5);"></span>
-      <span onclick="signOut()" style="font-size:0.62rem;color:rgba(255,255,255,0.3);cursor:pointer;text-decoration:underline;">Sign out</span>
+      <span onclick="tmwSignOut()" style="font-size:0.62rem;color:rgba(255,255,255,0.3);cursor:pointer;text-decoration:underline;">Sign out</span>
     </div>
   </div>
 </nav>
@@ -125,18 +127,22 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
 <script>
 const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const OWNER_EMAILS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
-const APPROVED_EMAILS = [
-  'tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com',
-  'bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com',
-  'nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com',
-  'natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com',
-  'zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com',
-];
 const ALL_EDITORS = ['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
 
-let sb, photoProjects=[], videoProjects=[], weddings=[];
+let photoProjects=[], videoProjects=[], weddings=[];
 const today = new Date(); today.setHours(0,0,0,0);
+
+// ─── Wait for centralized auth, then init ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent = TMW_USER.name;
+  document.getElementById('page-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  loadAll();
+  setInterval(loadAll, 30000);
+});
 
 async function sbFetch(path) {
   const res = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
@@ -153,29 +159,6 @@ function getRisk(d){if(!d)return'ok';const n=daysAway(d);return n<0?'overdue':n<
 function isDelComplete(d){const v=Object.values(d.stages||{});return v.length>0&&v.every(x=>x==='complete');}
 function getProgress(dels){let done=0,total=0;(dels||[]).forEach(d=>{Object.keys(d.stages||{}).forEach(k=>{total++;if(d.stages[k]==='complete')done++;});});return total?Math.round(done/total*100):0;}
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
-
-async function signOut(){
-  if(sb) await sb.auth.signOut();
-  window.location.href='/login.html';
-}
-
-async function init() {
-  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const { data:{ session } } = await sb.auth.getSession();
-  if(!session) { window.location.href='/login.html?redirect=/dashboard/'; return; }
-  const email = session.user.email;
-  if(!APPROVED_EMAILS.includes(email)) { await sb.auth.signOut(); window.location.href='/login.html'; return; }
-  if(!OWNER_EMAILS.includes(email)) { window.location.href='/'; return; }
-
-  // Show user info
-  const meta = session.user.user_metadata;
-  if(meta?.avatar_url){ const av=document.getElementById('user-avatar'); av.src=meta.avatar_url; av.style.display='block'; }
-  document.getElementById('user-name').textContent = meta?.full_name || email.split('@')[0];
-  document.getElementById('page-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-
-  loadAll();
-  setInterval(loadAll, 30000);
-}
 
 async function loadAll(){
   try{
@@ -261,8 +244,6 @@ function renderDashboard(){
       </div>
     </div>`;
 }
-
-window.addEventListener('load', init);
 </script>
 </body>
 </html>

@@ -8,31 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="Shot Caller">
 <title>Shot Caller · TM Weddings</title>
 
-<!-- ═══ TMW AUTH GUARD v2 ═══ -->
-<script>
-(function(){
-  try {
-    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
-    var APPROVED = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
-    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
-    window.tmwSignOut = function(){
-      try { for (var i = localStorage.length - 1; i >= 0; i--) { var k = localStorage.key(i); if (k && (k.indexOf('sb-') === 0 || k.indexOf('supabase') === 0)) localStorage.removeItem(k); } sessionStorage.clear(); } catch(e) {}
-      window.location.replace('/login.html');
-    };
-    var raw = null; try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
-    var session = null;
-    if (raw) { try { session = JSON.parse(raw); } catch(e) { try { localStorage.removeItem(STORAGE_KEY); } catch(e2) {} } }
-    var valid = false; var email = '';
-    if (session && session.user && session.user.email) {
-      email = String(session.user.email).toLowerCase();
-      var notExpired = !session.expires_at || (session.expires_at * 1000 > Date.now());
-      valid = notExpired && APPROVED.indexOf(email) !== -1;
-    }
-    if (!valid) { window.location.replace('/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search)); return; }
-    window.TMW_USER = { email: email, isOwner: OWNERS.indexOf(email) !== -1, name: (session.user.user_metadata && session.user.user_metadata.full_name) || email.split('@')[0] };
-  } catch(err) { window.location.replace('/login.html'); }
-})();
-</script>
+<!-- ═══ Centralized auth guard ═══ -->
+<script src="/tmw-auth.js" data-required-role="any"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -51,6 +28,8 @@ body{font-family:var(--font-sans);display:flex;flex-direction:column;max-width:4
 .header-eyebrow{font-size:10px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--dusty-rose);padding-top:8px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;}
 .back-link{font-size:10px;color:var(--warm-gray);text-decoration:none;letter-spacing:0.05em;text-transform:none;font-weight:400;}
 .back-link:hover{color:var(--deep-rose);}
+.signout-btn{font-size:10px;color:var(--warm-gray);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:var(--font-sans);padding:2px;letter-spacing:0.05em;text-transform:none;font-weight:400;}
+.signout-btn:hover{color:var(--deep-rose);}
 .header-name{font-family:var(--font-serif);font-size:26px;font-weight:300;font-style:italic;color:var(--charcoal);margin-bottom:2px;}
 .header-sub{font-size:11px;color:var(--warm-gray);margin-bottom:11px;}
 .progress-wrap{display:flex;align-items:center;gap:10px;}
@@ -156,7 +135,10 @@ body{font-family:var(--font-sans);display:flex;flex-direction:column;max-width:4
 <div class="header">
   <div class="header-eyebrow">
     <span>Shot Caller · TM Weddings</span>
-    <a href="/" class="back-link">← Portal</a>
+    <span style="display:flex;gap:10px;align-items:center;">
+      <a href="/" class="back-link">← Portal</a>
+      <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
+    </span>
   </div>
   <div class="header-name" id="h-name">—</div>
   <div class="header-sub" id="h-sub">—</div>
@@ -206,7 +188,7 @@ body{font-family:var(--font-sans);display:flex;flex-direction:column;max-width:4
     </div>
     <div id="log-entries"><div class="empty-state">No shots captured yet.</div></div>
     <div style="margin-top:20px;text-align:center;">
-      <button onclick="resetState()" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#8b5e4a;background:none;border:1px solid rgba(139,94,74,0.3);border-radius:20px;padding:8px 18px;cursor:pointer;">Reset all progress</button>
+      <button onclick="resetState()" id="reset-btn" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#8b5e4a;background:none;border:1px solid rgba(139,94,74,0.3);border-radius:20px;padding:8px 18px;cursor:pointer;display:none;">Reset all progress</button>
     </div>
   </div>
 </div>
@@ -256,6 +238,17 @@ let saveTimeout=null;
 let lastSyncAt=0;
 
 const STATE_KEY='tmw_shot_'+(WEDDING_ID||'unknown');
+
+// Show reset button only for owners + admins (after auth resolves)
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  if(TMW_USER.isAdmin){
+    document.getElementById('reset-btn').style.display='inline-block';
+  }
+});
 
 async function sbFetch(path,opts={}){
   const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
@@ -358,6 +351,7 @@ async function loadState(){
 }
 
 async function resetState(){
+  if(!window.TMW_USER||!TMW_USER.isAdmin){alert('Only owners and admins can reset progress.');return;}
   if(!confirm('Reset all shot progress? This will clear progress for ALL team members.'))return;
   allShots().forEach(s=>{s.done=false;s.skipped=false;});
   eventLog.length=0;

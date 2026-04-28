@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Photo Post Production</title>
+
+<!-- ═══ Centralized auth guard — editor or higher ═══ -->
+<script src="/tmw-auth.js" data-required-role="editor"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -28,6 +32,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-icon{height:30px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
 .admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.user-name{font-size:11px;color:var(--text-muted);}
+.signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
+.signout-btn:hover{color:var(--accent);}
 .modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
 .modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:360px;}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
@@ -121,6 +128,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   .add-fields{flex-direction:column;}
   .fg input,.fg select{width:100%!important;}
   .topbar{padding:0 16px;}
+  .user-name{display:none;}
 }
 </style>
 </head>
@@ -148,7 +156,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
     <button class="btn-icon" onclick="loadData()">&#8635;</button>
     <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
-    <button class="btn-icon" id="admin-btn" onclick="toggleAdmin()">Admin</button>
+    <button class="btn-icon" id="admin-btn" onclick="toggleAdmin()" style="display:none;">Admin</button>
+    <span class="user-name" id="user-name"></span>
+    <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -215,7 +225,6 @@ const EDITORS=['Tony','Brynn'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Brynn:'brynn.weller95@gmail.com'};
 const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Custom'];
 
-// Two stage sets — photo book has different workflow
 const PHOTO_STAGES=['Files on QNAS','Files obtained','Cull','Edit','Export','Deliver'];
 const PHOTO_STAGE_KEYS=['qnas','obtained','cull','edit','export','deliver'];
 const BOOK_STAGES=['Files on QNAS','Files obtained','Selections submitted','Design stage','Order placed'];
@@ -230,11 +239,24 @@ function makeStages(name){const s={};getStages(name).forEach(k=>s[k]='not-starte
 
 let projects=[];let expanded={};let saving=false;let isAdmin=false;
 
+// ─── Wait for centralized auth, then init UI ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+  if(TMW_USER.isAdmin){
+    document.getElementById('admin-btn').style.display='inline-flex';
+  }
+});
+
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
 
 
 function toggleAdmin(){
+  if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();}
   else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
 }
@@ -251,7 +273,6 @@ function applyAdmin(){
   renderAll();
 }
 
-// sbFetch → loaded from tmw-core.js (inline backup)
 async function sbFetch(path,opts={}){
   const res=await fetch(TMW.supabase.url+'/rest/v1/'+path,{
     ...opts,
@@ -266,53 +287,6 @@ async function loadData(){
   try{
     const rows=await sbFetch('projects?id=eq.tmw_photo&select=data');
     if(rows&&rows[0]){projects=rows[0].data.projects||[];}
-    else{
-      function stages(){return{cull:'not-started',edit:'not-started',export:'not-started',deliver:'not-started'};}
-      const seed=[
-        {id:'p1',client:'Casey Gruver',weddingDate:'2026-04-11',editor:'',deliverables:[
-          {id:'p1d1',name:'Sneak peek',editor:'',dueDate:'2026-04-12',stages:stages()},
-          {id:'p1d2',name:'Photo gallery',editor:'',dueDate:'2026-04-27',stages:stages()},
-          {id:'p1d3',name:'Photo book',editor:'',dueDate:'2026-05-27',stages:stages()}
-        ]},
-        {id:'p2',client:'Liz Scialpi',weddingDate:'2026-04-18',editor:'',deliverables:[
-          {id:'p2d1',name:'Photo gallery',editor:'',dueDate:'2026-05-04',stages:stages()},
-          {id:'p2d2',name:'Photo book',editor:'',dueDate:'2026-06-04',stages:stages()}
-        ]},
-        {id:'p3',client:'Elizabeth Forget',weddingDate:'2026-04-19',editor:'',deliverables:[
-          {id:'p3d1',name:'Photo gallery',editor:'',dueDate:'2026-05-04',stages:stages()},
-          {id:'p3d2',name:'Photo book',editor:'',dueDate:'2026-06-04',stages:stages()}
-        ]},
-        {id:'p4',client:'Francesca Kurtzi',weddingDate:'2026-04-24',editor:'',deliverables:[
-          {id:'p4d1',name:'Photo gallery',editor:'',dueDate:'2026-05-09',stages:stages()},
-          {id:'p4d2',name:'Photo book',editor:'',dueDate:'2026-06-09',stages:stages()}
-        ]},
-        {id:'p5',client:'Mallory Johnson',weddingDate:'2026-04-25',editor:'',deliverables:[
-          {id:'p5d1',name:'Photo gallery',editor:'',dueDate:'2026-05-11',stages:stages()},
-          {id:'p5d2',name:'Photo book',editor:'',dueDate:'2026-06-11',stages:stages()}
-        ]},
-        {id:'p6',client:'Melissa DeShaw',weddingDate:'2026-04-25',editor:'',deliverables:[
-          {id:'p6d1',name:'Photo gallery',editor:'',dueDate:'2026-05-11',stages:stages()},
-          {id:'p6d2',name:'Photo book',editor:'',dueDate:'2026-06-11',stages:stages()}
-        ]},
-        {id:'p7',client:'Zee Haroon',weddingDate:'2026-05-03',editor:'',deliverables:[
-          {id:'p7d1',name:'Photo gallery',editor:'',dueDate:'2026-05-18',stages:stages()},
-          {id:'p7d2',name:'Photo book',editor:'',dueDate:'2026-06-18',stages:stages()}
-        ]},
-        {id:'p8',client:'Julia Swayser',weddingDate:'2026-05-16',editor:'',deliverables:[
-          {id:'p8d1',name:'Sneak peek',editor:'',dueDate:'2026-05-17',stages:stages()},
-          {id:'p8d2',name:'Photo gallery',editor:'',dueDate:'2026-06-01',stages:stages()},
-          {id:'p8d3',name:'Photo book',editor:'',dueDate:'2026-07-01',stages:stages()}
-        ]},
-        {id:'p9',client:'PJ Knight',weddingDate:'2026-05-17',editor:'',deliverables:[
-          {id:'p9d1',name:'Photo gallery',editor:'',dueDate:'2026-06-15',stages:stages()}
-        ]},
-        {id:'p10',client:'Bryce Galczynski',weddingDate:'2026-05-30',editor:'',deliverables:[
-          {id:'p10d1',name:'Photo gallery',editor:'',dueDate:'2026-06-15',stages:stages()}
-        ]}
-      ];
-      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_photo',data:{projects:seed}})});
-      projects=seed;
-    }
     document.getElementById('pipeline-loading').style.display='none';
     document.getElementById('pipeline-content').style.display='block';
     setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
@@ -410,11 +384,8 @@ async function cycleStage(pid,did,key){
     const keys=getStages(d.name);
     const stageName=labels[keys.indexOf(key)];
     if(key==='qnas'){
-      // Notify assigned editor — files ready to download
-      const editorEmail=d.editor?EDITOR_EMAILS[d.editor]:'';
       sendNotification(p.client,d.name,stageName+' — files ready to download',d.editor);
     } else if(key==='obtained'){
-      // Notify Tony + Brynn — editor has the files
       sendNotification(p.client,d.name,stageName+' — editor has the files',d.editor);
     } else {
       sendNotification(p.client,d.name,stageName,d.editor);
@@ -456,7 +427,6 @@ async function completeProject(pid){
   });
   renderAll();
   await saveData();
-  // Single notification email
   sendNotification(p.client,'All deliverables','Project completed ✓',p.editor);
 }
 

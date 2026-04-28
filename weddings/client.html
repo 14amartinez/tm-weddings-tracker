@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Wedding Info</title>
+
+<!-- ═══ Centralized auth guard ═══ -->
+<script src="/tmw-auth.js" data-required-role="any"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -26,6 +30,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-sm{height:30px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
 .btn-sm:hover{color:var(--accent);border-color:var(--accent-mid);}
 .admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.user-name{font-size:11px;color:var(--text-muted);}
+.signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
+.signout-btn:hover{color:var(--accent);}
 .main{max-width:900px;margin:0 auto;padding:32px 24px 80px;}
 
 /* HERO */
@@ -101,6 +108,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-shotcaller:hover{background:#2c2420;}
 .btn-wallpaper{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
 .btn-wallpaper:hover{background:var(--accent);color:#fff;}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:14px 24px;display:none;align-items:center;justify-content:space-between;gap:14px;z-index:40;box-shadow:0 -4px 16px rgba(0,0,0,0.06);}
 .save-bar.visible{display:flex;}
 .btn-save{height:36px;padding:0 24px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
 .btn-save:hover{background:#7a5240;}
@@ -118,6 +126,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   .vendor-row,.vendor-header{grid-template-columns:1fr 1fr;}
   .vendor-row .vendor-input:nth-child(3),.vendor-header .col-label:nth-child(3){display:none;}
   .topbar{padding:0 16px;}
+  .user-name{display:none;}
 }
 </style>
 </head>
@@ -129,6 +138,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Loading...</span></div>
     <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
     <button class="btn-sm" id="admin-btn" onclick="toggleAdmin()" style="display:none;">Admin</button>
+    <span class="user-name" id="user-name"></span>
+    <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -156,11 +167,21 @@ let isAdmin=false;
 let dirty=false;
 const weddingId=new URLSearchParams(location.search).get('id');
 
+// ─── Wait for centralized auth, then init UI ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+});
+
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
 function markDirty(){if(!isAdmin)return;dirty=true;document.getElementById('save-bar').classList.add('visible');}
 
 function toggleAdmin(){
+  if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_wdi_admin');applyAdmin();renderPage();}
   else{
     const pw=prompt('Admin password:');
@@ -170,10 +191,8 @@ function toggleAdmin(){
 function applyAdmin(){
   document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
   document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
-  document.getElementById('admin-btn').style.display='flex';
 }
 
-// sbFetch inline backup
 async function sbFetch(path,opts={}){
   const res=await fetch(TMW.supabase.url+"/rest/v1/"+path,{
     ...opts,
@@ -198,7 +217,12 @@ async function loadData(){
     document.title='TM Weddings — '+wedding.client;
     document.getElementById('loading').style.display='none';
     document.getElementById('content').style.display='block';
-    document.getElementById('admin-btn').style.display='flex';
+    // Show admin button only to owners + admins (after auth resolves)
+    whenUserReady(function(){
+      if(TMW_USER.isAdmin){
+        document.getElementById('admin-btn').style.display='flex';
+      }
+    });
     setSS('ok','Live');
     renderPage();
   }catch(e){

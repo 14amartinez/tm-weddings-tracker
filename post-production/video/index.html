@@ -4,20 +4,35 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Post Production</title>
+
+<!-- ═══ Centralized auth guard — editor or higher ═══ -->
+<script src="/tmw-auth.js" data-required-role="editor"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-// Inline config — no external dependency
 const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 const ADMIN_PW='Post-Production_2026!';
 const TONY_EMAIL='tonyellismartinez@gmail.com';
 const BRYNN_EMAIL='brynn.weller95@gmail.com';
-const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'',Nick:'',Nathan:'',Luke:'',Zach:''};
+const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'zsanchez2149@gmail.com',Zach:'zerwin1212@gmail.com',Luke:'lukeh61403@gmail.com',Nick:'',Nathan:''};
 if(typeof emailjs!=='undefined')emailjs.init('3EteBapWG4a_hy5ol');
 function tmwToast(msg){
   let t=document.getElementById('tmw-toast');
   if(!t){t=document.createElement('div');t.id='tmw-toast';t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a1714;color:#fff;font-size:12px;padding:10px 16px;border-radius:8px;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;';document.body.appendChild(t);}
   t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';},3200);
+}
+function tmwNotifyAssignment(client,deliverable,editor){
+  const editorEmail=EDITOR_EMAILS[editor];
+  if(!editorEmail)return;
+  try{
+    emailjs.send('service_qoodzdb','template_p1hyj87',{
+      client,deliverable,stage:'You\'ve been assigned',editor,
+      time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+      to_email:editorEmail
+    });
+    tmwToast('✓ '+editor+' notified');
+  }catch(e){console.warn('Assignment email failed:',e);}
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -45,6 +60,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-icon{height:32px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
 .admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);letter-spacing:0.04em;}
+.user-name{font-size:11px;color:var(--text-muted);}
+.signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
+.signout-btn:hover{color:var(--accent);}
 
 /* TABS */
 .tabs-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;}
@@ -174,6 +192,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   .topbar{padding:0 16px;height:52px;}
   .logo-sub{display:none;}
   #sync-text{display:none;}
+  .user-name{display:none;}
   .main{padding:16px;}
   .summary-row{grid-template-columns:repeat(3,1fr);gap:8px;}
   .stat{padding:10px 12px;}
@@ -234,7 +253,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
     <button class="btn-icon" onclick="loadData()">&#8635;</button>
     <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
-    <button class="btn-icon" id="admin-toggle-btn" onclick="toggleAdminMode()">Admin</button>
+    <button class="btn-icon" id="admin-toggle-btn" onclick="toggleAdminMode()" style="display:none;">Admin</button>
+    <span class="user-name" id="user-name"></span>
+    <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -254,7 +275,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     <div id="pipeline-content" style="display:none;">
       <div class="summary-row" id="summary-row"></div>
 
-      <!-- ADMIN ONLY: Add project -->
       <div class="add-card" id="add-project-card" style="display:none;">
         <div class="add-card-title">Add project</div>
         <div class="add-fields">
@@ -299,6 +319,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script>
 const EDITORS=['Tony','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
+
+// ─── Wait for centralized auth, then init UI ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+  // Only owners + admins can use the admin (edit) features
+  if(TMW_USER.isAdmin){
+    document.getElementById('admin-toggle-btn').style.display='inline-flex';
+  }
+});
+
 async function sendNotification(client,deliverable,stage,editor,overrideTo){
   const params={client,deliverable,stage,editor:editor||'Unassigned',time:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
   try{
@@ -336,6 +370,7 @@ function showError(msg){
 
 // ADMIN
 function toggleAdminMode(){
+  if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){
     isAdmin=false;
     sessionStorage.removeItem('tmw_admin');
@@ -503,16 +538,13 @@ async function cycleStage(pid,did,key){
   d.stages[key]=STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
   if(d.stages[key]==='complete'){
     const stageName=STAGES[STAGE_KEYS.indexOf(key)];
-    // Files on QNAS complete → notify assigned editor so they know to download
     if(key==='qnas'){
       const editorEmail=d.editor?EDITOR_EMAILS[d.editor]:'';
       sendNotification(p.client,d.name,stageName+' — files ready to download',d.editor,editorEmail);
     }
-    // Files obtained complete → notify Tony so he knows editor has the files
     else if(key==='obtained'){
       sendNotification(p.client,d.name,stageName+' — editor has the files',d.editor,null);
     }
-    // All other stages → notify Tony + Brynn always
     else{
       sendNotification(p.client,d.name,stageName,d.editor,null);
     }
@@ -528,7 +560,6 @@ async function setDelEditor(pid,did,val){
     const prev=d.editor;
     d.editor=val;
     renderEditors();await saveData();
-    // Notify on new assignment (not on unassign)
     if(val&&val!==prev){
       tmwNotifyAssignment(p.client,d.name,val);
     }
@@ -736,7 +767,6 @@ function switchTab(id,btn){
   btn.classList.add('active');
 }
 
-// Init
 if(sessionStorage.getItem('tmw_admin')==='1'){isAdmin=true;applyAdminUI();}
 loadData();
 setInterval(loadData,30000);

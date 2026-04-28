@@ -5,18 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TMW · One-time Migration · Martindale</title>
 
-<script>
-(function(){
-  try {
-    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
-    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
-    var raw = null; try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
-    var session = null; if (raw) { try { session = JSON.parse(raw); } catch(e) {} }
-    var email = session && session.user && session.user.email ? String(session.user.email).toLowerCase() : '';
-    if (!session || OWNERS.indexOf(email) === -1) { window.location.replace('/login.html'); return; }
-  } catch(err) { window.location.replace('/login.html'); }
-})();
-</script>
+<!-- ═══ Centralized auth guard — owner only ═══ -->
+<script src="/tmw-auth.js" data-required-role="owner"></script>
 
 <style>
 body{font-family:-apple-system,sans-serif;background:#0d1f1f;color:#f6fefe;padding:24px;max-width:680px;margin:0 auto;line-height:1.6;}
@@ -28,16 +18,24 @@ button:disabled{opacity:0.4;cursor:not-allowed;}
 .log{background:#000;color:#0f0;font:11px/1.5 monospace;padding:14px;border-radius:8px;margin-top:20px;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow-y:auto;}
 .warn{background:#3a2a1a;border-left:3px solid #d4a878;padding:12px 14px;border-radius:6px;margin:14px 0;font-size:0.85rem;}
 .success{background:#1a3a2a;border-left:3px solid #4ace4a;padding:12px 14px;border-radius:6px;margin:14px 0;font-size:0.85rem;}
+.user-bar{display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:#7ec8c8;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #1a2b2b;}
+.signout-btn{background:none;border:none;color:#9ab8b8;text-decoration:underline;cursor:pointer;font-size:0.7rem;font-family:inherit;padding:0;}
+.signout-btn:hover{color:#4aacac;}
 a{color:#4aacac;}
 </style>
 </head>
 <body>
 
+<div class="user-bar">
+  <span id="user-name"></span>
+  <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
+</div>
+
 <h1>One-time migration</h1>
-<p>Seeds the Martindale wedding shot list into the new universal schema as <code>tmw_shotlist_w_martindale</code>. Also migrates runtime state from <code>tmw_shot_martindale</code> to <code>tmw_shot_w_martindale</code> if it exists.</p>
+<p>Seeds the Martindale wedding shot list into the new universal schema as <code>tmw_shotlist_&lt;wedding-id&gt;</code>. Also migrates runtime state from <code>tmw_shot_martindale</code> to <code>tmw_shot_&lt;wedding-id&gt;</code> if it exists.</p>
 
 <div class="warn">
-  <strong>Before running:</strong> Verify the wedding ID in <code>tmw_weddings</code> for Martindale. Default below is <code>w_martindale</code>. Edit if needed.
+  <strong>Before running:</strong> Verify the wedding ID in <code>tmw_weddings</code> for Martindale. Default below is <code>w_martindale</code> — but per your weddings list, the actual ID is more likely something like <code>w6</code>. <strong>Click "Check current state" first</strong> to verify the ID exists in <code>tmw_weddings</code> before running the migration.
 </div>
 
 <label style="font-size:0.85rem;display:block;margin-bottom:6px;color:#b8dede;">Target wedding ID:</label>
@@ -53,6 +51,15 @@ a{color:#4aacac;}
 <script>
 const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
 const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+
+// ─── Wait for centralized auth, then init ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent='Signed in as '+TMW_USER.name;
+});
 
 function log(msg,type){
   const el=document.getElementById('log');
@@ -88,6 +95,14 @@ async function checkOnly(){
     if(w&&w[0]){
       const found=(w[0].data.weddings||[]).find(ww=>ww.id===wid);
       log('Wedding "'+wid+'" in tmw_weddings: '+(found?('FOUND ('+found.client+')'):'NOT FOUND — wedding ID may be wrong'),found?'ok':'warn');
+      if(!found){
+        log('','');
+        log('Wedding IDs available in tmw_weddings:','warn');
+        (w[0].data.weddings||[]).forEach(ww=>{
+          const dateStr=ww.date?' — '+ww.date:'';
+          log('  '+ww.id+' = '+ww.client+dateStr);
+        });
+      }
     }
   } catch(e){log('Error: '+e.message,'err');}
 }
@@ -95,6 +110,19 @@ async function checkOnly(){
 async function runMigration(){
   const wid=document.getElementById('wedding-id').value.trim();
   if(!wid){log('Wedding ID required','err');return;}
+
+  // Pre-flight: confirm wedding ID actually exists in tmw_weddings
+  try {
+    const w=await sbFetch('projects?id=eq.tmw_weddings&select=data');
+    if(w&&w[0]){
+      const found=(w[0].data.weddings||[]).find(ww=>ww.id===wid);
+      if(!found){
+        if(!confirm('⚠ Wedding ID "'+wid+'" was NOT found in tmw_weddings.\n\nClick OK to run anyway, or Cancel to fix the ID first (recommended).'))return;
+      }
+    }
+  } catch(e){
+    log('Pre-flight check failed: '+e.message,'warn');
+  }
 
   if(!confirm('Run migration with wedding ID "'+wid+'"?\n\nThis creates tmw_shotlist_'+wid+' and (if old state exists) tmw_shot_'+wid+'.\n\nOriginal tmw_shot_martindale will be left intact as backup.'))return;
 

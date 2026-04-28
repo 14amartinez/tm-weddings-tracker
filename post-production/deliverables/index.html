@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>TM Weddings — Client Deliverables</title>
+
+<!-- ═══ Centralized auth guard — editor or higher ═══ -->
+<script src="/tmw-auth.js" data-required-role="editor"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -28,6 +32,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-sm{height:30px;padding:0 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
 .btn-sm:hover{color:var(--accent);border-color:var(--accent-mid);}
 .admin-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);}
+.user-name{font-size:11px;color:var(--text-muted);}
+.signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
+.signout-btn:hover{color:var(--accent);}
 .modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
 .modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:360px;}
 .modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
@@ -85,6 +92,7 @@ td{padding:10px 14px;vertical-align:middle;}
   .add-fields{flex-direction:column;}
   .fg input,.fg select{width:100%!important;}
   .topbar{padding:0 16px;}
+  .user-name{display:none;}
 }
 </style>
 </head>
@@ -110,7 +118,9 @@ td{padding:10px 14px;vertical-align:middle;}
     <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
     <button class="btn-sm" onclick="loadData()">&#8635;</button>
     <span id="admin-badge" class="admin-badge" style="display:none;">Admin</span>
-    <button class="btn-sm" id="admin-btn" onclick="toggleAdmin()">Admin</button>
+    <button class="btn-sm" id="admin-btn" onclick="toggleAdmin()" style="display:none;">Admin</button>
+    <span class="user-name" id="user-name"></span>
+    <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -162,7 +172,6 @@ const SUPABASE_KEY=TMW.supabase.key;
 const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
 
-// Deliverable columns
 const COLS=[
   {key:'sneakPeek',label:'Sneak peek',auto:false},
   {key:'photoGallery',label:'Photo gallery',auto:true,weeks:2,photo:true},
@@ -177,6 +186,18 @@ let clients=[];
 let isAdmin=false;
 let saving=false;
 
+// ─── Wait for centralized auth, then init UI ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+  if(TMW_USER.isAdmin){
+    document.getElementById('admin-btn').style.display='inline-flex';
+  }
+});
+
 function setSS(state,text){
   document.getElementById('sync-dot').className='sync-dot '+state;
   document.getElementById('sync-text').textContent=text;
@@ -188,6 +209,7 @@ function showError(msg){
 }
 
 function toggleAdmin(){
+  if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_del_admin');applyAdmin();}
   else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
 }
@@ -203,7 +225,6 @@ function applyAdmin(){
   document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
 }
 
-// sbFetch inline backup
 async function sbFetch(path,opts={}){
   const res=await fetch(TMW.supabase.url+"/rest/v1/"+path,{
     ...opts,
@@ -218,22 +239,6 @@ async function loadData(){
   try{
     const rows=await sbFetch('projects?id=eq.tmw_deliverables&select=data');
     if(rows&&rows[0]){clients=rows[0].data.clients||[];}
-    else{
-      const seed=[
-        {id:'1',name:'Casey Gruver',weddingDate:'2026-04-11',sneakPeek:'2026-04-12',photoGallery:'2026-04-27',photoBook:'2026-05-27',highlight:'2026-05-25',doc:'2026-05-25',videoBook:'2026-06-25',contentCreation:''},
-        {id:'2',name:'Liz Scialpi',weddingDate:'2026-04-18',sneakPeek:'',photoGallery:'2026-05-04',photoBook:'2026-06-04',highlight:'2026-06-01',doc:'2026-06-01',videoBook:'',contentCreation:''},
-        {id:'3',name:'Elizabeth Forget',weddingDate:'2026-04-19',sneakPeek:'',photoGallery:'2026-05-04',photoBook:'2026-06-04',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'4',name:'Francesca Kurtzi',weddingDate:'2026-04-24',sneakPeek:'',photoGallery:'2026-05-09',photoBook:'2026-06-09',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'5',name:'Mallory Johnson',weddingDate:'2026-04-25',sneakPeek:'',photoGallery:'2026-05-11',photoBook:'2026-06-11',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'6',name:'Melissa DeShaw',weddingDate:'2026-04-25',sneakPeek:'',photoGallery:'2026-05-11',photoBook:'2026-06-11',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'7',name:'Zee Haroon',weddingDate:'2026-05-03',sneakPeek:'',photoGallery:'2026-05-18',photoBook:'2026-06-18',highlight:'',doc:'',videoBook:'',contentCreation:'2026-05-04'},
-        {id:'8',name:'Julia Swayser',weddingDate:'2026-05-16',sneakPeek:'2026-05-17',photoGallery:'2026-06-01',photoBook:'2026-07-01',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'9',name:'PJ Knight',weddingDate:'2026-05-17',sneakPeek:'',photoGallery:'2026-06-15',photoBook:'',highlight:'',doc:'',videoBook:'',contentCreation:''},
-        {id:'10',name:'Bryce Galczynski',weddingDate:'2026-05-30',sneakPeek:'',photoGallery:'2026-06-15',photoBook:'',highlight:'',doc:'',videoBook:'',contentCreation:''}
-      ];
-      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_deliverables',data:{clients:seed}})});
-      clients=seed;
-    }
     document.getElementById('loading').style.display='none';
     document.getElementById('table-wrap').style.display='block';
     setSS('ok','Live — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
@@ -255,7 +260,6 @@ async function saveData(){
   saving=false;
 }
 
-// Date helpers
 function nextMonday(dateStr){
   const d=new Date(dateStr+'T12:00:00');
   const day=d.getDay();
@@ -293,6 +297,7 @@ function fmtDate(d){
 }
 
 async function addClient(){
+  if(!isAdmin)return;
   const name=document.getElementById('nc').value.trim();
   if(!name){document.getElementById('nc').focus();return;}
   const wd=document.getElementById('nwd').value;
@@ -324,6 +329,7 @@ async function deleteClient(id){
 }
 
 async function updateDate(id,key,val){
+  if(!isAdmin)return;
   const c=clients.find(x=>x.id===id);
   if(!c)return;
   c[key]=val;

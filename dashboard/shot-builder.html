@@ -5,32 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Shot List Builder — TM Weddings</title>
 
-<!-- ═══ TMW AUTH GUARD v2 — owner-only ═══ -->
-<script>
-(function(){
-  try {
-    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
-    var APPROVED = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
-    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
-    window.tmwSignOut = function(){
-      try { for (var i = localStorage.length - 1; i >= 0; i--) { var k = localStorage.key(i); if (k && (k.indexOf('sb-') === 0 || k.indexOf('supabase') === 0)) localStorage.removeItem(k); } sessionStorage.clear(); } catch(e) {}
-      window.location.replace('/login.html');
-    };
-    var raw = null; try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
-    var session = null;
-    if (raw) { try { session = JSON.parse(raw); } catch(e) {} }
-    var valid = false; var email = '';
-    if (session && session.user && session.user.email) {
-      email = String(session.user.email).toLowerCase();
-      var notExpired = !session.expires_at || (session.expires_at * 1000 > Date.now());
-      valid = notExpired && APPROVED.indexOf(email) !== -1;
-    }
-    if (!valid) { window.location.replace('/login.html?redirect=' + encodeURIComponent(window.location.pathname)); return; }
-    if (OWNERS.indexOf(email) === -1) { window.location.replace('/'); return; }
-    window.TMW_USER = { email: email, isOwner: true, name: (session.user.user_metadata && session.user.user_metadata.full_name) || email.split('@')[0] };
-  } catch(err) { window.location.replace('/login.html'); }
-})();
-</script>
+<!-- ═══ Centralized auth guard — owner only ═══ -->
+<script src="/tmw-auth.js" data-required-role="owner"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -244,7 +220,15 @@ let shotList={locations:[],shotGroups:[],briefing:[]};
 let originalShotList=null;
 let dirty=false;
 
-document.getElementById('user-name').textContent=window.TMW_USER?TMW_USER.name:'';
+// ─── Wait for centralized auth, then init ───
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent=TMW_USER.name;
+  boot();
+});
 
 async function sbFetch(path,opts={}){
   const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
@@ -666,8 +650,6 @@ function getBaselineTemplate(){
     ]
   };
 }
-
-boot();
 
 window.addEventListener('beforeunload',e=>{
   if(dirty){e.preventDefault();e.returnValue='';}
