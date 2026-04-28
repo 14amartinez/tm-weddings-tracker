@@ -81,6 +81,8 @@ html{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
   --teal-light:#e8f5f5;
   --teal-mid:#c2e4e4;
   --dark:#0d1f1f;
+  --rose:#c9a48a;
+  --rose-dark:#8b5e4a;
 }
 
 body{
@@ -170,7 +172,6 @@ nav{
 .nav-signout:hover{color:var(--teal-dark);}
 .nav-signout:active{opacity:0.5;}
 
-/* Mobile menu trigger — hidden by default, shown on mobile */
 .nav-menu-btn{
   display:none;
   background:none;
@@ -185,7 +186,6 @@ nav{
 }
 .nav-menu-btn svg{width:16px;height:16px;color:var(--text);}
 
-/* Mobile drawer — HIDDEN by default. Only shows on mobile when .open. */
 .nav-mobile-drawer{display:none;}
 
 /* ── PAGE ── */
@@ -195,7 +195,6 @@ nav{
   padding:48px 36px 100px;
 }
 
-/* ── HERO ── */
 .hero{
   display:flex;
   align-items:baseline;
@@ -240,7 +239,6 @@ nav{
   align-self:center;
 }
 
-/* ── SECTION LABEL ── */
 .label{
   font-size:0.56rem;
   font-weight:600;
@@ -314,6 +312,68 @@ nav{
   margin-left:5px;
   box-shadow:0 0 4px rgba(52,209,89,0.5);
 }
+
+/* ── Per-wedding row with shot caller icon ── */
+.wedding-row{
+  display:flex;
+  align-items:center;
+  padding:6px 10px 6px 10px;
+  border-radius:7px;
+  font-size:0.72rem;
+  font-weight:600;
+  color:var(--text);
+  transition:all 0.12s;
+  min-height:32px;
+  line-height:1.2;
+  gap:6px;
+}
+.wedding-row:hover{background:var(--teal-light);}
+.wedding-row-main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-width:0;
+  cursor:pointer;
+  padding:6px 0;
+  margin:-6px 0;
+}
+.wedding-row-main .wedding-name{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.wedding-row-main:hover .wedding-name{color:var(--teal-dark);}
+.wedding-date{
+  color:var(--text-dim);
+  font-weight:300;
+  margin-left:6px;
+  font-size:0.68rem;
+  flex-shrink:0;
+}
+.shot-caller-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:5px;
+  background:rgba(201,164,138,0.12);
+  border:1px solid rgba(201,164,138,0.3);
+  color:var(--rose-dark);
+  font-size:11px;
+  flex-shrink:0;
+  cursor:pointer;
+  transition:all 0.15s;
+  text-decoration:none;
+}
+.shot-caller-btn:hover{
+  background:var(--rose);
+  color:white;
+  border-color:var(--rose);
+  transform:scale(1.05);
+}
+.shot-caller-btn:active{transform:scale(0.95);}
 
 /* ── RESOURCE CARDS ── */
 .rc-wrap{margin-bottom:28px;}
@@ -536,6 +596,8 @@ nav{
     font-size:0.85rem;
   }
   .qa-item.dim{font-size:0.78rem;padding:12px;}
+  .wedding-row{padding:10px 12px;min-height:48px;}
+  .shot-caller-btn{width:32px;height:32px;font-size:14px;}
 
   .rc-grid{
     grid-template-columns:1fr;
@@ -729,9 +791,13 @@ if (window.TMW_USER) {
   document.getElementById('nav-user').textContent = TMW_USER.name;
   document.getElementById('mobile-user').textContent = TMW_USER.name;
 
+  // Owner-only: surface dashboard + shot list builder links in General
   if (TMW_USER.isOwner) {
     var gl = document.getElementById('general-links');
-    gl.innerHTML = '<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>' + gl.innerHTML;
+    gl.innerHTML =
+      '<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>' +
+      '<a class="qa-item" href="/dashboard/shot-builder.html">Shot List Builder <span class="dot"></span></a>' +
+      gl.innerHTML;
   }
 }
 
@@ -743,23 +809,38 @@ document.addEventListener('click', function(e){
   }
 });
 
+// ── Upcoming weddings widget ──
+// Each upcoming wedding gets a row with: name + date (clickable → client page)
+// AND a 📋 shot caller icon (clickable → shot caller for that wedding)
 (async function(){
   try {
-    var res = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
-      headers:{
-        'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp',
-        'Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'
-      }
-    });
-    var rows = await res.json();
+    var headers = {
+      'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp',
+      'Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'
+    };
+
+    // Fetch upcoming weddings
+    var weddingsRes = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{headers:headers});
+    var rows = await weddingsRes.json();
     if (!rows || !rows[0]) return;
+
     var today = new Date(); today.setHours(0,0,0,0);
     var upcoming = (rows[0].data.weddings || [])
       .filter(function(w){ return w.date && new Date(w.date+'T12:00:00') >= today; })
       .sort(function(a,b){ return new Date(a.date) - new Date(b.date); })
       .slice(0,4);
+
+    // Fetch which weddings have shot lists built (for icon visibility)
+    var builtIds = new Set();
+    try {
+      var builtRes = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=like.tmw_shotlist_*&select=id',{headers:headers});
+      var built = await builtRes.json();
+      (built || []).forEach(function(r){ builtIds.add(r.id.replace('tmw_shotlist_','')); });
+    } catch(e) {}
+
     var c = document.getElementById('wdi-links');
     var h = '<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>';
+
     if (!upcoming.length) {
       h += '<a class="qa-item dim">No upcoming</a>';
     } else {
@@ -767,11 +848,21 @@ document.addEventListener('click', function(e){
         var d = new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
         var parts = w.client.split('/')[0].trim().split(' ');
         var name = parts[0] + (parts.length > 1 ? ' ' + parts[parts.length-1] : '');
-        h += '<a class="qa-item" href="/weddings/client.html?id='+w.id+'" style="font-size:0.72rem;">'+name+'<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">'+d+'</span><span class="dot"></span></a>';
+        var hasShotList = builtIds.has(w.id);
+        var shotCallerBtn = hasShotList
+          ? '<a href="/shot-caller/?id='+encodeURIComponent(w.id)+'" class="shot-caller-btn" title="Open shot caller for '+name+'" onclick="event.stopPropagation();">📋</a>'
+          : '';
+        h += '<div class="wedding-row">' +
+               '<a href="/weddings/client.html?id='+encodeURIComponent(w.id)+'" class="wedding-row-main">' +
+                 '<span class="wedding-name">'+name+'</span>' +
+                 '<span class="wedding-date">'+d+'</span>' +
+               '</a>' +
+               shotCallerBtn +
+             '</div>';
       });
     }
     c.innerHTML = h;
-  } catch(e) {}
+  } catch(e) { console.warn('Upcoming weddings fetch failed:',e); }
 })();
 </script>
 </body>
