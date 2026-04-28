@@ -30,7 +30,7 @@ body{
 @keyframes spin{to{transform:rotate(360deg)}}
 h1{font-size:1.1rem;font-weight:500;margin-bottom:8px;}
 p{font-size:0.85rem;color:#9ab8b8;line-height:1.5;}
-.err{display:none;background:#3a1a1a;border:1px solid #c0392b;border-radius:8px;padding:12px;margin-top:16px;font-size:0.8rem;text-align:left;}
+.err{display:none;background:#3a1a1a;border:1px solid #c0392b;border-radius:8px;padding:12px;margin-top:16px;font-size:0.75rem;text-align:left;word-break:break-all;}
 .btn{display:inline-block;margin-top:16px;padding:10px 20px;background:#4aacac;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;}
 </style>
 </head>
@@ -44,10 +44,10 @@ p{font-size:0.85rem;color:#9ab8b8;line-height:1.5;}
 </div>
 
 <script>
-const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
+var SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 
-const APPROVED_EMAILS = [
+var APPROVED_EMAILS = [
   'tonyellismartinez@gmail.com',
   'brynn.weller95@gmail.com',
   'leximartinez43@gmail.com',
@@ -61,7 +61,7 @@ const APPROVED_EMAILS = [
   'kauffman424@gmail.com',
   'djspangler05@gmail.com',
   'zsanchez2149@gmail.com',
-  'kaitlyncapturesphotography@gmail.com',
+  'kaitlyncapturesphotography@gmail.com'
 ];
 
 function showError(msg, detail) {
@@ -73,7 +73,6 @@ function showError(msg, detail) {
     err.textContent = detail;
     err.style.display = 'block';
   }
-  // Add a "back to login" link
   var btn = document.createElement('a');
   btn.className = 'btn';
   btn.href = '/login.html';
@@ -81,69 +80,116 @@ function showError(msg, detail) {
   document.querySelector('.wrap').appendChild(btn);
 }
 
+function parseHash(hash) {
+  var out = {};
+  if (!hash) return out;
+  if (hash.charAt(0) === '#') hash = hash.slice(1);
+  var parts = hash.split('&');
+  for (var i = 0; i < parts.length; i++) {
+    var kv = parts[i].split('=');
+    if (kv.length === 2) {
+      out[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
+    }
+  }
+  return out;
+}
+
+function decodeJWT(token) {
+  try {
+    var parts = token.split('.');
+    if (parts.length < 2) return null;
+    var payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (payload.length % 4) payload += '=';
+    return JSON.parse(atob(payload));
+  } catch(e) { return null; }
+}
+
 (async function() {
   try {
-    // CRITICAL: detectSessionInUrl is the option that tells Supabase to parse OAuth tokens from window.location
-    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        detectSessionInUrl: true,
-        persistSession: true,
-        autoRefreshToken: true,
-        flowType: 'implicit'  // Match what your login.html uses (signInWithOAuth defaults to implicit)
-      }
-    });
+    var tokens = parseHash(window.location.hash);
 
-    // Give the SDK a moment to process the URL hash/query
-    // This is what was failing on mobile — race condition between SDK init and getSession()
-    await new Promise(function(resolve){ setTimeout(resolve, 100); });
-
-    // Now get the session — should be populated from URL by detectSessionInUrl
-    var result = await sb.auth.getSession();
-    var session = result.data && result.data.session;
-
-    // Fallback: if getSession() returns nothing but the URL has tokens, try exchangeCodeForSession
-    if (!session && (window.location.hash || window.location.search.indexOf('code=') > -1)) {
-      try {
-        var exchange = await sb.auth.exchangeCodeForSession(window.location.href);
-        session = exchange.data && exchange.data.session;
-      } catch(e) { /* exchange not supported in implicit flow, that's fine */ }
-    }
-
-    // Wait one more tick if still nothing — sometimes the listener fires async
-    if (!session) {
-      await new Promise(function(resolve){ setTimeout(resolve, 500); });
-      var retry = await sb.auth.getSession();
-      session = retry.data && retry.data.session;
-    }
-
-    if (!session) {
+    if (!tokens.access_token) {
       showError(
-        'No session was created. Try logging in again.',
-        'Debug info:\nURL hash: ' + (window.location.hash || '(none)') + '\nURL query: ' + (window.location.search || '(none)') + '\nlocalStorage keys: ' + Object.keys(localStorage).join(', ')
+        'Missing access token in URL.',
+        'Hash: ' + (window.location.hash || '(none)')
       );
       return;
     }
 
-    var email = (session.user && session.user.email || '').toLowerCase();
+    // Decode the JWT to get user info — we don't even need the SDK for this
+    var jwt = decodeJWT(tokens.access_token);
+    if (!jwt || !jwt.email) {
+      showError('Could not decode user from token.', 'JWT decode failed.');
+      return;
+    }
 
-    if (!APPROVED_EMAILS.includes(email)) {
-      // Sign them out and reject
-      try { await sb.auth.signOut(); } catch(e) {}
+    var email = String(jwt.email).toLowerCase();
+
+    if (APPROVED_EMAILS.indexOf(email) === -1) {
       showError('Email not authorized: ' + email, 'Contact Tony to add this email to the approved list.');
       return;
     }
 
-    // Success — clean URL and redirect
+    // Build the session payload that Supabase expects in localStorage
+    // This is the format the auth guard reads in your portal pages
+    var sessionPayload = {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || '',
+      expires_at: parseInt(tokens.expires_at, 10) || (Math.floor(Date.now()/1000) + 3600),
+      expires_in: parseInt(tokens.expires_in, 10) || 3600,
+      token_type: tokens.token_type || 'bearer',
+      provider_token: tokens.provider_token || null,
+      provider_refresh_token: tokens.provider_refresh_token || null,
+      user: {
+        id: jwt.sub,
+        email: email,
+        user_metadata: jwt.user_metadata || {},
+        app_metadata: jwt.app_metadata || {}
+      }
+    };
+
+    // Write directly to localStorage under the expected key
+    try {
+      localStorage.setItem('sb-rafygjaemcjhnououmwn-auth-token', JSON.stringify(sessionPayload));
+    } catch(e) {
+      showError(
+        'Could not save session. Are you in Private Browsing?',
+        'Error: ' + e.message
+      );
+      return;
+    }
+
+    // Verify the write actually persisted (iOS Safari sometimes silently rejects)
+    var verify = null;
+    try { verify = localStorage.getItem('sb-rafygjaemcjhnououmwn-auth-token'); } catch(e) {}
+
+    if (!verify) {
+      showError(
+        'localStorage write was rejected by the browser.',
+        'This usually means Private Browsing is on, or storage is full. Disable Private Browsing and try again.'
+      );
+      return;
+    }
+
+    // ALSO try the SDK approach as backup so refresh tokens etc. work
+    try {
+      var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+      });
+      await sb.auth.setSession({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token || ''
+      });
+    } catch(e) { /* manual write above is the source of truth */ }
+
     document.getElementById('status').textContent = 'Signed in!';
     document.getElementById('detail').textContent = 'Redirecting...';
 
-    // Clean the hash/query from URL before redirecting (security hygiene)
     var redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
-    // Use replace so back button doesn't return to callback
-    window.location.replace(redirect);
+    setTimeout(function(){ window.location.replace(redirect); }, 200);
 
   } catch(err) {
-    showError('Unexpected error', err && err.message ? err.message : String(err));
+    showError('Unexpected error', (err && err.message) ? err.message : String(err));
     try { console.error('Callback error:', err); } catch(e) {}
   }
 })();
