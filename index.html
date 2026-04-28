@@ -2,13 +2,71 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TM Weddings — Team Resources</title>
+
+<!-- ═══ TMW AUTH GUARD v2 — must be first script in <head> ═══ -->
+<script>
+(function(){
+  try {
+    var STORAGE_KEY = 'sb-rafygjaemcjhnououmwn-auth-token';
+    var APPROVED = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
+    var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
+
+    // Bind sign-out IMMEDIATELY so it works even if auth check fails
+    window.tmwSignOut = function(){
+      try {
+        for (var i = localStorage.length - 1; i >= 0; i--) {
+          var k = localStorage.key(i);
+          if (k && (k.indexOf('sb-') === 0 || k.indexOf('supabase') === 0)) {
+            localStorage.removeItem(k);
+          }
+        }
+        sessionStorage.clear();
+      } catch(e) {}
+      window.location.replace('/login.html');
+    };
+
+    var raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+
+    var session = null;
+    if (raw) {
+      try { session = JSON.parse(raw); }
+      catch(e) { try { localStorage.removeItem(STORAGE_KEY); } catch(e2) {} }
+    }
+
+    var valid = false;
+    var email = '';
+    if (session && session.user && session.user.email) {
+      email = String(session.user.email).toLowerCase();
+      var notExpired = !session.expires_at || (session.expires_at * 1000 > Date.now());
+      var approved = APPROVED.indexOf(email) !== -1;
+      valid = notExpired && approved;
+    }
+
+    if (!valid) {
+      window.location.replace('/login.html');
+      return;
+    }
+
+    window.TMW_USER = {
+      email: email,
+      isOwner: OWNERS.indexOf(email) !== -1,
+      name: (session.user.user_metadata && session.user.user_metadata.full_name) || email.split('@')[0]
+    };
+  } catch(err) {
+    try { console.error('TMW auth error:', err); } catch(e){}
+    window.location.replace('/login.html');
+  }
+})();
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 a{text-decoration:none;color:inherit;}
-html{-webkit-font-smoothing:antialiased;}
+html{-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
 
 :root{
   --bg:#F6FEFE;
@@ -60,6 +118,7 @@ nav{
   background:var(--dark);
   border-radius:7px;
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .nav-logo-mark svg{width:12px;height:12px;}
 .nav-logo-name{
@@ -88,6 +147,38 @@ nav{
   padding:3px 9px;
   border-radius:4px;
 }
+.nav-user{
+  font-size:0.68rem;
+  color:var(--text-mid);
+}
+.nav-signout{
+  font-size:0.65rem;
+  color:var(--text-dim);
+  cursor:pointer;
+  text-decoration:underline;
+  background:none;
+  border:none;
+  font-family:inherit;
+  padding:8px 4px;
+  min-height:36px;
+}
+.nav-signout:hover{color:var(--teal-dark);}
+.nav-signout:active{opacity:0.5;}
+
+/* Mobile menu trigger — hidden on desktop */
+.nav-menu-btn{
+  display:none;
+  background:none;
+  border:1.5px solid var(--border-strong);
+  border-radius:6px;
+  width:36px;
+  height:36px;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:0;
+}
+.nav-menu-btn svg{width:16px;height:16px;color:var(--text);}
 
 /* ── PAGE ── */
 .page{
@@ -96,7 +187,7 @@ nav{
   padding:48px 36px 100px;
 }
 
-/* ── HERO — tight, 1 row ── */
+/* ── HERO ── */
 .hero{
   display:flex;
   align-items:baseline;
@@ -155,7 +246,7 @@ nav{
 .qa-wrap{margin-bottom:48px;}
 .qa-grid{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(4,1fr);
   border:1.5px solid var(--border-strong);
   border-radius:14px;
   overflow:hidden;
@@ -204,6 +295,7 @@ nav{
   line-height:1.2;
 }
 .qa-item:hover{background:var(--teal-light);color:var(--teal-dark);}
+.qa-item:active{background:var(--teal-mid);}
 .qa-item.dim{color:var(--text-mid);font-weight:500;font-size:0.7rem;cursor:default;}
 .qa-item.dim:hover{background:transparent;color:var(--text-dim);}
 .dot{
@@ -236,6 +328,7 @@ nav{
   transition:all 0.2s ease;
   animation:up 0.4s ease forwards;
   opacity:0;
+  min-height:44px;
 }
 @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .rc:nth-child(1){animation-delay:0.04s}
@@ -256,6 +349,7 @@ nav{
   transform:translateY(-1px);
 }
 .rc:hover .rc-accent{transform:scaleX(1);}
+.rc:active{transform:translateY(0);background:var(--surface-2);}
 .rc-num{
   font-size:0.6rem;
   font-weight:500;
@@ -343,17 +437,137 @@ nav{
   padding:2px 8px;
 }
 
+/* ═══ MOBILE ═══ */
 @media(max-width:780px){
-  nav{padding:0 18px;}
-  .page{padding:32px 18px 80px;}
-  .hero-title{font-size:2rem;}
-  .qa-grid{grid-template-columns:1fr 1fr;}
-  .rc-grid{grid-template-columns:1fr 1fr;}
+
+  /* NAV: collapse to logo + hamburger */
+  nav{
+    padding:0 16px;
+    height:56px;
+  }
+  .nav-date,.nav-badge,.nav-user{display:none;}
+  .nav-signout{display:none;}
+  .nav-menu-btn{display:flex;}
+  .nav-logo-name{font-size:0.85rem;}
+
+  /* Mobile menu drawer */
+  .nav-mobile-drawer{
+    position:fixed;
+    top:56px;
+    left:0;
+    right:0;
+    background:var(--surface);
+    border-bottom:1.5px solid var(--border-strong);
+    box-shadow:0 4px 20px rgba(0,0,0,0.06);
+    padding:16px;
+    display:none;
+    flex-direction:column;
+    gap:10px;
+    z-index:99;
+  }
+  .nav-mobile-drawer.open{display:flex;}
+  .nav-mobile-drawer .nav-mobile-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .nav-mobile-drawer .nav-mobile-row:last-child{border-bottom:none;}
+  .nav-mobile-drawer .label-sm{
+    font-size:0.6rem;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    font-weight:600;
+  }
+  .nav-mobile-drawer .val{
+    font-size:0.85rem;
+    color:var(--text);
+    font-weight:500;
+  }
+  .nav-mobile-signout{
+    width:100%;
+    background:var(--teal);
+    color:white;
+    border:none;
+    border-radius:8px;
+    padding:14px;
+    font-size:0.85rem;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:8px;
+    min-height:48px;
+    font-family:inherit;
+  }
+  .nav-mobile-signout:active{background:var(--teal-dark);}
+
+  /* PAGE */
+  .page{padding:28px 16px 80px;}
+
+  /* HERO */
+  .hero{
+    margin-bottom:32px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .hero-left{gap:10px;}
+  .hero-eyebrow{font-size:0.55rem;}
+  .hero-title{font-size:2.2rem;line-height:1.05;}
+  .hero-desc{font-size:0.82rem;max-width:none;line-height:1.55;}
+
+  /* QUICK ACCESS — 1 column, full-width cards */
+  .qa-wrap{margin-bottom:32px;}
+  .qa-grid{
+    grid-template-columns:1fr !important;
+    border-radius:12px;
+  }
+  .qa-col{border-right:none;border-bottom:1.5px solid var(--border-strong);}
+  .qa-col:last-child{border-bottom:none;}
+  .qa-head{padding:12px 14px;}
+  .qa-head-title{font-size:0.65rem;}
+  .qa-items{padding:4px;}
+  .qa-item{
+    padding:14px 12px;
+    min-height:48px;
+    font-size:0.85rem;
+  }
+  .qa-item.dim{font-size:0.78rem;padding:12px;}
+
+  /* RESOURCE CARDS — 1 column */
+  .rc-grid{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .rc{
+    padding:20px 18px 16px;
+    gap:10px;
+  }
+  .rc-name{font-size:1.3rem;}
+  .rc-desc{font-size:0.82rem;}
+  .rc-cta{font-size:0.78rem;padding:8px 0;}
+  .rc-foot{padding-top:10px;}
+
+  /* COMING SOON */
+  .coming{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+    padding:14px 16px;
+  }
+  .chips{gap:6px;}
+  .chip{font-size:0.7rem;padding:4px 10px;}
+
+  /* Section labels bigger */
+  .label{font-size:0.62rem;}
 }
-@media(max-width:480px){
-  .hero{flex-direction:column;gap:8px;}
-  .qa-grid{grid-template-columns:1fr;}
-  .rc-grid{grid-template-columns:1fr;}
+
+/* Tiny phones */
+@media(max-width:380px){
+  .hero-title{font-size:1.9rem;}
+  nav{padding:0 12px;}
+  .page{padding:24px 12px 70px;}
 }
 </style>
 </head>
@@ -372,10 +586,26 @@ nav{
   <div class="nav-right">
     <span class="nav-date" id="nav-date"></span>
     <span class="nav-badge">Internal</span>
-    <span id="nav-user" style="font-size:0.68rem;color:var(--text-mid);"></span>
-    <span onclick="tmwSignOut()" style="font-size:0.65rem;color:var(--text-dim);cursor:pointer;text-decoration:underline;" title="Sign out">Sign out</span>
+    <span class="nav-user" id="nav-user"></span>
+    <button type="button" class="nav-signout" onclick="tmwSignOut()">Sign out</button>
+    <button type="button" class="nav-menu-btn" onclick="document.getElementById('mobile-drawer').classList.toggle('open')" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile drawer (only visible on mobile) -->
+<div class="nav-mobile-drawer" id="mobile-drawer">
+  <div class="nav-mobile-row">
+    <span class="label-sm">Signed in as</span>
+    <span class="val" id="mobile-user">—</span>
+  </div>
+  <div class="nav-mobile-row">
+    <span class="label-sm">Today</span>
+    <span class="val" id="mobile-date">—</span>
+  </div>
+  <button type="button" class="nav-mobile-signout" onclick="tmwSignOut()">Sign out</button>
+</div>
 
 <div class="page">
 
@@ -389,7 +619,7 @@ nav{
 
   <div class="qa-wrap">
     <div class="label">Quick Access</div>
-    <div class="qa-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="qa-grid">
 
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">💍</span><span class="qa-head-title">Wedding Day Info</span></div>
@@ -492,44 +722,64 @@ nav{
 </div>
 
 <script>
-const now=new Date();
-document.getElementById('nav-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+// Date in nav + mobile drawer
+var now = new Date();
+var dateStr = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+var dateShort = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.getElementById('nav-date').textContent = dateStr;
+document.getElementById('mobile-date').textContent = dateShort;
 
-const _ui=setInterval(()=>{
-  if(window.TMW_USER){
-    clearInterval(_ui);
-    document.getElementById('nav-user').textContent=TMW_USER.name;
-    // Show owner dashboard link only for Tony + Brynn
-    if(TMW_USER.isOwner){
-      const gl=document.getElementById('general-links');
-      gl.innerHTML=`<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>` + gl.innerHTML;
-    }
+// User info — TMW_USER is set synchronously by the auth guard
+if (window.TMW_USER) {
+  document.getElementById('nav-user').textContent = TMW_USER.name;
+  document.getElementById('mobile-user').textContent = TMW_USER.name;
+
+  // Owner-only: surface dashboard link
+  if (TMW_USER.isOwner) {
+    var gl = document.getElementById('general-links');
+    gl.innerHTML = '<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>' + gl.innerHTML;
   }
-},100);
+}
 
-(async()=>{
-  try{
-    const res=await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
-      headers:{'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp','Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'}
+// Close mobile drawer when clicking outside
+document.addEventListener('click', function(e){
+  var drawer = document.getElementById('mobile-drawer');
+  var btn = document.querySelector('.nav-menu-btn');
+  if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
+    drawer.classList.remove('open');
+  }
+});
+
+// Upcoming weddings widget
+(async function(){
+  try {
+    var res = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
+      headers:{
+        'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp',
+        'Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'
+      }
     });
-    const rows=await res.json();
-    if(!rows?.[0])return;
-    const today=new Date();today.setHours(0,0,0,0);
-    const upcoming=(rows[0].data.weddings||[])
-      .filter(w=>w.date&&new Date(w.date+'T12:00:00')>=today)
-      .sort((a,b)=>new Date(a.date)-new Date(b.date))
+    var rows = await res.json();
+    if (!rows || !rows[0]) return;
+    var today = new Date(); today.setHours(0,0,0,0);
+    var upcoming = (rows[0].data.weddings || [])
+      .filter(function(w){ return w.date && new Date(w.date+'T12:00:00') >= today; })
+      .sort(function(a,b){ return new Date(a.date) - new Date(b.date); })
       .slice(0,4);
-    const c=document.getElementById('wdi-links');
-    let h=`<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>`;
-    if(!upcoming.length){h+=`<a class="qa-item dim">No upcoming</a>`;}
-    else upcoming.forEach(w=>{
-      const d=new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      const parts=w.client.split('/')[0].trim().split(' ');
-      const name=parts[0]+(parts.length>1?' '+parts[parts.length-1]:'');
-      h+=`<a class="qa-item" href="/weddings/client.html?id=${w.id}" style="font-size:0.69rem;">${name}<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">${d}</span><span class="dot"></span></a>`;
-    });
-    c.innerHTML=h;
-  }catch{}
+    var c = document.getElementById('wdi-links');
+    var h = '<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>';
+    if (!upcoming.length) {
+      h += '<a class="qa-item dim">No upcoming</a>';
+    } else {
+      upcoming.forEach(function(w){
+        var d = new Date(w.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        var parts = w.client.split('/')[0].trim().split(' ');
+        var name = parts[0] + (parts.length > 1 ? ' ' + parts[parts.length-1] : '');
+        h += '<a class="qa-item" href="/weddings/client.html?id='+w.id+'" style="font-size:0.72rem;">'+name+'<span style="color:var(--text-dim);font-weight:300;margin-left:3px;">'+d+'</span><span class="dot"></span></a>';
+      });
+    }
+    c.innerHTML = h;
+  } catch(e) {}
 })();
 </script>
 </body>
