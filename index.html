@@ -13,7 +13,6 @@
     var APPROVED = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com','leximartinez43@gmail.com','bellamartinezphoto@gmail.com','zerwin1212@gmail.com','lukeh61403@gmail.com','nstewart2022@gmail.com','nolang999@gmail.com','pjmagic2404@gmail.com','natashat.photo@gmail.com','kauffman424@gmail.com','djspangler05@gmail.com','zsanchez2149@gmail.com','kaitlyncapturesphotography@gmail.com'];
     var OWNERS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 
-    // Bind sign-out IMMEDIATELY so it works even if auth check fails
     window.tmwSignOut = function(){
       try {
         for (var i = localStorage.length - 1; i >= 0; i--) {
@@ -165,7 +164,7 @@ nav{
 .nav-signout:hover{color:var(--teal-dark);}
 .nav-signout:active{opacity:0.5;}
 
-/* Mobile menu trigger — hidden on desktop */
+/* Mobile menu trigger — hidden by default, shown on mobile */
 .nav-menu-btn{
   display:none;
   background:none;
@@ -179,6 +178,11 @@ nav{
   padding:0;
 }
 .nav-menu-btn svg{width:16px;height:16px;color:var(--text);}
+
+/* Mobile drawer — HIDDEN by default on desktop. Only shows on mobile when .open. */
+.nav-mobile-drawer{
+  display:none;
+}
 
 /* ── PAGE ── */
 .page{
@@ -450,7 +454,7 @@ nav{
   .nav-menu-btn{display:flex;}
   .nav-logo-name{font-size:0.85rem;}
 
-  /* Mobile menu drawer */
+  /* Mobile drawer — show as flex when open on mobile */
   .nav-mobile-drawer{
     position:fixed;
     top:56px;
@@ -460,10 +464,10 @@ nav{
     border-bottom:1.5px solid var(--border-strong);
     box-shadow:0 4px 20px rgba(0,0,0,0.06);
     padding:16px;
-    display:none;
     flex-direction:column;
     gap:10px;
     z-index:99;
+    /* NOTE: still display:none until .open class added */
   }
   .nav-mobile-drawer.open{display:flex;}
   .nav-mobile-drawer .nav-mobile-row{
@@ -559,7 +563,6 @@ nav{
   .chips{gap:6px;}
   .chip{font-size:0.7rem;padding:4px 10px;}
 
-  /* Section labels bigger */
   .label{font-size:0.62rem;}
 }
 
@@ -594,7 +597,7 @@ nav{
   </div>
 </nav>
 
-<!-- Mobile drawer (only visible on mobile) -->
+<!-- Mobile drawer (hidden on desktop, hidden on mobile until .open) -->
 <div class="nav-mobile-drawer" id="mobile-drawer">
   <div class="nav-mobile-row">
     <span class="label-sm">Signed in as</span>
@@ -722,26 +725,22 @@ nav{
 </div>
 
 <script>
-// Date in nav + mobile drawer
 var now = new Date();
 var dateStr = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 var dateShort = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 document.getElementById('nav-date').textContent = dateStr;
 document.getElementById('mobile-date').textContent = dateShort;
 
-// User info — TMW_USER is set synchronously by the auth guard
 if (window.TMW_USER) {
   document.getElementById('nav-user').textContent = TMW_USER.name;
   document.getElementById('mobile-user').textContent = TMW_USER.name;
 
-  // Owner-only: surface dashboard link
   if (TMW_USER.isOwner) {
     var gl = document.getElementById('general-links');
     gl.innerHTML = '<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>' + gl.innerHTML;
   }
 }
 
-// Close mobile drawer when clicking outside
 document.addEventListener('click', function(e){
   var drawer = document.getElementById('mobile-drawer');
   var btn = document.querySelector('.nav-menu-btn');
@@ -750,7 +749,6 @@ document.addEventListener('click', function(e){
   }
 });
 
-// Upcoming weddings widget
 (async function(){
   try {
     var res = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{
