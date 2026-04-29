@@ -175,8 +175,6 @@ table.team tr.inactive td{opacity:0.45;}
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 const TEAM_CACHE_KEY='tmw_team_cache_v1';
 
 const ALL_ROLES=['owner','admin','editor','shooter'];
@@ -197,14 +195,6 @@ whenUserReady(function(){
   boot();
 });
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  const t=await res.text();return t?JSON.parse(t):null;
-}
-
 function toast(msg,isError){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className='toast show'+(isError?' error':'');
@@ -222,7 +212,7 @@ function markClean(){
 
 async function boot(){
   try{
-    const rows=await sbFetch('projects?id=eq.tmw_team_members&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_team_members&select=data');
     if(!rows||!rows[0]){
       document.getElementById('save-info').innerHTML='<span class="unsaved">⚠ Team table not found — run /dashboard/setup-team-members.html first</span>';
       return;
@@ -351,7 +341,7 @@ async function saveAll(){
       updated_by:TMW_USER.email,
       members:members
     };
-    await sbFetch('projects?id=eq.tmw_team_members',{method:'PATCH',body:JSON.stringify({data:payload})});
+    await tmwSbFetch('projects?id=eq.tmw_team_members',{method:'PATCH',body:JSON.stringify({data:payload})});
     originalMembers=JSON.parse(JSON.stringify(members));
     try{localStorage.removeItem(TEAM_CACHE_KEY);}catch(e){}
     markClean();

@@ -125,8 +125,6 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
 </div>
 
 <script>
-const SUPABASE_URL = 'https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
 const ALL_EDITORS = ['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach'];
 
 let photoProjects=[], videoProjects=[], weddings=[];
@@ -144,15 +142,6 @@ whenUserReady(function(){
   setInterval(loadAll, 30000);
 });
 
-async function sbFetch(path) {
-  const res = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
-  });
-  if(!res.ok) throw new Error(await res.text());
-  const t = await res.text();
-  return t ? JSON.parse(t) : null;
-}
-
 function fmtDate(d,opts){return new Date(d+'T12:00:00').toLocaleDateString('en-US',opts||{month:'short',day:'numeric'});}
 function daysAway(d){return Math.round((new Date(d+'T12:00:00')-today)/86400000);}
 function getRisk(d){if(!d)return'ok';const n=daysAway(d);return n<0?'overdue':n<=5?'at-risk':'ok';}
@@ -163,9 +152,9 @@ function setSS(state,text){document.getElementById('sync-dot').className='sync-d
 async function loadAll(){
   try{
     const [pRows,vRows,wRows] = await Promise.all([
-      sbFetch('projects?id=eq.tmw_photo&select=data'),
-      sbFetch('projects?id=eq.tmw_state&select=data'),
-      sbFetch('projects?id=eq.tmw_weddings&select=data'),
+      tmwSbFetch('projects?id=eq.tmw_photo&select=data'),
+      tmwSbFetch('projects?id=eq.tmw_state&select=data'),
+      tmwSbFetch('projects?id=eq.tmw_weddings&select=data'),
     ]);
     photoProjects = pRows?.[0]?.data?.projects||[];
     videoProjects = vRows?.[0]?.data?.projects||[];

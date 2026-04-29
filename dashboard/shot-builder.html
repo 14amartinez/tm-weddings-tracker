@@ -210,9 +210,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-
 let weddings=[];
 let currentWeddingId=null;
 let currentWedding=null;
@@ -229,14 +226,6 @@ whenUserReady(function(){
   document.getElementById('user-name').textContent=TMW_USER.name;
   boot();
 });
-
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  const t=await res.text();return t?JSON.parse(t):null;
-}
 
 function toast(msg,isError){
   const el=document.getElementById('toast');
@@ -258,14 +247,14 @@ function markClean(){
 
 async function boot(){
   try {
-    const rows=await sbFetch('projects?id=eq.tmw_weddings&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_weddings&select=data');
     if(!rows||!rows[0]){toast('Could not load weddings list',true);return;}
     weddings=(rows[0].data.weddings||[]).slice().sort((a,b)=>{
       if(!a.date)return 1;if(!b.date)return -1;
       return new Date(a.date)-new Date(b.date);
     });
 
-    const built=await sbFetch('projects?id=like.tmw_shotlist_*&select=id');
+    const built=await tmwSbFetch('projects?id=like.tmw_shotlist_*&select=id');
     const builtIds=new Set((built||[]).map(r=>r.id.replace('tmw_shotlist_','')));
 
     const sel=document.getElementById('wedding-picker');
@@ -308,7 +297,7 @@ async function onWeddingChange(){
   window.history.replaceState({},'',newUrl);
 
   try {
-    const rows=await sbFetch('projects?id=eq.tmw_shotlist_'+wid+'&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_shotlist_'+wid+'&select=data');
     if(rows&&rows[0]){
       shotList=normalizeShotList(rows[0].data);
       document.getElementById('picker-status').innerHTML='<span class="status-built">✓ Shot list exists</span>';
@@ -480,11 +469,11 @@ async function saveShotList(){
   btn.disabled=true;btn.textContent='Saving…';
   try {
     const id='tmw_shotlist_'+currentWeddingId;
-    const existing=await sbFetch('projects?id=eq.'+id+'&select=id');
+    const existing=await tmwSbFetch('projects?id=eq.'+id+'&select=id');
     if(existing&&existing.length){
-      await sbFetch('projects?id=eq.'+id,{method:'PATCH',body:JSON.stringify({data:shotList})});
+      await tmwSbFetch('projects?id=eq.'+id,{method:'PATCH',body:JSON.stringify({data:shotList})});
     } else {
-      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:id,data:shotList})});
+      await tmwSbFetch('projects',{method:'POST',body:JSON.stringify({id:id,data:shotList})});
     }
     originalShotList=JSON.parse(JSON.stringify(shotList));
     markClean();
@@ -510,8 +499,8 @@ async function deleteShotList(){
   if(!currentWeddingId)return;
   if(!confirm('Permanently delete this wedding\'s shot list? Shooter progress will also be lost.'))return;
   try {
-    await sbFetch('projects?id=eq.tmw_shotlist_'+currentWeddingId,{method:'DELETE'});
-    await sbFetch('projects?id=eq.tmw_shot_'+currentWeddingId,{method:'DELETE'});
+    await tmwSbFetch('projects?id=eq.tmw_shotlist_'+currentWeddingId,{method:'DELETE'});
+    await tmwSbFetch('projects?id=eq.tmw_shot_'+currentWeddingId,{method:'DELETE'});
     shotList={locations:[],shotGroups:[],briefing:[]};
     originalShotList=JSON.parse(JSON.stringify(shotList));
     dirty=false;
@@ -540,7 +529,7 @@ async function loadTemplate(){
     if(!confirm('This will REPLACE the current shot list with the standard TM Weddings template. Continue?'))return;
   }
   try {
-    const rows=await sbFetch('projects?id=eq.tmw_shotlist_template&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_shotlist_template&select=data');
     if(rows&&rows[0]){
       shotList=normalizeShotList(rows[0].data);
       shotList.shotGroups.forEach(g=>{g.shots.forEach((s,i)=>{s.id=Date.now()+i;});});
