@@ -9,19 +9,13 @@
 <script src="/tmw-auth.js" data-required-role="editor"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="/tmw-core.js"></script>
 <script>
-const SUPABASE_URL='https://rafygjaemcjhnououmwn.supabase.co';
-const SUPABASE_KEY='sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp';
-const ADMIN_PW='Post-Production_2026!';
-const TONY_EMAIL='tonyellismartinez@gmail.com';
-const BRYNN_EMAIL='brynn.weller95@gmail.com';
+const ADMIN_PW=TMW.admin.password;
+const TONY_EMAIL=TMW.notify.tony;
+const BRYNN_EMAIL=TMW.notify.brynn;
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'zsanchez2149@gmail.com',Zach:'zerwin1212@gmail.com',Luke:'lukeh61403@gmail.com',Nick:'',Nathan:''};
-if(typeof emailjs!=='undefined')emailjs.init('3EteBapWG4a_hy5ol');
-function tmwToast(msg){
-  let t=document.getElementById('tmw-toast');
-  if(!t){t=document.createElement('div');t.id='tmw-toast';t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1a1714;color:#fff;font-size:12px;padding:10px 16px;border-radius:8px;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;';document.body.appendChild(t);}
-  t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>{t.style.opacity='0';},3200);
-}
+tmwInitEmail();
 function tmwNotifyAssignment(client,deliverable,editor){
   const editorEmail=EDITOR_EMAILS[editor];
   if(!editorEmail)return;
@@ -406,31 +400,14 @@ function applyAdminUI(){
   renderAll();
 }
 
-// SUPABASE
-async function sbFetch(path,opts={}){
-  const res=await fetch(SUPABASE_URL+'/rest/v1/'+path,{
-    ...opts,
-    headers:{
-      'apikey':SUPABASE_KEY,
-      'Authorization':'Bearer '+SUPABASE_KEY,
-      'Content-Type':'application/json',
-      'Prefer':'return=representation',
-      ...(opts.headers||{})
-    }
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const text=await res.text();
-  return text?JSON.parse(text):null;
-}
-
 async function loadData(){
   setSyncStatus('','Connecting...');
   try{
-    const rows=await sbFetch('projects?id=eq.tmw_state&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_state&select=data');
     if(rows&&rows[0]){
       projects=rows[0].data.projects||[];
     } else {
-      await sbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_state',data:{projects:[]}})});
+      await tmwSbFetch('projects',{method:'POST',body:JSON.stringify({id:'tmw_state',data:{projects:[]}})});
       projects=[];
     }
     document.getElementById('pipeline-loading').style.display='none';
@@ -451,7 +428,7 @@ async function saveData(){
   saving=true;
   setSyncStatus('saving','Saving...');
   try{
-    await sbFetch('projects?id=eq.tmw_state',{
+    await tmwSbFetch('projects?id=eq.tmw_state',{
       method:'PATCH',
       body:JSON.stringify({data:{projects}})
     });

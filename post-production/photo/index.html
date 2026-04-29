@@ -204,20 +204,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script src="/tmw-core.js"></script>
 <script>
-if(typeof TMW==='undefined'){
-  window.TMW={
-    supabase:{url:'https://rafygjaemcjhnououmwn.supabase.co',key:'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'},
-    admin:{password:'Post-Production_2026!'},
-    notify:{tony:'tonyellismartinez@gmail.com',brynn:'brynn.weller95@gmail.com',lexi:'leximartinez43@gmail.com'},
-    editors:['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach'],
-    photoEditors:['Tony','Brynn']
-  };
-  window.tmwInitEmail=function(){if(typeof emailjs!=='undefined')emailjs.init('3EteBapWG4a_hy5ol');};
-  window.tmwToast=function(msg){console.log(msg);};
-}
 tmwInitEmail();
-const SUPABASE_URL=TMW.supabase.url;
-const SUPABASE_KEY=TMW.supabase.key;
 const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
 const BRYNN_EMAIL=TMW.notify.brynn;
@@ -254,7 +241,6 @@ whenUserReady(function(){
 function setSS(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-text').textContent=text;}
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
 
-
 function toggleAdmin(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();}
@@ -273,19 +259,10 @@ function applyAdmin(){
   renderAll();
 }
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(TMW.supabase.url+'/rest/v1/'+path,{
-    ...opts,
-    headers:{'apikey':TMW.supabase.key,'Authorization':'Bearer '+TMW.supabase.key,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const t=await res.text();return t?JSON.parse(t):null;
-}
-
 async function loadData(){
   setSS('','Connecting...');
   try{
-    const rows=await sbFetch('projects?id=eq.tmw_photo&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_photo&select=data');
     if(rows&&rows[0]){projects=rows[0].data.projects||[];}
     document.getElementById('pipeline-loading').style.display='none';
     document.getElementById('pipeline-content').style.display='block';
@@ -302,7 +279,7 @@ async function loadData(){
 async function saveData(){
   if(saving)return;saving=true;setSS('saving','Saving...');
   try{
-    await sbFetch('projects?id=eq.tmw_photo',{method:'PATCH',body:JSON.stringify({data:{projects}})});
+    await tmwSbFetch('projects?id=eq.tmw_photo',{method:'PATCH',body:JSON.stringify({data:{projects}})});
     setSS('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
   }catch(e){setSS('error','Save failed');showError('Save failed.');}
   saving=false;
