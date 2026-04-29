@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Referrals</title>
+
+<!-- ═══ Centralized auth guard — any approved team member ═══ -->
+<script src="/tmw-auth.js" data-required-role="any"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+html{-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#f6fefe;--white:#fff;--dark:#0d1f1f;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --border:#d4ecec;--border-strong:#b8dede;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --red:#c0392b;--red-light:#fdf0ef;--red-border:#f0b8b4;
+  --amber:#b8860b;--amber-light:#fdf8e8;--amber-border:#e8d890;
+  --green:#2d7a4a;--green-light:#eaf5ef;--green-border:#a8d8bc;
+  --blue:#1a56b0;--blue-light:#e8f0fe;--blue-border:#bfcef5;
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+.nav-name{font-size:0.82rem;font-weight:600;color:#fff;letter-spacing:-0.01em;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:0.72rem;color:rgba(255,255,255,0.5);transition:color 0.15s;}
+.nav-link:hover{color:#fff;}
+.nav-link.active{color:var(--teal);}
+.user-block{display:flex;align-items:center;gap:8px;margin-left:8px;}
+.user-name{font-size:0.68rem;color:rgba(255,255,255,0.5);}
+.signout{font-size:0.62rem;color:rgba(255,255,255,0.3);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit;}
+.page{max-width:1200px;margin:0 auto;padding:36px 32px 80px;}
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px;}
+.page-eyebrow{font-size:0.6rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;color:var(--text);letter-spacing:-0.02em;}
+.btn{padding:10px 18px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--white);color:var(--text);font-size:0.78rem;font-weight:500;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--teal-light);border-color:var(--teal);}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+.banner{background:linear-gradient(135deg,#fdf8e8,#fdf0ef);border:1.5px solid var(--amber-border);border-radius:14px;padding:18px 24px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.banner-amount{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--amber);line-height:1;}
+.banner-label{font-size:0.7rem;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:4px;}
+.banner-sub{font-size:0.78rem;color:var(--text-mid);}
+.filters{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.filter-label{font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);margin-right:4px;}
+.filter-select{padding:7px 12px;border:1.5px solid var(--border-strong);border-radius:7px;background:var(--white);color:var(--text);font-size:0.78rem;font-family:inherit;outline:none;}
+.filter-select:focus{border-color:var(--teal);}
+.count-pill{font-size:0.7rem;color:var(--text-mid);margin-left:auto;}
+.panel{background:var(--white);border:1.5px solid var(--border-strong);border-radius:14px;overflow:hidden;}
+table.referrals{width:100%;border-collapse:collapse;font-size:0.82rem;}
+table.referrals th{text-align:left;font-size:0.55rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);padding:14px 14px;border-bottom:1.5px solid var(--border-strong);background:linear-gradient(180deg,#f4fcfc,#edf8f8);}
+table.referrals td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+table.referrals tr:last-child td{border-bottom:none;}
+table.referrals tr.row-link{cursor:pointer;transition:background 0.12s;}
+table.referrals tr.row-link:hover{background:var(--teal-light);}
+.cell-name{font-weight:600;color:var(--text);}
+.cell-sub{font-size:0.68rem;color:var(--text-dim);margin-top:2px;}
+.cell-mono{font-family:'SF Mono',Menlo,monospace;font-size:0.74rem;color:var(--text-mid);}
+.tag{display:inline-block;font-size:0.6rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:5px;}
+.tag-lead{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);}
+.tag-inquiry{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);}
+.tag-booked{background:var(--green-light);color:var(--green);border:1px solid var(--green-border);}
+.tag-lost{background:#f0f0f0;color:var(--text-dim);border:1px solid #ddd;}
+.tag-pending{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);}
+.tag-paid{background:var(--green-light);color:var(--green);border:1px solid var(--green-border);}
+.tag-forfeited{background:var(--red-light);color:var(--red);border:1px solid var(--red-border);}
+.empty{padding:60px 20px;text-align:center;color:var(--text-mid);font-size:0.85rem;}
+.loading{display:flex;align-items:center;justify-content:center;padding:48px;gap:10px;color:var(--text-dim);font-size:0.8rem;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--red-light);border:1.5px solid var(--red-border);color:var(--red);padding:14px 18px;border-radius:10px;font-size:0.82rem;margin-bottom:14px;}
+@media(max-width:780px){
+  nav{padding:0 16px;}.page{padding:22px 16px 60px;}
+  table.referrals th,table.referrals td{padding:9px 8px;font-size:0.76rem;}
+  .cell-mono{font-size:0.68rem;}
+  .filters{gap:6px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    <span class="nav-name">TM Weddings</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-link" href="/">Team Resources</a>
+    <a class="nav-link" href="/weddings/">Weddings</a>
+    <a class="nav-link" href="/post-production">Post Production</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
+    <div class="user-block">
+      <span class="user-name" id="user-name"></span>
+      <button class="signout" onclick="tmwSignOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">Bucket 3 · Referrals</div>
+      <div class="page-title">Team Referral Tracker</div>
+    </div>
+    <a class="btn btn-primary" href="/referrals/new.html">+ Log Referral</a>
+  </div>
+
+  <div id="banner" class="banner" style="display:none;">
+    <div>
+      <div class="banner-label">Owed</div>
+      <div class="banner-amount" id="banner-amount">$0</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="banner-label">Pending payouts</div>
+      <div class="banner-sub" id="banner-sub">0 booked referrals awaiting payout</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Status</span>
+    <select id="f-status" class="filter-select" onchange="render()">
+      <option value="">All</option>
+      <option value="lead">Lead</option>
+      <option value="inquiry">Inquiry</option>
+      <option value="booked">Booked</option>
+      <option value="lost">Lost</option>
+    </select>
+    <span class="filter-label">Referrer</span>
+    <select id="f-referrer" class="filter-select" onchange="render()">
+      <option value="">All</option>
+    </select>
+    <span class="filter-label">Payout</span>
+    <select id="f-payout" class="filter-select" onchange="render()">
+      <option value="">All</option>
+      <option value="pending">Pending</option>
+      <option value="paid">Paid</option>
+      <option value="forfeited">Forfeited</option>
+    </select>
+    <span class="count-pill" id="count-pill"></span>
+  </div>
+
+  <div id="error-wrap"></div>
+
+  <div id="loading" class="loading"><div class="spinner"></div> Loading referrals...</div>
+  <div id="content" style="display:none;">
+    <div class="panel">
+      <div id="table-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let allReferrals = [];
+let teamMembers = [];
+
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent = TMW_USER.name;
+  loadAll();
+});
+
+function fmtMoney(n){
+  const v = Number(n)||0;
+  return '$' + v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+}
+function fmtDate(d){
+  if(!d) return '—';
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function memberName(email){
+  if(!email) return '—';
+  const m = teamMembers.find(x => x.email && x.email.toLowerCase() === String(email).toLowerCase());
+  return m ? (m.name || m.email) : email;
+}
+
+async function loadAll(){
+  try{
+    const [refs, teamRows] = await Promise.all([
+      tmwSbFetch('referrals?select=*&order=created_at.desc'),
+      tmwSbFetch('projects?id=eq.tmw_team_members&select=data')
+    ]);
+    allReferrals = refs || [];
+    teamMembers = (teamRows && teamRows[0] && teamRows[0].data && teamRows[0].data.members) || [];
+
+    populateReferrerFilter();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    render();
+  }catch(e){
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-wrap').innerHTML =
+      '<div class="error-box">Failed to load referrals: ' + escText(e.message) + '</div>';
+  }
+}
+
+function populateReferrerFilter(){
+  const sel = document.getElementById('f-referrer');
+  // unique referrer_ids that appear in the data
+  const used = {};
+  allReferrals.forEach(r => { if(r.referrer_id) used[r.referrer_id.toLowerCase()] = true; });
+  const opts = Object.keys(used).map(email => {
+    const name = memberName(email);
+    return '<option value="' + escAttr(email) + '">' + escText(name) + '</option>';
+  }).join('');
+  sel.innerHTML = '<option value="">All</option>' + opts;
+}
+
+function render(){
+  const fStatus = document.getElementById('f-status').value;
+  const fReferrer = document.getElementById('f-referrer').value.toLowerCase();
+  const fPayout = document.getElementById('f-payout').value;
+
+  const filtered = allReferrals.filter(r => {
+    if(fStatus && r.status !== fStatus) return false;
+    if(fReferrer && (r.referrer_id||'').toLowerCase() !== fReferrer) return false;
+    if(fPayout && r.payout_status !== fPayout) return false;
+    return true;
+  });
+
+  // Banner: $owed across N pending payouts (status booked + payout pending)
+  const owed = allReferrals.filter(r => r.status === 'booked' && r.payout_status === 'pending');
+  const owedTotal = owed.reduce((s,r) => s + (Number(r.payout_amount)||0), 0);
+  if(owed.length){
+    document.getElementById('banner').style.display = 'flex';
+    document.getElementById('banner-amount').textContent = fmtMoney(owedTotal);
+    document.getElementById('banner-sub').textContent = owed.length + ' booked referral' + (owed.length===1?'':'s') + ' awaiting payout';
+  } else {
+    document.getElementById('banner').style.display = 'none';
+  }
+
+  document.getElementById('count-pill').textContent =
+    filtered.length + ' of ' + allReferrals.length + ' referral' + (allReferrals.length===1?'':'s');
+
+  const wrap = document.getElementById('table-wrap');
+  if(!filtered.length){
+    wrap.innerHTML = '<div class="empty">No referrals match these filters.</div>';
+    return;
+  }
+
+  let html = '<table class="referrals"><thead><tr>'
+    + '<th>Referred</th>'
+    + '<th>Referrer</th>'
+    + '<th>Status</th>'
+    + '<th>Wedding date</th>'
+    + '<th>Payout</th>'
+    + '<th>Logged</th>'
+    + '</tr></thead><tbody>';
+
+  filtered.forEach(r => {
+    const detailUrl = '/referrals/detail.html?id=' + encodeURIComponent(r.id);
+    html += '<tr class="row-link" onclick="location.href=\'' + detailUrl + '\'">';
+    html += '<td><div class="cell-name">' + escText(r.referred_name||'(unnamed)') + '</div>'
+         + (r.referred_email ? '<div class="cell-sub">' + escText(r.referred_email) + '</div>' : '')
+         + '</td>';
+    html += '<td>' + escText(memberName(r.referrer_id)) + '</td>';
+    html += '<td><span class="tag tag-' + escAttr(r.status||'lead') + '">' + escText(r.status||'lead') + '</span></td>';
+    html += '<td class="cell-mono">' + escText(fmtDate(r.wedding_date)) + '</td>';
+    const payAmt = fmtMoney(r.payout_amount);
+    html += '<td>' + payAmt + ' <span class="tag tag-' + escAttr(r.payout_status||'pending') + '" style="margin-left:6px;">' + escText(r.payout_status||'pending') + '</span></td>';
+    html += '<td class="cell-mono">' + escText(fmtDate(r.created_at ? r.created_at.split('T')[0] : '')) + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+</script>
+
+</body>
+</html>

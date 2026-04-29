@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Log Referral</title>
+
+<!-- ═══ Centralized auth guard — any approved team member ═══ -->
+<script src="/tmw-auth.js" data-required-role="any"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+html{-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#f6fefe;--white:#fff;--dark:#0d1f1f;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --border:#d4ecec;--border-strong:#b8dede;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --red:#c0392b;--red-light:#fdf0ef;--red-border:#f0b8b4;
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+.nav-name{font-size:0.82rem;font-weight:600;color:#fff;letter-spacing:-0.01em;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:0.72rem;color:rgba(255,255,255,0.5);transition:color 0.15s;}
+.nav-link:hover{color:#fff;}
+.user-block{display:flex;align-items:center;gap:8px;margin-left:8px;}
+.user-name{font-size:0.68rem;color:rgba(255,255,255,0.5);}
+.signout{font-size:0.62rem;color:rgba(255,255,255,0.3);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit;}
+.page{max-width:680px;margin:0 auto;padding:36px 32px 80px;}
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:0.74rem;color:var(--text-mid);margin-bottom:14px;}
+.back-link:hover{color:var(--teal-dark);}
+.page-eyebrow{font-size:0.6rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:var(--text);letter-spacing:-0.02em;margin-bottom:6px;}
+.page-sub{font-size:0.82rem;color:var(--text-mid);margin-bottom:26px;line-height:1.5;}
+.form-card{background:var(--white);border:1.5px solid var(--border-strong);border-radius:14px;padding:24px 28px;}
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:6px;}
+.form-row label .req{color:var(--red);margin-left:3px;}
+.form-row input[type=text],
+.form-row input[type=email],
+.form-row input[type=tel],
+.form-row input[type=date],
+.form-row textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:0.9rem;background:var(--bg);color:var(--text);outline:none;
+}
+.form-row textarea{min-height:88px;resize:vertical;line-height:1.5;}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--teal);background:var(--white);}
+.form-help{font-size:0.7rem;color:var(--text-dim);margin-top:5px;}
+.referrer-pill{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);border:1px solid var(--teal-mid);color:var(--teal-dark);font-size:0.78rem;padding:6px 12px;border-radius:20px;font-weight:500;}
+.referrer-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:24px;}
+.btn{padding:10px 20px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--white);color:var(--text);font-size:0.82rem;font-weight:500;}
+.btn:hover{background:var(--teal-light);border-color:var(--teal);}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.error-box{background:var(--red-light);border:1.5px solid var(--red-border);color:var(--red);padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
+.success-box{background:#eaf5ef;border:1.5px solid #a8d8bc;color:#2d7a4a;padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
+@media(max-width:780px){nav{padding:0 16px;}.page{padding:22px 16px 60px;}.form-card{padding:18px 16px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    <span class="nav-name">TM Weddings</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-link" href="/referrals/">Referrals</a>
+    <div class="user-block">
+      <span class="user-name" id="user-name"></span>
+      <button class="signout" onclick="tmwSignOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <a class="back-link" href="/referrals/">← Back to referrals</a>
+  <div class="page-eyebrow">New referral</div>
+  <h1 class="page-title">Log a Referral</h1>
+  <div class="page-sub">Got someone interested in booking us? Drop their info here. Tony and Brynn get pinged automatically. You stay attached to the lead through payout.</div>
+
+  <div id="msg-wrap"></div>
+
+  <div class="form-card">
+    <div class="form-row">
+      <label>Referrer</label>
+      <span class="referrer-pill"><span class="dot"></span><span id="referrer-display">—</span></span>
+      <div class="form-help">Auto-set from your login. The payout (default $250) will be tracked against this name.</div>
+    </div>
+
+    <div class="form-row">
+      <label>Referred name <span class="req">*</span></label>
+      <input type="text" id="f-name" placeholder="Jane Doe" autocomplete="off" required>
+    </div>
+
+    <div class="form-row">
+      <label>Referred email</label>
+      <input type="email" id="f-email" placeholder="jane@example.com" autocomplete="off" autocapitalize="none">
+    </div>
+
+    <div class="form-row">
+      <label>Referred phone</label>
+      <input type="tel" id="f-phone" placeholder="(555) 123-4567" autocomplete="off">
+    </div>
+
+    <div class="form-row">
+      <label>Wedding date</label>
+      <input type="date" id="f-wedding-date">
+      <div class="form-help">Optional. If you know it, drop it in.</div>
+    </div>
+
+    <div class="form-row">
+      <label>How you know them / context</label>
+      <textarea id="f-notes" placeholder="Met at a styled shoot. Bride is best friend's coworker. Looking for full-day photo + video, summer 2027."></textarea>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="/referrals/">Cancel</a>
+      <button class="btn btn-primary" id="submit-btn" onclick="submit()">Log Referral</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let referrerEmail = '';
+let referrerName  = '';
+
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+
+whenUserReady(function(){
+  document.getElementById('user-name').textContent = TMW_USER.name;
+  referrerEmail = (TMW_USER.email || '').toLowerCase();
+  referrerName  = TMW_USER.name || referrerEmail;
+  document.getElementById('referrer-display').textContent = referrerName;
+  // Init EmailJS
+  try { emailjs.init('3EteBapWG4a_hy5ol'); } catch(e) { console.warn('EmailJS init failed:', e); }
+});
+
+function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function showError(msg){
+  document.getElementById('msg-wrap').innerHTML =
+    '<div class="error-box">' + escText(msg) + '</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showSuccess(msg){
+  document.getElementById('msg-wrap').innerHTML =
+    '<div class="success-box">' + escText(msg) + '</div>';
+}
+
+async function submit(){
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim().toLowerCase();
+  const phone = document.getElementById('f-phone').value.trim();
+  const weddingDate = document.getElementById('f-wedding-date').value || null;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if(!name){ showError('Referred name is required.'); return; }
+  if(!referrerEmail){ showError('Could not identify you as a logged-in team member. Refresh and try again.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  const payload = {
+    referrer_id:    referrerEmail,
+    referred_name:  name,
+    referred_email: email || null,
+    referred_phone: phone || null,
+    source_notes:   notes || null,
+    wedding_date:   weddingDate,
+    status:         'lead',
+    payout_amount:  250,
+    payout_status:  'pending'
+  };
+
+  try {
+    const inserted = await tmwSbFetch('referrals', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    // Notify Tony + Brynn (owners) — required by architecture rule #3
+    await notifyOwners(name, weddingDate);
+
+    showSuccess('Referral logged. Redirecting...');
+    setTimeout(function(){ window.location.href = '/referrals/'; }, 700);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Log Referral';
+    showError('Save failed: ' + (e.message || e));
+  }
+}
+
+async function notifyOwners(referredName, weddingDate){
+  const TONY  = 'tonyellismartinez@gmail.com';
+  const BRYNN = 'brynn.weller95@gmail.com';
+  const params = {
+    client:      referredName,
+    deliverable: 'New referral logged',
+    stage:       'Lead' + (weddingDate ? ' · Wedding ' + weddingDate : ''),
+    editor:      referrerName,
+    time:        new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
+  try {
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params, to_email: TONY});
+    await emailjs.send('service_qoodzdb','template_p1hyj87',{...params, to_email: BRYNN});
+  } catch(e) {
+    // Non-fatal — referral is saved either way
+    console.warn('Owner notification failed:', e);
+  }
+}
+</script>
+
+</body>
+</html>

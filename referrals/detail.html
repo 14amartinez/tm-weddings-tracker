@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Referral Detail</title>
+
+<!-- ═══ Centralized auth guard — any approved team member ═══ -->
+<script src="/tmw-auth.js" data-required-role="any"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+html{-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#f6fefe;--white:#fff;--dark:#0d1f1f;
+  --teal:#4aacac;--teal-dark:#357e7e;--teal-light:#e8f5f5;--teal-mid:#c2e4e4;
+  --border:#d4ecec;--border-strong:#b8dede;
+  --text:#1a2b2b;--text-mid:#5a7070;--text-dim:#9ab8b8;
+  --red:#c0392b;--red-light:#fdf0ef;--red-border:#f0b8b4;
+  --amber:#b8860b;--amber-light:#fdf8e8;--amber-border:#e8d890;
+  --green:#2d7a4a;--green-light:#eaf5ef;--green-border:#a8d8bc;
+  --blue:#1a56b0;--blue-light:#e8f0fe;--blue-border:#bfcef5;
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+.nav-name{font-size:0.82rem;font-weight:600;color:#fff;letter-spacing:-0.01em;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:0.72rem;color:rgba(255,255,255,0.5);transition:color 0.15s;}
+.nav-link:hover{color:#fff;}
+.user-block{display:flex;align-items:center;gap:8px;margin-left:8px;}
+.user-name{font-size:0.68rem;color:rgba(255,255,255,0.5);}
+.signout{font-size:0.62rem;color:rgba(255,255,255,0.3);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit;}
+.page{max-width:880px;margin:0 auto;padding:32px 32px 80px;}
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:0.74rem;color:var(--text-mid);margin-bottom:14px;}
+.back-link:hover{color:var(--teal-dark);}
+.page-eyebrow{font-size:0.6rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;color:var(--text);letter-spacing:-0.02em;line-height:1.1;}
+.page-sub{font-size:0.78rem;color:var(--text-mid);margin-top:6px;}
+.owner-badge{display:inline-block;font-size:0.58rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:var(--amber-light);border:1px solid var(--amber-border);color:var(--amber);padding:3px 8px;border-radius:5px;margin-left:8px;}
+.section{background:var(--white);border:1.5px solid var(--border-strong);border-radius:14px;margin-top:18px;overflow:hidden;}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1.5px solid var(--border);background:linear-gradient(180deg,#f4fcfc,#edf8f8);}
+.section-title{font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal-dark);}
+.section-body{padding:18px 22px;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field-full{grid-column:1 / -1;}
+.field-label{font-size:0.58rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);}
+.field-value{font-size:0.92rem;color:var(--text);font-weight:500;}
+.field-value.muted{color:var(--text-dim);font-style:italic;font-weight:400;}
+.field-value a{color:var(--teal-dark);text-decoration:underline;}
+input.edit,select.edit,textarea.edit{
+  width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:7px;
+  font-family:inherit;font-size:0.88rem;background:var(--bg);color:var(--text);outline:none;
+}
+textarea.edit{min-height:64px;resize:vertical;line-height:1.5;}
+input.edit:focus,select.edit:focus,textarea.edit:focus{border-color:var(--teal);background:var(--white);}
+input.edit:disabled,select.edit:disabled,textarea.edit:disabled{background:#f5fafa;color:var(--text-mid);cursor:not-allowed;}
+.tag{display:inline-block;font-size:0.62rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:5px;}
+.tag-lead{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);}
+.tag-inquiry{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);}
+.tag-booked{background:var(--green-light);color:var(--green);border:1px solid var(--green-border);}
+.tag-lost{background:#f0f0f0;color:var(--text-dim);border:1px solid #ddd;}
+.tag-pending{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-border);}
+.tag-paid{background:var(--green-light);color:var(--green);border:1px solid var(--green-border);}
+.tag-forfeited{background:var(--red-light);color:var(--red);border:1px solid var(--red-border);}
+.actions-bar{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 22px;border-top:1.5px solid var(--border);background:#fbffff;}
+.btn{padding:9px 18px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--white);color:var(--text);font-size:0.78rem;font-weight:500;}
+.btn:hover{background:var(--teal-light);border-color:var(--teal);}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+.btn-danger{color:var(--red);border-color:var(--red-border);}
+.btn-danger:hover{background:var(--red-light);border-color:var(--red);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.read-only-note{font-size:0.7rem;color:var(--text-dim);font-style:italic;}
+.loading{display:flex;align-items:center;justify-content:center;padding:48px;gap:10px;color:var(--text-dim);font-size:0.8rem;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--red-light);border:1.5px solid var(--red-border);color:var(--red);padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
+.success-box{background:var(--green-light);border:1.5px solid var(--green-border);color:var(--green);padding:12px 16px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px;}
+.tl-step{padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);text-align:center;}
+.tl-step.active{border-color:var(--teal);background:var(--teal-light);}
+.tl-label{font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;}
+.tl-step.active .tl-label{color:var(--teal-dark);}
+.tl-date{font-size:0.78rem;color:var(--text);font-weight:500;}
+@media(max-width:780px){
+  nav{padding:0 16px;}.page{padding:22px 16px 60px;}
+  .field-grid{grid-template-columns:1fr;gap:12px;}
+  .timeline{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    <span class="nav-name">TM Weddings</span>
+  </div>
+  <div class="nav-right">
+    <a class="nav-link" href="/referrals/">Referrals</a>
+    <div class="user-block">
+      <span class="user-name" id="user-name"></span>
+      <button class="signout" onclick="tmwSignOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <a class="back-link" href="/referrals/">← Back to referrals</a>
+  <div id="msg-wrap"></div>
+
+  <div id="loading" class="loading"><div class="spinner"></div> Loading referral...</div>
+
+  <div id="content" style="display:none;">
+    <div class="page-eyebrow" id="eyebrow">Referral</div>
+    <h1 class="page-title" id="page-title">—<span id="owner-badge" class="owner-badge" style="display:none;">Owner controls</span></h1>
+    <div class="page-sub" id="page-sub">—</div>
+
+    <!-- Lifecycle -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Lifecycle</span></div>
+      <div class="section-body">
+        <div class="timeline">
+          <div class="tl-step" id="tl-lead"><div class="tl-label">Lead</div><div class="tl-date" id="tl-lead-date">—</div></div>
+          <div class="tl-step" id="tl-inquiry"><div class="tl-label">Inquiry</div><div class="tl-date" id="tl-inquiry-date">—</div></div>
+          <div class="tl-step" id="tl-booked"><div class="tl-label">Booked</div><div class="tl-date" id="tl-booked-date">—</div></div>
+          <div class="tl-step" id="tl-lost"><div class="tl-label">Lost</div><div class="tl-date" id="tl-lost-date">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Referred contact -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Referred contact</span></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <span class="field-label">Name</span>
+            <span class="field-value" id="v-name">—</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Wedding date</span>
+            <span class="field-value" id="v-wedding">—</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Email</span>
+            <span class="field-value" id="v-email">—</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Phone</span>
+            <span class="field-value" id="v-phone">—</span>
+          </div>
+          <div class="field field-full">
+            <span class="field-label">Source / context</span>
+            <span class="field-value" id="v-notes">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Referrer + status -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Status</span>
+        <span class="read-only-note" id="status-note">View only — owners can change status</span>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <span class="field-label">Referrer</span>
+            <span class="field-value" id="v-referrer">—</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Status</span>
+            <select id="e-status" class="edit" disabled>
+              <option value="lead">Lead</option>
+              <option value="inquiry">Inquiry</option>
+              <option value="booked">Booked</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">Inquiry date</span>
+            <input type="date" id="e-inquiry-date" class="edit" disabled>
+          </div>
+          <div class="field">
+            <span class="field-label">Booked date</span>
+            <input type="date" id="e-booked-date" class="edit" disabled>
+          </div>
+          <div class="field field-full">
+            <span class="field-label">Linked project ID</span>
+            <input type="text" id="e-project-id" class="edit" disabled placeholder="e.g. tmw_photo_smith_2026 or leave blank">
+          </div>
+        </div>
+      </div>
+      <div class="actions-bar" id="status-actions" style="display:none;">
+        <span class="read-only-note" id="status-dirty">No changes</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="resetStatusEdits()">Reset</button>
+          <button class="btn btn-primary" id="save-status-btn" onclick="saveStatus()">Save status changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payout -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Payout</span>
+        <span class="read-only-note" id="payout-note">View only — owners can mark paid</span>
+      </div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <span class="field-label">Payout amount ($)</span>
+            <input type="number" id="e-payout-amount" class="edit" disabled step="0.01" min="0">
+          </div>
+          <div class="field">
+            <span class="field-label">Payout status</span>
+            <select id="e-payout-status" class="edit" disabled>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="forfeited">Forfeited</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">Payout date</span>
+            <input type="date" id="e-payout-date" class="edit" disabled>
+          </div>
+          <div class="field">
+            <span class="field-label">Payout method</span>
+            <select id="e-payout-method" class="edit" disabled>
+              <option value="">— choose —</option>
+              <option value="venmo">Venmo</option>
+              <option value="zelle">Zelle</option>
+              <option value="check">Check</option>
+              <option value="cash">Cash</option>
+            </select>
+          </div>
+          <div class="field field-full">
+            <span class="field-label">Payout notes</span>
+            <textarea id="e-payout-notes" class="edit" disabled placeholder="Confirmation #, memo line, etc."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="actions-bar" id="payout-actions" style="display:none;">
+        <span class="read-only-note" id="payout-dirty">No changes</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="resetPayoutEdits()">Reset</button>
+          <button class="btn btn-primary" id="save-payout-btn" onclick="savePayout()">Save payout changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="section">
+      <div class="section-head"><span class="section-title">Meta</span></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <span class="field-label">Logged at</span>
+            <span class="field-value" id="v-created">—</span>
+          </div>
+          <div class="field">
+            <span class="field-label">Last updated</span>
+            <span class="field-value" id="v-updated">—</span>
+          </div>
+          <div class="field field-full">
+            <span class="field-label">Referral ID</span>
+            <span class="field-value" id="v-id" style="font-family:'SF Mono',Menlo,monospace;font-size:0.78rem;">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-bar" id="danger-zone" style="display:none;border-top:none;background:transparent;margin-top:18px;padding:0;">
+      <span class="read-only-note">Danger zone (owners only)</span>
+      <button class="btn btn-danger" onclick="deleteReferral()">Delete referral</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER_EMAILS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
+const referralId = new URLSearchParams(window.location.search).get('id');
+
+let referral = null;
+let teamMembers = [];
+let isOwner = false;
+
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+whenUserReady(function(){
+  document.getElementById('user-name').textContent = TMW_USER.name;
+  isOwner = OWNER_EMAILS.indexOf((TMW_USER.email||'').toLowerCase()) !== -1;
+  try { emailjs.init('3EteBapWG4a_hy5ol'); } catch(e) { console.warn('EmailJS init failed:', e); }
+  if(!referralId){ showError('Missing referral id in URL.'); return; }
+  load();
+});
+
+function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function fmtDate(d){
+  if(!d) return '—';
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function fmtMoney(n){
+  const v = Number(n)||0;
+  return '$' + v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+}
+function fmtTimestamp(t){
+  if(!t) return '—';
+  return new Date(t).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function showError(msg){
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('msg-wrap').innerHTML =
+    '<div class="error-box">' + escText(msg) + '</div>';
+}
+function showSuccess(msg){
+  document.getElementById('msg-wrap').innerHTML =
+    '<div class="success-box">' + escText(msg) + '</div>';
+  setTimeout(function(){
+    const el = document.querySelector('.success-box');
+    if(el) el.remove();
+  }, 3500);
+}
+
+function memberByEmail(email){
+  if(!email) return null;
+  return teamMembers.find(m => m.email && m.email.toLowerCase() === String(email).toLowerCase()) || null;
+}
+
+async function load(){
+  try {
+    const [rows, teamRows] = await Promise.all([
+      tmwSbFetch('referrals?id=eq.' + encodeURIComponent(referralId) + '&select=*'),
+      tmwSbFetch('projects?id=eq.tmw_team_members&select=data')
+    ]);
+    if(!rows || !rows.length){ showError('Referral not found.'); return; }
+    referral = rows[0];
+    teamMembers = (teamRows && teamRows[0] && teamRows[0].data && teamRows[0].data.members) || [];
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    fillFields();
+  } catch(e) {
+    showError('Failed to load: ' + (e.message || e));
+  }
+}
+
+function fillFields(){
+  // Header
+  document.getElementById('eyebrow').textContent = 'Referral · ' + (referral.status || 'lead');
+  document.getElementById('page-title').firstChild.textContent = referral.referred_name || '(unnamed)';
+  const refMember = memberByEmail(referral.referrer_id);
+  const refName = refMember ? (refMember.name || refMember.email) : referral.referrer_id;
+  document.getElementById('page-sub').textContent = 'Referred by ' + refName;
+
+  if(isOwner){ document.getElementById('owner-badge').style.display = 'inline-block'; }
+
+  // Timeline
+  setTl('lead', referral.created_at ? referral.created_at.split('T')[0] : null, true);
+  setTl('inquiry', referral.inquiry_date, ['inquiry','booked'].includes(referral.status));
+  setTl('booked', referral.booked_date, referral.status === 'booked');
+  setTl('lost', referral.status === 'lost' ? (referral.updated_at ? referral.updated_at.split('T')[0] : null) : null, referral.status === 'lost');
+
+  // Referred contact
+  document.getElementById('v-name').textContent = referral.referred_name || '—';
+  document.getElementById('v-wedding').textContent = fmtDate(referral.wedding_date);
+  setLink('v-email', referral.referred_email, 'mailto:' + (referral.referred_email||''));
+  setLink('v-phone', referral.referred_phone, 'tel:' + (referral.referred_phone||'').replace(/[^\d+]/g,''));
+  const notesEl = document.getElementById('v-notes');
+  if(referral.source_notes){
+    notesEl.textContent = referral.source_notes;
+    notesEl.classList.remove('muted');
+  } else {
+    notesEl.textContent = 'No notes';
+    notesEl.classList.add('muted');
+  }
+
+  // Status section
+  document.getElementById('v-referrer').textContent = refName + (refMember && refMember.email ? ' · ' + refMember.email : '');
+  document.getElementById('e-status').value = referral.status || 'lead';
+  document.getElementById('e-inquiry-date').value = referral.inquiry_date || '';
+  document.getElementById('e-booked-date').value = referral.booked_date || '';
+  document.getElementById('e-project-id').value = referral.project_id || '';
+
+  // Payout section
+  document.getElementById('e-payout-amount').value = referral.payout_amount != null ? referral.payout_amount : '';
+  document.getElementById('e-payout-status').value = referral.payout_status || 'pending';
+  document.getElementById('e-payout-date').value = referral.payout_date || '';
+  document.getElementById('e-payout-method').value = referral.payout_method || '';
+  document.getElementById('e-payout-notes').value = referral.payout_notes || '';
+
+  // Meta
+  document.getElementById('v-created').textContent = fmtTimestamp(referral.created_at);
+  document.getElementById('v-updated').textContent = fmtTimestamp(referral.updated_at);
+  document.getElementById('v-id').textContent = referral.id;
+
+  // Owner gating
+  if(isOwner){
+    ['e-status','e-inquiry-date','e-booked-date','e-project-id',
+     'e-payout-amount','e-payout-status','e-payout-date','e-payout-method','e-payout-notes']
+      .forEach(id => document.getElementById(id).disabled = false);
+    document.getElementById('status-actions').style.display = 'flex';
+    document.getElementById('payout-actions').style.display = 'flex';
+    document.getElementById('status-note').textContent = 'Edit and save when ready';
+    document.getElementById('payout-note').textContent = 'Edit and save when ready';
+    document.getElementById('danger-zone').style.display = 'flex';
+
+    // Wire dirty-state listeners
+    ['e-status','e-inquiry-date','e-booked-date','e-project-id'].forEach(id =>
+      document.getElementById(id).addEventListener('input', () => updateDirty('status')));
+    ['e-payout-amount','e-payout-status','e-payout-date','e-payout-method','e-payout-notes'].forEach(id =>
+      document.getElementById(id).addEventListener('input', () => updateDirty('payout')));
+  }
+}
+
+function setTl(stage, date, active){
+  const el = document.getElementById('tl-' + stage);
+  if(active) el.classList.add('active'); else el.classList.remove('active');
+  document.getElementById('tl-' + stage + '-date').textContent = date ? fmtDate(date) : '—';
+}
+
+function setLink(elId, text, href){
+  const el = document.getElementById(elId);
+  if(!text){ el.textContent = '—'; el.classList.add('muted'); return; }
+  el.classList.remove('muted');
+  el.innerHTML = '<a href="' + escAttr(href) + '">' + escText(text) + '</a>';
+}
+
+function statusEdits(){
+  return {
+    status:        document.getElementById('e-status').value,
+    inquiry_date:  document.getElementById('e-inquiry-date').value || null,
+    booked_date:   document.getElementById('e-booked-date').value || null,
+    project_id:    document.getElementById('e-project-id').value.trim() || null
+  };
+}
+function payoutEdits(){
+  const amt = document.getElementById('e-payout-amount').value;
+  return {
+    payout_amount: amt === '' ? null : Number(amt),
+    payout_status: document.getElementById('e-payout-status').value,
+    payout_date:   document.getElementById('e-payout-date').value || null,
+    payout_method: document.getElementById('e-payout-method').value || null,
+    payout_notes:  document.getElementById('e-payout-notes').value.trim() || null
+  };
+}
+
+function updateDirty(which){
+  if(which === 'status'){
+    const e = statusEdits();
+    const dirty = e.status !== (referral.status || 'lead')
+      || (e.inquiry_date || null) !== (referral.inquiry_date || null)
+      || (e.booked_date || null) !== (referral.booked_date || null)
+      || (e.project_id || null) !== (referral.project_id || null);
+    document.getElementById('status-dirty').textContent = dirty ? '● Unsaved status changes' : 'No changes';
+  } else {
+    const e = payoutEdits();
+    const dirty = (e.payout_amount == null ? null : Number(e.payout_amount)) !== (referral.payout_amount == null ? null : Number(referral.payout_amount))
+      || e.payout_status !== (referral.payout_status || 'pending')
+      || (e.payout_date || null) !== (referral.payout_date || null)
+      || (e.payout_method || null) !== (referral.payout_method || null)
+      || (e.payout_notes || null) !== (referral.payout_notes || null);
+    document.getElementById('payout-dirty').textContent = dirty ? '● Unsaved payout changes' : 'No changes';
+  }
+}
+
+function resetStatusEdits(){
+  document.getElementById('e-status').value = referral.status || 'lead';
+  document.getElementById('e-inquiry-date').value = referral.inquiry_date || '';
+  document.getElementById('e-booked-date').value = referral.booked_date || '';
+  document.getElementById('e-project-id').value = referral.project_id || '';
+  updateDirty('status');
+}
+function resetPayoutEdits(){
+  document.getElementById('e-payout-amount').value = referral.payout_amount != null ? referral.payout_amount : '';
+  document.getElementById('e-payout-status').value = referral.payout_status || 'pending';
+  document.getElementById('e-payout-date').value = referral.payout_date || '';
+  document.getElementById('e-payout-method').value = referral.payout_method || '';
+  document.getElementById('e-payout-notes').value = referral.payout_notes || '';
+  updateDirty('payout');
+}
+
+async function saveStatus(){
+  if(!isOwner) return;
+  const edits = statusEdits();
+  const wasBooked = referral.status === 'booked';
+  const willBeBooked = edits.status === 'booked';
+
+  // Auto-stamp dates if user moved status forward and didn't set them
+  if(edits.status === 'inquiry' && !edits.inquiry_date) edits.inquiry_date = todayISO();
+  if(willBeBooked && !edits.booked_date) edits.booked_date = todayISO();
+
+  const btn = document.getElementById('save-status-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const updated = await tmwSbFetch('referrals?id=eq.' + encodeURIComponent(referralId), {
+      method: 'PATCH',
+      body: JSON.stringify(edits)
+    });
+    referral = (updated && updated[0]) || { ...referral, ...edits };
+
+    // Notify on transition INTO booked
+    if(!wasBooked && willBeBooked){
+      await notifyBooked();
+    }
+
+    fillFields();
+    showSuccess('Status saved.');
+  } catch(e) {
+    alert('Save failed: ' + (e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save status changes';
+  }
+}
+
+async function savePayout(){
+  if(!isOwner) return;
+  const edits = payoutEdits();
+  const wasPaid = referral.payout_status === 'paid';
+  const willBePaid = edits.payout_status === 'paid';
+
+  if(willBePaid && !edits.payout_date) edits.payout_date = todayISO();
+
+  const btn = document.getElementById('save-payout-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const updated = await tmwSbFetch('referrals?id=eq.' + encodeURIComponent(referralId), {
+      method: 'PATCH',
+      body: JSON.stringify(edits)
+    });
+    referral = (updated && updated[0]) || { ...referral, ...edits };
+
+    if(!wasPaid && willBePaid){
+      await notifyPaid();
+    }
+
+    fillFields();
+    showSuccess('Payout saved.');
+  } catch(e) {
+    alert('Save failed: ' + (e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save payout changes';
+  }
+}
+
+async function deleteReferral(){
+  if(!isOwner) return;
+  if(!confirm('Permanently delete this referral?\n\n' + (referral.referred_name||'') + '\n\nThis cannot be undone.')) return;
+  try {
+    await tmwSbFetch('referrals?id=eq.' + encodeURIComponent(referralId), { method: 'DELETE' });
+    window.location.href = '/referrals/';
+  } catch(e) {
+    alert('Delete failed: ' + (e.message || e));
+  }
+}
+
+function todayISO(){
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+// ── Notifications ────────────────────────────────────────────────────────
+async function notifyBooked(){
+  const TONY  = 'tonyellismartinez@gmail.com';
+  const BRYNN = 'brynn.weller95@gmail.com';
+  const refMember = memberByEmail(referral.referrer_id);
+  const refName = refMember ? (refMember.name || refMember.email) : referral.referrer_id;
+  const refEmail = refMember && refMember.email ? refMember.email : null;
+
+  const params = {
+    client:      referral.referred_name,
+    deliverable: 'Referral booked',
+    stage:       'Booked' + (referral.booked_date ? ' · ' + referral.booked_date : ''),
+    editor:      refName,
+    time:        new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
+  const recipients = [TONY, BRYNN];
+  if(refEmail && recipients.indexOf(refEmail) === -1) recipients.push(refEmail);
+  try {
+    for(const to of recipients){
+      await emailjs.send('service_qoodzdb','template_p1hyj87',{...params, to_email: to});
+    }
+  } catch(e) {
+    console.warn('Booked notification failed:', e);
+  }
+}
+
+async function notifyPaid(){
+  const refMember = memberByEmail(referral.referrer_id);
+  const refEmail = refMember && refMember.email ? refMember.email : null;
+  if(!refEmail){ console.warn('No referrer email found — skipping paid notification.'); return; }
+  const refName = refMember ? (refMember.name || refMember.email) : referral.referrer_id;
+  const params = {
+    client:      referral.referred_name,
+    deliverable: 'Referral payout paid · ' + fmtMoney(referral.payout_amount),
+    stage:       'Paid' + (referral.payout_method ? ' · ' + referral.payout_method : ''),
+    editor:      refName,
+    time:        new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+    to_email:    refEmail
+  };
+  try {
+    await emailjs.send('service_qoodzdb','template_p1hyj87', params);
+  } catch(e) {
+    console.warn('Paid notification failed:', e);
+  }
+}
+</script>
+
+</body>
+</html>
