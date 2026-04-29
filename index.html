@@ -263,7 +263,7 @@ nav{
       <div class="qa-col">
         <div class="qa-head"><span class="qa-head-icon">⚙️</span><span class="qa-head-title">General</span></div>
         <div class="qa-items" id="general-links">
-          <a class="qa-item dim">+ 5 guides coming</a>
+          <a class="qa-item dim">+ 4 guides coming</a>
         </div>
       </div>
 
@@ -348,9 +348,12 @@ if (window.TMW_USER) {
     document.getElementById('post-prod-col').style.display = 'none';
   }
 
+  // Referrals — visible to all team members
+  var gl = document.getElementById('general-links');
+  gl.innerHTML = '<a class="qa-item" href="/referrals/">Referrals <span class="dot"></span></a>' + gl.innerHTML;
+
   // Owner / admin only: dashboard + builder + team admin
   if (TMW_USER.isAdmin) {
-    var gl = document.getElementById('general-links');
     var html = '';
     if (TMW_USER.isOwner) {
       html += '<a class="qa-item" href="/dashboard">Owner Dashboard <span class="dot"></span></a>';
