@@ -156,8 +156,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script src="/tmw-core.js"></script>
 <script>
-const SUPABASE_URL=TMW.supabase.url;
-const SUPABASE_KEY=TMW.supabase.key;
 const ADMIN_PW=TMW.admin.password;
 const TEAM_MEMBERS=['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach','PJ','Nolan','Isabella','Bella','Kaitlyn','Chris','Dylan'];
 
@@ -193,19 +191,10 @@ function applyAdmin(){
   document.getElementById('admin-btn').textContent=isAdmin?'Exit admin':'Admin';
 }
 
-async function sbFetch(path,opts={}){
-  const res=await fetch(TMW.supabase.url+"/rest/v1/"+path,{
-    ...opts,
-    headers:{"apikey":TMW.supabase.key,"Authorization":"Bearer "+TMW.supabase.key,"Content-Type":"application/json","Prefer":"return=representation",...(opts.headers||{})}
-  });
-  if(!res.ok){const t=await res.text();throw new Error(t);}
-  const t=await res.text();return t?JSON.parse(t):null;
-}
-
 async function loadData(){
   setSS('','Loading...');
   try{
-    const rows=await sbFetch('projects?id=eq.tmw_weddings&select=data');
+    const rows=await tmwSbFetch('projects?id=eq.tmw_weddings&select=data');
     if(rows&&rows[0]){
       weddings=rows[0].data.weddings||[];
       wedding=weddings.find(w=>w.id===weddingId);
@@ -235,7 +224,7 @@ async function loadData(){
 async function saveChanges(){
   setSS('saving','Saving...');
   try{
-    await sbFetch('projects?id=eq.tmw_weddings',{method:'PATCH',body:JSON.stringify({data:{weddings}})});
+    await tmwSbFetch('projects?id=eq.tmw_weddings',{method:'PATCH',body:JSON.stringify({data:{weddings}})});
     setSS('ok','Saved — '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
     dirty=false;
     document.getElementById('save-bar').classList.remove('visible');
