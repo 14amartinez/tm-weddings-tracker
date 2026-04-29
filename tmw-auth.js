@@ -15,6 +15,8 @@
  *
  * AFTER LOAD, GLOBALS:
  *   window.TMW_USER           — { email, name, roles: [], isOwner, isAdmin, isEditor, isShooter }
+ *   window.TMW_JWT            — User's Supabase access token (for RLS-aware API calls)
+ *   window.tmwSbFetch(p, o)   — Authenticated Supabase REST helper (uses JWT)
  *   window.tmwSignOut()       — clears session, redirects to login
  *   window.tmwHasRole(role)   — returns boolean
  *   window.tmwCanAccess(area) — checks against required-role semantics
@@ -70,6 +72,42 @@
     window.location.replace('/login.html');
   };
 
+  // ─── CENTRALIZED SUPABASE FETCH (RLS-AWARE) ───
+  // Uses the user's JWT for authenticated requests so RLS policies see the
+  // signed-in user. Falls back to publishable key if called before the user
+  // is authenticated (e.g. login page).
+  window.tmwSbFetch = async function(path, opts){
+    opts = opts || {};
+    var token = window.TMW_JWT || SUPABASE_KEY;
+    var headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    };
+    if (opts.headers) {
+      for (var h in opts.headers) {
+        if (Object.prototype.hasOwnProperty.call(opts.headers, h)) {
+          headers[h] = opts.headers[h];
+        }
+      }
+    }
+    var fetchOpts = {};
+    for (var k in opts) {
+      if (Object.prototype.hasOwnProperty.call(opts, k) && k !== 'headers') {
+        fetchOpts[k] = opts[k];
+      }
+    }
+    fetchOpts.headers = headers;
+    var res = await fetch(SUPABASE_URL + '/rest/v1/' + path, fetchOpts);
+    if (!res.ok) {
+      var t = await res.text();
+      throw new Error(t || ('HTTP ' + res.status));
+    }
+    var body = await res.text();
+    return body ? JSON.parse(body) : null;
+  };
+
   // ─── READ SESSION FROM LOCALSTORAGE ───
   function readSession(){
     var raw = null;
@@ -109,12 +147,14 @@
   }
 
   // ─── FETCH TEAM FROM SUPABASE (SYNC) ───
-  function fetchTeamSync(){
+  // Note: This runs BEFORE we have a JWT (it's called during guard execution
+  // to determine team membership). Uses publishable key + JWT if available.
+  function fetchTeamSync(jwt){
     try {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', SUPABASE_URL + '/rest/v1/projects?id=eq.tmw_team_members&select=data', false);
       xhr.setRequestHeader('apikey', SUPABASE_KEY);
-      xhr.setRequestHeader('Authorization', 'Bearer ' + SUPABASE_KEY);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + (jwt || SUPABASE_KEY));
       xhr.send(null);
       if (xhr.status >= 200 && xhr.status < 300) {
         var rows = JSON.parse(xhr.responseText);
@@ -127,11 +167,11 @@
   }
 
   // Async background refresh — never blocks page load
-  function fetchTeamAsync(){
+  function fetchTeamAsync(jwt){
     fetch(SUPABASE_URL + '/rest/v1/projects?id=eq.tmw_team_members&select=data', {
       headers: {
         'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY
+        'Authorization': 'Bearer ' + (jwt || SUPABASE_KEY)
       }
     }).then(function(res){ return res.ok ? res.json() : null; })
       .then(function(rows){
@@ -143,15 +183,15 @@
   }
 
   // ─── RESOLVE TEAM LIST (HYBRID) ───
-  function getTeamMembers(){
+  function getTeamMembers(jwt){
     var cache = readTeamCache();
 
     if (cache && cache.fresh) {
-      setTimeout(fetchTeamAsync, 100);
+      setTimeout(function(){ fetchTeamAsync(jwt); }, 100);
       return cache.members;
     }
 
-    var fresh = fetchTeamSync();
+    var fresh = fetchTeamSync(jwt);
     if (fresh) {
       writeTeamCache(fresh);
       return fresh;
@@ -199,8 +239,11 @@
       return;
     }
 
+    // Expose JWT for authenticated Supabase requests (RLS policies)
+    window.TMW_JWT = session.access_token || null;
+
     var email = String(session.user.email).toLowerCase();
-    var team = getTeamMembers();
+    var team = getTeamMembers(window.TMW_JWT);
 
     var member = null;
     for (var i = 0; i < team.length; i++) {

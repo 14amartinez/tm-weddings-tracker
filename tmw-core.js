@@ -2,6 +2,11 @@
  * tmw-core.js
  * TM Weddings — Shared Configuration & Utilities
  * All dashboards import this file. Change here = changes everywhere.
+ *
+ * NOTE: For Supabase REST calls, prefer window.tmwSbFetch() (defined in
+ * tmw-auth.js) — it automatically uses the signed-in user's JWT for RLS.
+ * The local sbFetch() here remains for backwards compatibility and now
+ * also uses the JWT if available.
  */
 
 // ── CONFIG ──────────────────────────────────────────────
@@ -51,13 +56,17 @@ const TMW = {
   statusCycle: ['not-started','in-progress','complete'],
 };
 
-// ── SUPABASE FETCH ───────────────────────────────────────
+// ── SUPABASE FETCH (RLS-AWARE) ───────────────────────────
+// Uses the signed-in user's JWT (from tmw-auth.js) if available, so RLS
+// policies see the authenticated user. Falls back to publishable key only
+// when called before authentication completes.
 async function sbFetch(path, opts = {}) {
+  const token = (typeof window !== 'undefined' && window.TMW_JWT) || TMW.supabase.key;
   const res = await fetch(TMW.supabase.url + '/rest/v1/' + path, {
     ...opts,
     headers: {
       'apikey':        TMW.supabase.key,
-      'Authorization': 'Bearer ' + TMW.supabase.key,
+      'Authorization': 'Bearer ' + token,
       'Content-Type':  'application/json',
       'Prefer':        'return=representation',
       ...(opts.headers || {}),
