@@ -56,6 +56,8 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
 .form-help{font-size:0.7rem;color:var(--text-dim);margin-top:5px;}
 .referrer-pill{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);border:1px solid var(--teal-mid);color:var(--teal-dark);font-size:0.78rem;padding:6px 12px;border-radius:20px;font-weight:500;}
 .referrer-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+select.edit{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;background:var(--bg);color:var(--text);outline:none;}
+select.edit:focus{border-color:var(--teal);background:var(--white);}
 .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:24px;}
 .btn{padding:10px 20px;border:1.5px solid var(--border-strong);border-radius:8px;background:var(--white);color:var(--text);font-size:0.82rem;font-weight:500;}
 .btn:hover{background:var(--teal-light);border-color:var(--teal);}
@@ -94,8 +96,9 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
   <div class="form-card">
     <div class="form-row">
       <label>Referrer</label>
-      <span class="referrer-pill"><span class="dot"></span><span id="referrer-display">—</span></span>
-      <div class="form-help">Auto-set from your login. The payout (default $250) will be tracked against this name.</div>
+      <span class="referrer-pill" id="referrer-pill-wrap"><span class="dot"></span><span id="referrer-display">—</span></span>
+      <select id="referrer-select" class="edit" style="display:none;"></select>
+      <div class="form-help" id="referrer-help">Auto-set from your login. The payout (default $250) will be tracked against this name.</div>
     </div>
 
     <div class="form-row">
@@ -132,7 +135,15 @@ nav{background:var(--dark);padding:0 32px;height:54px;display:flex;align-items:c
 </div>
 
 <script>
-let referrerEmail = '';
+// ─── Owner emails — keep in sync with /referrals/detail.html.
+//     Future Bucket 2.5 task: consolidate into tmw-auth.js. ────────────────
+const OWNER_EMAILS = ['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
+
+let loggerEmail   = '';   // Always TMW_USER.email — who is doing the entry.
+let loggerName    = '';
+let isOwner       = false;
+let teamMembers   = [];   // From projects.data.members
+let referrerEmail = '';   // What goes into referrer_id (may differ from logger if owner override).
 let referrerName  = '';
 
 function whenUserReady(cb){
@@ -142,12 +153,58 @@ function whenUserReady(cb){
 
 whenUserReady(function(){
   document.getElementById('user-name').textContent = TMW_USER.name;
-  referrerEmail = (TMW_USER.email || '').toLowerCase();
-  referrerName  = TMW_USER.name || referrerEmail;
-  document.getElementById('referrer-display').textContent = referrerName;
+  loggerEmail   = (TMW_USER.email || '').toLowerCase();
+  loggerName    = TMW_USER.name || loggerEmail;
+  isOwner       = OWNER_EMAILS.indexOf(loggerEmail) !== -1;
+  // Default referrer = logger; will be overridden by dropdown if owner picks someone else.
+  referrerEmail = loggerEmail;
+  referrerName  = loggerName;
+  document.getElementById('referrer-display').textContent = loggerName;
   // Init EmailJS
   try { emailjs.init('3EteBapWG4a_hy5ol'); } catch(e) { console.warn('EmailJS init failed:', e); }
+
+  if(isOwner){ loadTeamForOverride(); }
 });
+
+async function loadTeamForOverride(){
+  try {
+    const rows = await tmwSbFetch('projects?id=eq.tmw_team_members&select=data');
+    teamMembers = (rows && rows[0] && rows[0].data && rows[0].data.members) || [];
+  } catch(e) {
+    console.warn('Could not load team for referrer override:', e);
+    return;
+  }
+  // Show only active members; sort by name; logger pinned to top.
+  const active = teamMembers
+    .filter(m => m.email && m.active !== false)
+    .sort((a,b) => (a.name||a.email).localeCompare(b.name||b.email));
+  const me = active.find(m => m.email.toLowerCase() === loggerEmail);
+  const others = active.filter(m => m.email.toLowerCase() !== loggerEmail);
+  const ordered = me ? [me, ...others] : active;
+
+  const sel = document.getElementById('referrer-select');
+  sel.innerHTML = ordered.map(m => {
+    const email = m.email.toLowerCase();
+    const label = (m.name || m.email) + ' (' + m.email + ')'
+      + (email === loggerEmail ? ' — you' : '');
+    return '<option value="' + escAttr(email) + '">' + escText(label) + '</option>';
+  }).join('');
+  sel.value = loggerEmail;
+
+  // Swap UI: hide the pill, show the dropdown.
+  document.getElementById('referrer-pill-wrap').style.display = 'none';
+  sel.style.display = 'block';
+  document.getElementById('referrer-help').textContent =
+    'You can log this on behalf of another team member. Defaults to you. The payout will be tracked against whoever you pick.';
+
+  sel.addEventListener('change', function(){
+    referrerEmail = sel.value;
+    const m = teamMembers.find(x => x.email && x.email.toLowerCase() === referrerEmail);
+    referrerName = m ? (m.name || m.email) : referrerEmail;
+  });
+}
+
+function escAttr(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
 function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -166,10 +223,19 @@ async function submit(){
   const email = document.getElementById('f-email').value.trim().toLowerCase();
   const phone = document.getElementById('f-phone').value.trim();
   const weddingDate = document.getElementById('f-wedding-date').value || null;
-  const notes = document.getElementById('f-notes').value.trim();
+  let   notes = document.getElementById('f-notes').value.trim();
 
   if(!name){ showError('Referred name is required.'); return; }
-  if(!referrerEmail){ showError('Could not identify you as a logged-in team member. Refresh and try again.'); return; }
+  if(!loggerEmail){ showError('Could not identify you as a logged-in team member. Refresh and try again.'); return; }
+  if(!referrerEmail){ referrerEmail = loggerEmail; referrerName = loggerName; }
+
+  // Audit trail: when an owner logs on behalf of someone else, stamp it
+  // into source_notes so Brynn/Tony can see who entered the record later.
+  const onBehalf = referrerEmail.toLowerCase() !== loggerEmail.toLowerCase();
+  if(onBehalf){
+    const stamp = '[Logged by ' + loggerName + ' on behalf of ' + referrerName + ']';
+    notes = notes ? (notes + '\n\n' + stamp) : stamp;
+  }
 
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = 'Saving...';
