@@ -361,6 +361,90 @@
     letter-spacing: 0.05em;
     margin-top: 0.25rem;
   }
+
+  /* === SAVINGS HERO === */
+  .savings-hero {
+    background: linear-gradient(135deg, #1a1816 0%, #2a201a 100%);
+    border: 1px solid var(--accent-deep);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .savings-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,164,138,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .savings-hero .eyebrow {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+  }
+  .savings-hero .headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 2.2rem;
+    color: var(--accent);
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  .savings-hero .headline .big {
+    color: #f5d8a8;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 2.6rem;
+  }
+  .savings-hero .sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 720px;
+  }
+  .savings-hero .sub strong { color: var(--text); }
+
+  .cost-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 1100px) { .cost-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px)  { .cost-grid { grid-template-columns: 1fr; } }
+  .cost-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 0.95rem;
+  }
+  .cost-stat .n {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+    line-height: 1.1;
+    font-weight: 500;
+  }
+  .cost-stat .n.green { color: #7fb88a; }
+  .cost-stat .n.red   { color: #c89880; }
+  .cost-stat .l {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.3rem;
+  }
+  .cost-stat .sub {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
 </style>
 </head>
 <body>
@@ -387,6 +471,12 @@
   <div class="container">
     <!-- Anchors strip -->
     <div class="anchors" id="anchors"></div>
+
+    <!-- Savings hero — dramatic agency-cost headline -->
+    <div class="savings-hero" id="savingsHero" style="display:none;"></div>
+
+    <!-- Cost breakdown stat grid -->
+    <div class="cost-grid" id="costGrid"></div>
 
     <!-- Summary stats -->
     <div class="summary-bar" id="summary"></div>
@@ -464,33 +554,14 @@
 
   let allBuckets = [];
   let allAnchors = [];
-
-  // Wait for TMW auth to populate window.TMW_USER. Polls briefly because
-  // tmw-core.js loads JWT/user from sessionStorage on script init, but the
-  // exact ready signal isn't exposed as a promise in the current codebase.
-  async function waitForUser(timeoutMs = 4000) {
-    const start = Date.now();
-    while (Date.now() - start < timeoutMs) {
-      if (window.TMW_USER) return window.TMW_USER;
-      await new Promise(r => setTimeout(r, 50));
-    }
-    return window.TMW_USER || null;
-  }
+  let costModel = null;
 
   async function load() {
-    const user = await waitForUser();
+    // Wait for auth to resolve. Per CLAUDE.md rule #2.
+    await whenUserReady();
 
-    // Use the codebase's role helpers. Owners and admins both get access.
-    const isOwner = (typeof tmwHasRole === 'function')
-      ? (tmwHasRole('owner') || tmwHasRole('admin'))
-      : (user && OWNER_EMAILS.includes((user.email || '').toLowerCase()));
-
-    if (!user) {
-      // Not signed in at all
-      window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname);
-      return;
-    }
-    if (!isOwner) {
+    const user = window.tmwUser;
+    if (!user || !OWNER_EMAILS.includes((user.email || '').toLowerCase())) {
       document.getElementById('gate').classList.add('active');
       return;
     }
@@ -506,11 +577,14 @@
       const plan = rows[0].data;
       allBuckets = plan.buckets || [];
       allAnchors = plan.anchors || [];
+      costModel = plan.cost_model || null;
 
       document.getElementById('updated').textContent =
         'Plan updated ' + fmtDate(plan.updated_at);
 
       renderAnchors();
+      renderSavingsHero();
+      renderCostGrid();
       renderSummary();
       renderRoadmap();
       renderKanban();
@@ -519,6 +593,115 @@
       document.getElementById('roadmap').innerHTML =
         '<div class="empty">Failed to load build plan. Check console.</div>';
     }
+  }
+
+  function fmtUSD(n) {
+    if (n == null || isNaN(n)) return '$0';
+    if (n >= 1000) {
+      // $34,500 — comma every 3
+      return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    return '$' + Math.round(n);
+  }
+
+  function bucketAgencyCost(b) {
+    if (!costModel || !b.estimated_hours) return 0;
+    const tier = b.rate_tier || 'mid';
+    const rate = (costModel.rates && costModel.rates[tier]) || 200;
+    const mult = costModel.agency_multiplier || 1.5;
+    return b.estimated_hours * rate * mult;
+  }
+
+  function calcTotals() {
+    let shippedCost = 0, queuedCost = 0, inProgressCost = 0;
+    let shippedHours = 0, queuedHours = 0;
+    allBuckets.forEach(b => {
+      const c = bucketAgencyCost(b);
+      const h = b.estimated_hours || 0;
+      if (b.status === 'shipped') {
+        shippedCost += c;
+        shippedHours += h;
+      } else if (b.status === 'in_progress') {
+        inProgressCost += c;
+        queuedHours += h;
+      } else if (b.status === 'queued') {
+        queuedCost += c;
+        queuedHours += h;
+      }
+    });
+    const totalCost = shippedCost + queuedCost + inProgressCost;
+
+    // Real cost: $/mo × months elapsed since build started
+    let monthsElapsed = 1;
+    if (costModel && costModel.build_started_month) {
+      const [sy, sm] = costModel.build_started_month.split('-').map(Number);
+      const now = new Date();
+      monthsElapsed = Math.max(1,
+        (now.getFullYear() - sy) * 12 + (now.getMonth() + 1 - sm) + 1
+      );
+    }
+    const monthlyCost = (costModel && costModel.monthly_actual_cost_usd) || 56;
+    const realCostToDate = monthsElapsed * monthlyCost;
+
+    return {
+      shippedCost, queuedCost, inProgressCost, totalCost,
+      shippedHours, queuedHours,
+      monthsElapsed, monthlyCost, realCostToDate,
+      savedSoFar: Math.max(0, shippedCost - realCostToDate)
+    };
+  }
+
+  function renderSavingsHero() {
+    const el = document.getElementById('savingsHero');
+    if (!costModel) {
+      el.style.display = 'none';
+      return;
+    }
+    const t = calcTotals();
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div class="eyebrow">Agency-Equivalent Build Value</div>
+      <div class="headline">
+        <span class="big">${fmtUSD(t.shippedCost)}</span> of agency work shipped<br>
+        for <span class="big">${fmtUSD(t.monthlyCost)}/mo</span>.
+      </div>
+      <div class="sub">
+        ${t.monthsElapsed} months in. <strong>${fmtUSD(t.realCostToDate)}</strong> spent on infrastructure
+        (Supabase, custom auth, hosting, EmailJS). Built solo with Claude — no agency, no contractors,
+        no equity given up. <strong>${fmtUSD(t.totalCost)}</strong> total agency value when all queued buckets ship.
+      </div>
+    `;
+  }
+
+  function renderCostGrid() {
+    const el = document.getElementById('costGrid');
+    if (!costModel) {
+      el.innerHTML = '';
+      return;
+    }
+    const t = calcTotals();
+    el.innerHTML = `
+      <div class="cost-stat">
+        <div class="n green">${fmtUSD(t.shippedCost)}</div>
+        <div class="l">Shipped Value</div>
+        <div class="sub">${t.shippedHours.toFixed(1)}h done</div>
+      </div>
+      <div class="cost-stat">
+        <div class="n">${fmtUSD(t.queuedCost + t.inProgressCost)}</div>
+        <div class="l">Queued Value</div>
+        <div class="sub">${t.queuedHours.toFixed(1)}h remaining</div>
+      </div>
+      <div class="cost-stat">
+        <div class="n red">${fmtUSD(t.realCostToDate)}</div>
+        <div class="l">Real Cost To Date</div>
+        <div class="sub">${t.monthsElapsed} mo × ${fmtUSD(t.monthlyCost)}</div>
+      </div>
+      <div class="cost-stat">
+        <div class="n green">${fmtUSD(t.savedSoFar)}</div>
+        <div class="l">Saved So Far</div>
+        <div class="sub">vs agency build</div>
+      </div>
+    `;
   }
 
   function renderAnchors() {
@@ -638,6 +821,8 @@
             : (b.target_date ? `<span><strong>Target:</strong> ${fmtDate(b.target_date)}</span>` : '');
           const hoursLine = b.estimated_hours ? `<span><strong>Est:</strong> ${b.estimated_hours}h</span>` : '';
           const priorityLine = b.priority ? `<span><strong>P${b.priority}</strong></span>` : '';
+          const cost = bucketAgencyCost(b);
+          const costLine = cost > 0 ? `<span><strong>Value:</strong> ${fmtUSD(cost)}</span>` : '';
           const depsLine = (b.dependencies && b.dependencies.length)
             ? `<div class="deps"><strong>Deps:</strong> ${b.dependencies.join(', ')}</div>`
             : '';
@@ -654,6 +839,7 @@
               ${priorityLine}
               ${dateLine}
               ${hoursLine}
+              ${costLine}
             </div>
             ${depsLine}
             ${notes}
@@ -687,6 +873,8 @@
       <div class="modal-row"><span class="k">Quarter</span><span class="v">${QUARTER_LABELS[b.quarter] || b.quarter}</span></div>
       ${dateRow}
       <div class="modal-row"><span class="k">Estimated hours</span><span class="v">${b.estimated_hours ? b.estimated_hours + 'h' : '—'}</span></div>
+      <div class="modal-row"><span class="k">Rate tier</span><span class="v">${b.rate_tier || 'mid'} ${costModel ? `(${fmtUSD((costModel.rates[b.rate_tier || 'mid'] || 200) * (costModel.agency_multiplier || 1.5))}/hr blended)` : ''}</span></div>
+      <div class="modal-row"><span class="k">Agency value</span><span class="v">${fmtUSD(bucketAgencyCost(b))}</span></div>
       <div class="modal-row"><span class="k">Dependencies</span><span class="v">${(b.dependencies && b.dependencies.length) ? b.dependencies.join(', ') : '—'}</span></div>
       ${b.notes ? `<div class="modal-notes">${escape(b.notes)}</div>` : ''}
       <button class="modal-close" onclick="closeModal()">Close</button>
