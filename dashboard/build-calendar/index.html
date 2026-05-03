@@ -465,12 +465,32 @@
   let allBuckets = [];
   let allAnchors = [];
 
-  async function load() {
-    // Wait for auth to resolve. Per CLAUDE.md rule #2.
-    await whenUserReady();
+  // Wait for TMW auth to populate window.TMW_USER. Polls briefly because
+  // tmw-core.js loads JWT/user from sessionStorage on script init, but the
+  // exact ready signal isn't exposed as a promise in the current codebase.
+  async function waitForUser(timeoutMs = 4000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      if (window.TMW_USER) return window.TMW_USER;
+      await new Promise(r => setTimeout(r, 50));
+    }
+    return window.TMW_USER || null;
+  }
 
-    const user = window.tmwUser;
-    if (!user || !OWNER_EMAILS.includes((user.email || '').toLowerCase())) {
+  async function load() {
+    const user = await waitForUser();
+
+    // Use the codebase's built-in admin check if available, fall back to email match.
+    const isOwner = (typeof tmwIsAdmin === 'function')
+      ? tmwIsAdmin()
+      : (user && OWNER_EMAILS.includes((user.email || '').toLowerCase()));
+
+    if (!user) {
+      // Not signed in at all
+      window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    if (!isOwner) {
       document.getElementById('gate').classList.add('active');
       return;
     }
