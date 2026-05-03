@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Shot Caller">
+<title>Shot Caller · TM Weddings</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --cream:#faf7f2;--warm-white:#fff9f4;--blush:#f0e4d8;
+  --dusty-rose:#c9a48a;--deep-rose:#8b5e4a;
+  --sage:#9aac99;--deep-sage:#4a6349;
+  --charcoal:#2c2420;--warm-gray:#7a6e68;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--cream);}
+body{font-family:var(--font-sans);display:flex;flex-direction:column;max-width:430px;margin:0 auto;background:var(--warm-white);}
+.header{background:var(--cream);border-bottom:1px solid rgba(201,164,138,0.25);padding:env(safe-area-inset-top,16px) 20px 14px;flex-shrink:0;}
+.header-eyebrow{font-size:10px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:var(--dusty-rose);padding-top:8px;margin-bottom:5px;}
+.header-name{font-family:var(--font-serif);font-size:26px;font-weight:300;font-style:italic;color:var(--charcoal);margin-bottom:2px;}
+.header-sub{font-size:11px;color:var(--warm-gray);margin-bottom:11px;}
+.progress-wrap{display:flex;align-items:center;gap:10px;}
+.progress-track{flex:1;height:3px;background:rgba(201,164,138,0.25);border-radius:2px;overflow:hidden;}
+.progress-fill{height:3px;background:linear-gradient(90deg,var(--dusty-rose),var(--deep-rose));border-radius:2px;transition:width 0.5s ease;}
+.progress-pct{font-size:11px;font-weight:500;color:var(--deep-rose);min-width:32px;text-align:right;}
+.progress-count{font-size:10px;color:var(--warm-gray);margin-top:4px;}
+.view-toggle{display:flex;gap:5px;padding:9px 14px 7px;background:var(--warm-white);border-bottom:1px solid rgba(201,164,138,0.18);flex-shrink:0;}
+.vbtn{flex:1;padding:7px 2px;text-align:center;font-size:10px;font-weight:500;letter-spacing:0.04em;border:1px solid rgba(201,164,138,0.35);border-radius:20px;cursor:pointer;color:var(--warm-gray);background:transparent;transition:all 0.2s;}
+.vbtn.active{background:var(--deep-rose);color:#fff;border-color:var(--deep-rose);}
+.tabs{display:flex;background:var(--warm-white);border-bottom:1px solid rgba(201,164,138,0.22);flex-shrink:0;}
+.tab{flex:1;padding:10px 2px;text-align:center;font-size:11px;font-weight:400;letter-spacing:0.04em;color:var(--warm-gray);border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;}
+.tab.active{color:var(--deep-rose);border-bottom:2px solid var(--dusty-rose);font-weight:500;}
+.tab-badge{display:inline-block;background:var(--blush);color:var(--deep-rose);border-radius:8px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:500;}
+.tab-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,20px);}
+.group-header{position:sticky;top:0;z-index:5;padding:7px 16px 5px;font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dusty-rose);background:var(--cream);border-bottom:1px solid rgba(201,164,138,0.18);display:flex;justify-content:space-between;align-items:center;}
+.shot-item{display:flex;align-items:flex-start;padding:11px 15px;border-bottom:1px solid rgba(201,164,138,0.13);gap:11px;cursor:pointer;background:var(--warm-white);-webkit-user-select:none;user-select:none;}
+.shot-item:active{background:var(--cream);}
+.shot-item.done{opacity:0.35;}
+.shot-item.priority{border-left:2px solid var(--dusty-rose);}
+.shot-item.skipped{background:rgba(240,228,216,0.45);border-left:2px solid rgba(139,94,74,0.3);}
+.check-circle{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(201,164,138,0.5);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.25s;background:transparent;}
+.check-circle.checked{background:var(--dusty-rose);border-color:var(--dusty-rose);}
+.check-circle.checked::after{content:'';display:block;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);}
+.shot-text{flex:1;min-width:0;}
+.shot-name{font-size:13px;font-weight:400;color:var(--charcoal);line-height:1.4;word-break:break-word;}
+.shot-item.done .shot-name{text-decoration:line-through;color:var(--warm-gray);}
+.pill-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.pill{font-size:9px;font-weight:500;padding:2px 7px;border-radius:10px;white-space:nowrap;}
+.pill-loc{background:rgba(154,172,153,0.18);color:var(--deep-sage);}
+.pill-must{background:rgba(201,164,138,0.2);color:var(--deep-rose);}
+.shot-actions{display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0;}
+.badge{font-size:9px;font-weight:500;padding:2px 7px;border-radius:8px;}
+.badge-done{background:rgba(154,172,153,0.2);color:var(--deep-sage);}
+.badge-skip{background:rgba(201,164,138,0.2);color:var(--deep-rose);}
+.btn-skip{font-size:9px;color:var(--warm-gray);background:none;border:1px solid rgba(201,164,138,0.35);border-radius:8px;padding:3px 8px;cursor:pointer;-webkit-appearance:none;}
+.loc-cards-wrap{padding:8px 12px;}
+.loc-card{border:1px solid rgba(201,164,138,0.25);border-radius:14px;overflow:hidden;background:var(--warm-white);margin-bottom:8px;}
+.loc-card-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:var(--cream);}
+.loc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:7px;}
+.loc-card-title{display:flex;align-items:center;font-family:var(--font-serif);font-size:15px;font-weight:400;font-style:italic;color:var(--charcoal);}
+.loc-meta{display:flex;align-items:center;gap:6px;}
+.loc-time{font-size:10px;color:var(--warm-gray);}
+.loc-chevron{font-size:12px;color:var(--warm-gray);}
+.loc-remaining{font-size:9px;padding:2px 7px;border-radius:8px;font-weight:500;margin-left:6px;}
+.loc-note-bar{padding:6px 14px;font-size:10px;color:var(--warm-gray);background:rgba(250,247,242,0.7);border-bottom:1px solid rgba(201,164,138,0.15);line-height:1.5;}
+.loc-card-body{padding:4px 13px 8px;}
+.loc-mini-shot{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(201,164,138,0.1);font-size:12px;color:var(--charcoal);line-height:1.4;}
+.loc-mini-shot:last-child{border-bottom:none;}
+.mini-check{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(201,164,138,0.45);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:1px;transition:all 0.2s;}
+.mini-check.checked{background:var(--dusty-rose);border-color:var(--dusty-rose);}
+.mini-check.checked::after{content:'';display:block;width:4px;height:7px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);}
+.note-tab{padding:16px;}
+.divider{text-align:center;padding:6px;font-size:12px;color:rgba(201,164,138,0.5);letter-spacing:4px;margin-bottom:10px;}
+.note-section-title{font-family:var(--font-serif);font-size:20px;font-style:italic;font-weight:300;color:var(--charcoal);text-align:center;margin-bottom:14px;}
+.note-card{border-radius:12px;padding:13px 15px;margin-bottom:10px;background:var(--cream);}
+.note-label{font-size:9px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;}
+.note-text{font-size:12px;color:var(--charcoal);line-height:1.65;}
+.log-tab{padding:14px;}
+.stats-row{display:flex;gap:7px;margin-bottom:14px;}
+.stat{flex:1;background:var(--cream);border:1px solid rgba(201,164,138,0.2);border-radius:10px;padding:10px 6px;text-align:center;}
+.stat-num{font-family:var(--font-serif);font-size:22px;font-weight:300;font-style:italic;color:var(--charcoal);}
+.stat-lbl{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--warm-gray);margin-top:2px;}
+.log-entry{padding:8px 0;border-bottom:1px solid rgba(201,164,138,0.15);display:flex;gap:8px;align-items:flex-start;}
+.log-time{font-size:10px;color:var(--warm-gray);min-width:44px;flex-shrink:0;}
+.search-wrap{padding:8px 14px;border-bottom:1px solid rgba(201,164,138,0.18);background:var(--warm-white);}
+.search-wrap input{width:100%;padding:9px 14px;border:1px solid rgba(201,164,138,0.3);border-radius:20px;font-family:var(--font-sans);font-size:13px;color:var(--charcoal);background:var(--cream);outline:none;-webkit-appearance:none;}
+.search-wrap input::placeholder{color:var(--warm-gray);}
+.bottom-bar{display:flex;gap:8px;padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));background:var(--cream);border-top:1px solid rgba(201,164,138,0.2);flex-shrink:0;}
+.fab{border-radius:24px;padding:13px 18px;font-family:var(--font-sans);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;border:none;-webkit-appearance:none;}
+.fab-add{flex:1;background:var(--deep-rose);color:#fff;}
+.fab-add:active{background:#6e4335;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,36,32,0.35);z-index:100;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.add-modal{width:100%;background:var(--warm-white);border-radius:20px 20px 0 0;padding:20px 18px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));}
+.modal-title{font-family:var(--font-serif);font-size:20px;font-weight:300;font-style:italic;color:var(--charcoal);margin-bottom:14px;}
+.add-modal input,.add-modal select{width:100%;padding:10px 13px;border:1px solid rgba(201,164,138,0.35);border-radius:10px;font-family:var(--font-sans);font-size:13px;color:var(--charcoal);background:var(--cream);margin-bottom:9px;outline:none;-webkit-appearance:none;appearance:none;}
+.must-label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--charcoal);cursor:pointer;margin-bottom:12px;}
+.modal-row{display:flex;gap:8px;}
+.modal-btn{flex:1;padding:12px;border-radius:12px;border:1px solid rgba(201,164,138,0.35);font-family:var(--font-sans);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--charcoal);}
+.modal-btn.confirm{background:var(--deep-rose);color:#fff;border-color:var(--deep-rose);}
+.empty-state{padding:32px 20px;text-align:center;font-size:13px;color:var(--warm-gray);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Shot Caller · TM Weddings</div>
+  <div class="header-name">Maggie &amp; Zee Haroon</div>
+  <div class="header-sub">Sayre Mansion &amp; Wilbur Mansion &nbsp;·&nbsp; May 3, 2026</div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+    <div class="progress-pct" id="ppct">0%</div>
+  </div>
+  <div class="progress-count" id="pleft">0 of 0 captured</div>
+  <div style="font-size:9px;color:rgba(122,110,104,0.6);margin-top:2px;">auto-saved locally to this device</div>
+</div>
+
+<div class="view-toggle">
+  <div class="vbtn active" id="vbtn-group" onclick="setView('group')">By group</div>
+  <div class="vbtn" id="vbtn-location" onclick="setView('location')">Location</div>
+  <div class="vbtn" id="vbtn-priority" onclick="setView('priority')">Must-gets</div>
+  <div class="vbtn" id="vbtn-search" onclick="setView('search')">Search</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('shots')">Shots <span class="tab-badge" id="remaining-badge">0</span></div>
+  <div class="tab" onclick="switchTab('notes')">Briefing</div>
+  <div class="tab" onclick="switchTab('log')">Log</div>
+</div>
+
+<div id="tab-shots" class="tab-content">
+  <div id="search-wrap" class="search-wrap" style="display:none;">
+    <input id="search-input" placeholder="Search by name or shot…" oninput="renderShots()" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <div id="shots-container"></div>
+</div>
+
+<div id="tab-notes" class="tab-content" style="display:none;">
+  <div class="note-tab">
+    <div class="divider">· · ·</div>
+    <div class="note-section-title">Day-of Briefing · Maggie &amp; Zee</div>
+
+    <div class="note-card" style="border-left:2px solid var(--dusty-rose);">
+      <div class="note-label" style="color:var(--dusty-rose);">Timeline</div>
+      <div class="note-text">
+        <strong>12:00</strong> — Zee: details + getting ready @ Sayre Mansion<br>
+        <strong>12:30</strong> — Maggie: details, getting ready, into dress @ Sayre Mansion<br>
+        <strong>1:25</strong> — Travel to Wilbur Mansion · first look + couple portraits on arrival<br>
+        <strong>2:30</strong> — Bridal party + family photos @ Wilbur<br>
+        <strong>3:00</strong> — Couple hidden pre-ceremony (couple staging — not TM crew)<br>
+        <strong>3:30</strong> — Ceremony @ Wilbur Mansion<br>
+        <strong>4:00</strong> — Missed photos + cocktail hour<br>
+        <strong>5:00</strong> — Reception begins<br>
+        <strong>8:00</strong> — TM coverage ends · reception runs to 9:00
+      </div>
+    </div>
+
+    <div class="note-card" style="border-left:2px solid #8b5e4a;">
+      <div class="note-label" style="color:#8b5e4a;">⚠ Two shooters required at Sayre Mansion</div>
+      <div class="note-text">
+        Zee and Maggie are getting ready simultaneously at the same venue starting 30 minutes apart. One shooter on Zee (12:00), one shooter on Maggie (12:30). Confirm crew split before arrival.<br><br>
+        <strong>Sayre Mansion address:</strong> 250 Wyandotte St, Bethlehem PA 18015
+      </div>
+    </div>
+
+    <div class="note-card" style="border-left:2px solid var(--sage);">
+      <div class="note-label" style="color:var(--deep-sage);">Key people — bride side</div>
+      <div class="note-text">
+        <strong>Maggie</strong> = bride<br>
+        No specific family names provided yet — update before day-of.
+      </div>
+    </div>
+
+    <div class="note-card" style="border-left:2px solid var(--sage);">
+      <div class="note-label" style="color:var(--deep-sage);">Key people — groom side</div>
+      <div class="note-text">
+        <strong>Zee Haroon</strong> = groom<br>
+        No specific family names provided yet — update before day-of.
+      </div>
+    </div>
+
+    <div class="note-card" style="border-left:2px solid var(--dusty-rose);">
+      <div class="note-label" style="color:var(--deep-rose);">Locations</div>
+      <div class="note-text">
+        <strong>Getting ready:</strong> Sayre Mansion · 250 Wyandotte St, Bethlehem PA 18015<br>
+        <strong>First look + formals + ceremony + reception:</strong> Wilbur Mansion
+      </div>
+    </div>
+
+    <div class="note-card" style="border-left:2px solid var(--dusty-rose);">
+      <div class="note-label" style="color:var(--deep-rose);">Shot list note</div>
+      <div class="note-text">
+        No formal shot list received from this couple yet. Shot list below is built from their timeline. Add names and specific family combinations when their list comes in using the + Add shot button.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="tab-log" class="tab-content" style="display:none;">
+  <div class="log-tab">
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="s-done">0</div><div class="stat-lbl">done</div></div>
+      <div class="stat"><div class="stat-num" id="s-skip">0</div><div class="stat-lbl">skipped</div></div>
+      <div class="stat"><div class="stat-num" id="s-left">0</div><div class="stat-lbl">remaining</div></div>
+      <div class="stat"><div class="stat-num" id="s-pct">0%</div><div class="stat-lbl">complete</div></div>
+    </div>
+    <div id="log-entries"><div class="empty-state">No shots captured yet.</div></div>
+    <div style="margin-top:20px;text-align:center;">
+      <button onclick="resetState()" style="font-family:'DM Sans',sans-serif;font-size:11px;color:#8b5e4a;background:none;border:1px solid rgba(139,94,74,0.3);border-radius:20px;padding:8px 18px;cursor:pointer;">Reset all progress</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <button class="fab fab-add" onclick="openModal()">+ Add shot</button>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="add-modal">
+    <div class="modal-title">Add a shot</div>
+    <input id="new-shot-name" placeholder="Shot description" autocomplete="off">
+    <select id="new-shot-loc"><option value="">Assign location</option></select>
+    <select id="new-shot-group"><option value="">Assign group</option></select>
+    <label class="must-label"><input type="checkbox" id="new-must"> Mark as must-get</label>
+    <div class="modal-row">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="addShot()">Add shot</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const locations=[
+  {id:'hotel',name:'Sayre Mansion',color:'#c9a48a',textColor:'#4a2e1a',time:'12:00–1:25',note:'250 Wyandotte St, Bethlehem PA 18015. TWO SHOOTERS: Zee from 12:00, Maggie from 12:30. Simultaneously — split crew.'},
+  {id:'folino_pre',name:'Wilbur Mansion — pre',color:'#9aac99',textColor:'#2d3d2c',time:'1:25–3:30',note:'Travel from Sayre at 1:25. First look + couple portraits on arrival. Bridal party + family formals 2:30–3:00. Couple hidden 3:00–3:30 (not TM crew).'},
+  {id:'ceremony',name:'Ceremony — Wilbur',color:'#b8a9c9',textColor:'#3d2d50',time:'3:30–4:00',note:'Ceremony at Wilbur Mansion.'},
+  {id:'cocktail',name:'Cocktail hour',color:'#8fa8a0',textColor:'#1e3530',time:'4:00–5:00',note:'Missed photos + cocktail hour. Catch any family or bridal party shots not yet captured.'},
+  {id:'reception',name:'Reception',color:'#d4a878',textColor:'#4a2e10',time:'5:00–8:00',note:'Coverage ends 8:00pm. Reception runs to 9:00 without TM crew.'},
+];
+
+const shotGroups=[
+  {group:'Bride details — Sayre Mansion',loc:'hotel',shots:[
+    {id:1,name:'Wedding dress on hanger',must:true,done:false,skipped:false},
+    {id:2,name:'Maggie\'s shoes',must:true,done:false,skipped:false},
+    {id:3,name:'Maggie\'s jewelry',must:true,done:false,skipped:false},
+    {id:4,name:'Engagement ring + wedding bands',must:true,done:false,skipped:false},
+    {id:5,name:'Bride\'s bouquet',must:true,done:false,skipped:false},
+    {id:6,name:'All flower bouquets together',must:true,done:false,skipped:false},
+    {id:7,name:'Veil details',must:true,done:false,skipped:false},
+    {id:8,name:'Invitation suite',must:false,done:false,skipped:false},
+  ]},
+  {group:'Maggie getting ready — Sayre Mansion',loc:'hotel',shots:[
+    {id:9,name:'Finishing touches — hair',must:true,done:false,skipped:false},
+    {id:10,name:'Maggie + bridesmaids getting ready candids',must:true,done:false,skipped:false},
+    {id:11,name:'Bridesmaids helping Maggie into dress',must:true,done:false,skipped:false},
+    {id:12,name:'Mom helping put on dress',must:true,done:false,skipped:false},
+    {id:13,name:'Putting on the veil',must:true,done:false,skipped:false},
+    {id:14,name:'Maggie putting on shoes + jewelry',must:true,done:false,skipped:false},
+    {id:15,name:'Maggie looking at herself in the mirror',must:true,done:false,skipped:false},
+    {id:16,name:'Maggie + bridesmaids group shots',must:true,done:false,skipped:false},
+    {id:17,name:'Maggie with Mom',must:true,done:false,skipped:false},
+    {id:18,name:'Maggie with Dad',must:true,done:false,skipped:false},
+    {id:19,name:'Maggie with Mom + Dad',must:true,done:false,skipped:false},
+    {id:20,name:'Maggie with siblings',must:true,done:false,skipped:false},
+  ]},
+  {group:'Zee details + getting ready — Sayre Mansion',loc:'hotel',shots:[
+    {id:21,name:'Suit + shoes',must:true,done:false,skipped:false},
+    {id:22,name:'Watch',must:true,done:false,skipped:false},
+    {id:23,name:'Cologne',must:true,done:false,skipped:false},
+    {id:24,name:'Boutonniere',must:true,done:false,skipped:false},
+    {id:25,name:'Candid shots of guys hanging out',must:true,done:false,skipped:false},
+    {id:26,name:'Zee + groomsmen getting ready candids',must:true,done:false,skipped:false},
+    {id:27,name:'Zee getting ready in mirror',must:true,done:false,skipped:false},
+    {id:28,name:'Putting on boutonniere',must:true,done:false,skipped:false},
+    {id:29,name:'Portraits of Zee solo',must:true,done:false,skipped:false},
+    {id:30,name:'Groomsmen group shots',must:true,done:false,skipped:false},
+    {id:31,name:'Zee with Mom',must:true,done:false,skipped:false},
+    {id:32,name:'Zee with Dad',must:true,done:false,skipped:false},
+    {id:33,name:'Zee with Mom + Dad',must:true,done:false,skipped:false},
+    {id:34,name:'Zee with siblings',must:true,done:false,skipped:false},
+  ]},
+  {group:'First look + couple portraits — Wilbur',loc:'folino_pre',shots:[
+    {id:35,name:'First look — Maggie + Zee (reveal moment)',must:true,done:false,skipped:false},
+    {id:36,name:'Couple portraits — traditional',must:true,done:false,skipped:false},
+    {id:37,name:'Couple portraits — candid',must:true,done:false,skipped:false},
+    {id:38,name:'Couple — kissing shots',must:true,done:false,skipped:false},
+    {id:39,name:'Walking shots — couple together',must:true,done:false,skipped:false},
+  ]},
+  {group:'Venue details — Wilbur',loc:'folino_pre',shots:[
+    {id:40,name:'Ceremony space + decor details',must:true,done:false,skipped:false},
+    {id:41,name:'Reception room details',must:true,done:false,skipped:false},
+    {id:42,name:'Sweetheart / head table details',must:true,done:false,skipped:false},
+    {id:43,name:'Centerpieces + table details',must:true,done:false,skipped:false},
+    {id:44,name:'Floral arrangements',must:false,done:false,skipped:false},
+  ]},
+  {group:'Bridal party portraits — Wilbur',loc:'folino_pre',shots:[
+    {id:45,name:'Maggie + bridesmaids posed',must:true,done:false,skipped:false},
+    {id:46,name:'Maggie + bridesmaids candid',must:true,done:false,skipped:false},
+    {id:47,name:'Maggie + bridesmaids with bouquets',must:true,done:false,skipped:false},
+    {id:48,name:'Maggie with each bridesmaid (individual)',must:true,done:false,skipped:false},
+    {id:49,name:'Zee + groomsmen posed',must:true,done:false,skipped:false},
+    {id:50,name:'Zee + groomsmen candid',must:true,done:false,skipped:false},
+    {id:51,name:'Zee with each groomsman (individual)',must:true,done:false,skipped:false},
+    {id:52,name:'Full bridal party together',must:true,done:false,skipped:false},
+    {id:53,name:'Walking shots — full bridal party',must:true,done:false,skipped:false},
+    {id:54,name:'Maggie + Zee with full bridal party',must:true,done:false,skipped:false},
+  ]},
+  {group:'Immediate family — Wilbur',loc:'folino_pre',shots:[
+    {id:55,name:'Maggie with Mom',must:true,done:false,skipped:false},
+    {id:56,name:'Maggie with Dad',must:true,done:false,skipped:false},
+    {id:57,name:'Maggie with Mom + Dad',must:true,done:false,skipped:false},
+    {id:58,name:'Maggie + Zee with bride\'s parents',must:true,done:false,skipped:false},
+    {id:59,name:'Maggie\'s immediate family group',must:true,done:false,skipped:false},
+    {id:60,name:'Zee with Mom',must:true,done:false,skipped:false},
+    {id:61,name:'Zee with Dad',must:true,done:false,skipped:false},
+    {id:62,name:'Zee with Mom + Dad',must:true,done:false,skipped:false},
+    {id:63,name:'Maggie + Zee with groom\'s parents',must:true,done:false,skipped:false},
+    {id:64,name:'Zee\'s immediate family group',must:true,done:false,skipped:false},
+    {id:65,name:'Maggie + Zee with both sets of parents',must:true,done:false,skipped:false},
+  ]},
+  {group:'Ceremony — Wilbur',loc:'ceremony',shots:[
+    {id:66,name:'Ceremony space + decor — before guests arrive',must:true,done:false,skipped:false},
+    {id:67,name:'Guests being seated',must:true,done:false,skipped:false},
+    {id:68,name:'Family processional',must:true,done:false,skipped:false},
+    {id:69,name:'Bridal party walking down the aisle',must:true,done:false,skipped:false},
+    {id:70,name:'Groom walking down the aisle',must:true,done:false,skipped:false},
+    {id:71,name:'Zee standing at altar — waiting',must:true,done:false,skipped:false},
+    {id:72,name:'Bride walking down the aisle',must:true,done:false,skipped:false},
+    {id:73,name:'Zee\'s reaction seeing Maggie',must:true,done:false,skipped:false},
+    {id:74,name:'Father giving bride away',must:true,done:false,skipped:false},
+    {id:75,name:'Ceremony candids — guests',must:true,done:false,skipped:false},
+    {id:76,name:'Vow exchange',must:true,done:false,skipped:false},
+    {id:77,name:'Exchange of rings',must:true,done:false,skipped:false},
+    {id:78,name:'First kiss',must:true,done:false,skipped:false},
+    {id:79,name:'Recessional — Maggie + Zee down the aisle',must:true,done:false,skipped:false},
+    {id:80,name:'Moments together immediately after ceremony',must:true,done:false,skipped:false},
+  ]},
+  {group:'Cocktail hour — missed shots + portraits',loc:'cocktail',shots:[
+    {id:81,name:'Maggie solo portraits',must:true,done:false,skipped:false},
+    {id:82,name:'Zee solo portraits',must:true,done:false,skipped:false},
+    {id:83,name:'Couple portraits — golden hour if possible',must:true,done:false,skipped:false},
+    {id:84,name:'Candid cocktail hour — guests',must:true,done:false,skipped:false},
+    {id:85,name:'Any missed family or bridal party shots',must:false,done:false,skipped:false},
+  ]},
+  {group:'Reception events',loc:'reception',shots:[
+    {id:86,name:'Full room reception shot',must:true,done:false,skipped:false},
+    {id:87,name:'Grand entrance',must:true,done:false,skipped:false},
+    {id:88,name:'First dance',must:true,done:false,skipped:false},
+    {id:89,name:'Parent dances',must:true,done:false,skipped:false},
+    {id:90,name:'Speeches + toasts',must:true,done:false,skipped:false},
+    {id:91,name:'Cake cutting',must:true,done:false,skipped:false},
+    {id:92,name:'Party dancing + candids',must:true,done:false,skipped:false},
+    {id:93,name:'Table candids',must:false,done:false,skipped:false},
+    {id:94,name:'Detail shots — reception decor',must:false,done:false,skipped:false},
+  ]},
+];
+
+const STORAGE_KEY='tmw_shot_caller_haroon_v1';
+const eventLog=[];
+let currentView='group';
+let locCollapsed={};
+
+function saveState(){try{const state={shots:allShots().map(s=>({id:s.id,done:s.done,skipped:s.skipped})),log:eventLog};localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;const state=JSON.parse(raw);if(state.shots){state.shots.forEach(saved=>{const shot=allShots().find(s=>s.id===saved.id);if(shot){shot.done=saved.done;shot.skipped=saved.skipped;}});}if(state.log){eventLog.length=0;state.log.forEach(l=>eventLog.push(l));}}catch(e){}}
+function resetState(){if(!confirm('Reset all shot progress?'))return;allShots().forEach(s=>{s.done=false;s.skipped=false;});eventLog.length=0;localStorage.removeItem(STORAGE_KEY);renderShots();}
+function allShots(){return shotGroups.flatMap(g=>g.shots);}
+function doneCount(){return allShots().filter(s=>s.done).length;}
+function skipCount(){return allShots().filter(s=>s.skipped).length;}
+function leftCount(){return allShots().filter(s=>!s.done&&!s.skipped).length;}
+function totalCount(){return allShots().length;}
+function getGroup(shot){return shotGroups.find(g=>g.shots.includes(shot));}
+function getLocForShot(shot){const g=getGroup(shot);return locations.find(l=>l.id===g?.loc)||{name:'',color:'#c9a48a',textColor:'#4a2e1a'};}
+function makeEl(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e;}
+function now(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+
+function renderShots(){
+  const c=document.getElementById('shots-container');c.innerHTML='';
+  document.getElementById('search-wrap').style.display=currentView==='search'?'block':'none';
+  if(currentView==='group')renderGroupView(c);
+  else if(currentView==='location')renderLocationView(c);
+  else if(currentView==='priority')renderPriorityView(c);
+  else renderSearchView(c);
+  updateProgress();updateLog();
+}
+
+function renderGroupView(c){
+  shotGroups.forEach(g=>{
+    const loc=locations.find(l=>l.id===g.loc)||{name:'',color:'#c9a48a',textColor:'#4a2e1a'};
+    const done=g.shots.filter(s=>s.done).length;
+    const gh=makeEl('div','group-header');
+    gh.innerHTML=`<span>${g.group}</span><span style="display:flex;align-items:center;gap:5px;"><span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${loc.color}22;color:${loc.textColor};">${loc.name}</span><span>${done}/${g.shots.length}</span></span>`;
+    c.appendChild(gh);
+    g.shots.forEach(s=>c.appendChild(makeShotRow(s,true)));
+  });
+}
+
+function renderLocationView(c){
+  const wrap=makeEl('div','loc-cards-wrap');
+  locations.forEach(loc=>{
+    const shots=shotGroups.filter(g=>g.loc===loc.id).flatMap(g=>g.shots);
+    if(!shots.length)return;
+    const remaining=shots.filter(s=>!s.done&&!s.skipped).length;
+    const collapsed=locCollapsed[loc.id];
+    const card=makeEl('div','loc-card');card.style.borderLeft=`2px solid ${loc.color}`;
+    const hdr=makeEl('div','loc-card-header');
+    const badge=remaining===0?`<span class="loc-remaining" style="background:rgba(154,172,153,0.2);color:#2d3d2c;">done</span>`:`<span class="loc-remaining" style="background:${loc.color}22;color:${loc.textColor};">${remaining} left</span>`;
+    hdr.innerHTML=`<div class="loc-card-title"><span class="loc-dot" style="background:${loc.color};"></span>${loc.name}${badge}</div><div class="loc-meta"><span class="loc-time">${loc.time}</span><span class="loc-chevron">${collapsed?'▸':'▾'}</span></div>`;
+    hdr.onclick=()=>{locCollapsed[loc.id]=!locCollapsed[loc.id];renderShots();};
+    card.appendChild(hdr);
+    if(!collapsed){
+      if(loc.note){const n=makeEl('div','loc-note-bar');n.textContent=loc.note;card.appendChild(n);}
+      const body=makeEl('div','loc-card-body');
+      shots.forEach(shot=>{
+        const row=makeEl('div','loc-mini-shot');row.style.opacity=shot.done?'0.35':'1';
+        const mc=makeEl('div','mini-check'+(shot.done?' checked':''));mc.addEventListener('click',()=>toggleShot(shot.id));
+        const txt=document.createElement('span');txt.style.cssText=shot.done?'text-decoration:line-through;color:#7a6e68;':'';txt.textContent=shot.name;
+        if(shot.must&&!shot.done){const s=document.createElement('span');s.style.cssText='color:#c9a48a;margin-left:4px;font-size:10px;';s.textContent='✦';txt.appendChild(s);}
+        row.appendChild(mc);row.appendChild(txt);body.appendChild(row);
+      });
+      card.appendChild(body);
+    }
+    wrap.appendChild(card);
+  });
+  c.appendChild(wrap);
+}
+
+function renderPriorityView(c){
+  const musts=allShots().filter(s=>s.must&&!s.done&&!s.skipped);
+  const done=allShots().filter(s=>s.must&&s.done);
+  const skipped=allShots().filter(s=>s.must&&s.skipped);
+  if(musts.length){const gh=makeEl('div','group-header');gh.innerHTML=`<span>Must-gets remaining</span><span>${musts.length}</span>`;c.appendChild(gh);musts.forEach(s=>c.appendChild(makeShotRow(s,true)));}
+  if(done.length){const gh=makeEl('div','group-header');gh.innerHTML=`<span>Must-gets captured</span><span>${done.length}</span>`;c.appendChild(gh);done.forEach(s=>c.appendChild(makeShotRow(s,false)));}
+  if(skipped.length){const gh=makeEl('div','group-header');gh.innerHTML=`<span style="color:#8b5e4a;">Must-gets skipped</span><span style="color:#8b5e4a;">${skipped.length}</span>`;c.appendChild(gh);skipped.forEach(s=>c.appendChild(makeShotRow(s,false)));}
+  if(!musts.length&&!done.length&&!skipped.length){const e=makeEl('div','empty-state');e.textContent='All must-gets captured!';c.appendChild(e);}
+}
+
+function renderSearchView(c){
+  const q=(document.getElementById('search-input').value||'').toLowerCase().trim();
+  if(!q){const e=makeEl('div','empty-state');e.textContent='Type a name or description\u2026';c.appendChild(e);return;}
+  const results=allShots().filter(s=>s.name.toLowerCase().includes(q));
+  if(!results.length){const e=makeEl('div','empty-state');e.textContent='No shots found.';c.appendChild(e);return;}
+  const gh=makeEl('div','group-header');gh.innerHTML=`<span>Results</span><span>${results.length} found</span>`;c.appendChild(gh);
+  results.forEach(s=>c.appendChild(makeShotRow(s,true)));
+}
+
+function makeShotRow(shot,showSkip){
+  const loc=getLocForShot(shot);
+  const el=makeEl('div','shot-item'+(shot.done?' done':'')+(shot.must&&!shot.done?' priority':'')+(shot.skipped?' skipped':''));
+  const cc=makeEl('div','check-circle'+(shot.done?' checked':''));cc.addEventListener('click',()=>toggleShot(shot.id));
+  const txt=makeEl('div','shot-text');
+  const sn=makeEl('div','shot-name');sn.textContent=shot.name;
+  const pr=makeEl('div','pill-row');
+  if(loc.name){const p=makeEl('span','pill pill-loc');p.textContent=loc.name;pr.appendChild(p);}
+  if(shot.must&&!shot.done){const p=makeEl('span','pill pill-must');p.textContent='must-get';pr.appendChild(p);}
+  txt.appendChild(sn);txt.appendChild(pr);
+  const acts=makeEl('div','shot-actions');
+  if(shot.done){const b=makeEl('span','badge badge-done');b.textContent='captured';acts.appendChild(b);}
+  if(showSkip&&!shot.done&&!shot.skipped){const b=makeEl('button','btn-skip');b.textContent='skip';b.addEventListener('click',e=>{e.stopPropagation();skipShot(shot.id);});acts.appendChild(b);}
+  if(shot.skipped){const b=makeEl('span','badge badge-skip');b.textContent='skipped';acts.appendChild(b);}
+  el.appendChild(cc);el.appendChild(txt);el.appendChild(acts);
+  return el;
+}
+
+function toggleShot(id){
+  const shot=allShots().find(s=>s.id===id);if(!shot||shot.skipped)return;
+  shot.done=!shot.done;
+  const loc=getLocForShot(shot);
+  if(shot.done)eventLog.push({time:now(),name:shot.name,loc:loc.name,type:'captured'});
+  else{const idx=eventLog.findLastIndex(l=>l.name===shot.name&&l.type==='captured');if(idx>-1)eventLog.splice(idx,1);}
+  saveState();renderShots();
+}
+
+function skipShot(id){
+  const shot=allShots().find(s=>s.id===id);if(!shot||shot.done)return;
+  shot.skipped=true;
+  eventLog.push({time:now(),name:shot.name,loc:getLocForShot(shot).name,type:'skipped'});
+  saveState();renderShots();
+}
+
+function updateProgress(){
+  const done=doneCount(),total=totalCount(),pct=total?Math.round(done/total*100):0;
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('pleft').textContent=done+' of '+total+' captured';
+  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('remaining-badge').textContent=leftCount();
+  document.getElementById('s-done').textContent=doneCount();
+  document.getElementById('s-skip').textContent=skipCount();
+  document.getElementById('s-left').textContent=leftCount();
+  document.getElementById('s-pct').textContent=pct+'%';
+}
+
+function updateLog(){
+  const el=document.getElementById('log-entries');
+  if(!eventLog.length){el.innerHTML='<div class="empty-state">No shots captured yet.</div>';return;}
+  el.innerHTML=eventLog.slice().reverse().map(l=>'<div class="log-entry"><div class="log-time">'+l.time+'</div><div style="flex:1;"><div style="font-size:12px;'+(l.type==='skipped'?'color:#8b5e4a;':'color:#2c2420;')+'">'+l.name+'</div><div style="font-size:10px;color:#7a6e68;">'+l.loc+'</div></div><div style="font-size:10px;'+(l.type==='skipped'?'color:#8b5e4a;':'color:#4a6349;')+'">'+l.type+'</div></div>').join('');
+}
+
+function setView(v){
+  currentView=v;
+  ['group','location','priority','search'].forEach(id=>{document.getElementById('vbtn-'+id).classList.toggle('active',id===v);});
+  renderShots();
+}
+
+function switchTab(tab){
+  ['shots','notes','log'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===tab?'block':'none';});
+  document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',['shots','notes','log'][i]===tab);});
+}
+
+function openModal(){
+  const ls=document.getElementById('new-shot-loc');ls.innerHTML='<option value="">Assign location</option>';
+  locations.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name+' \u00b7 '+l.time;ls.appendChild(o);});
+  const gs=document.getElementById('new-shot-group');gs.innerHTML='<option value="">Assign group</option>';
+  shotGroups.forEach((g,i)=>{const o=document.createElement('option');o.value=i;o.textContent=g.group;gs.appendChild(o);});
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('new-shot-name').focus(),150);
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');document.getElementById('new-shot-name').value='';document.getElementById('new-must').checked=false;}
+function closeModalOnOverlay(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function addShot(){
+  const name=document.getElementById('new-shot-name').value.trim();if(!name)return;
+  const must=document.getElementById('new-must').checked;
+  const locVal=document.getElementById('new-shot-loc').value;
+  const grpIdx=parseInt(document.getElementById('new-shot-group').value);
+  const g=isNaN(grpIdx)?shotGroups[shotGroups.length-1]:shotGroups[grpIdx];
+  if(locVal&&!isNaN(grpIdx))g.loc=locVal;
+  g.shots.push({id:Date.now(),name,must,done:false,skipped:false});
+  closeModal();saveState();renderShots();
+}
+
+loadState();
+renderShots();
+</script>
+</body>
+</html>
