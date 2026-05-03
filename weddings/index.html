@@ -232,6 +232,17 @@ async function saveData(){
   }catch(e){setSS('error','Save failed');showError('Save failed.');}
 }
 
+// ─── Path C: auto-set shotCallerUrl on wedding creation ───────────────
+//
+// Every wedding gets a dynamic shot caller URL by default — predictable
+// from wedding ID. The corresponding tmw_shotlist_<id> row in Supabase
+// must still be populated separately (Shot List Builder or SQL), but
+// the LINK is wired up automatically so it never gets forgotten.
+//
+// wallpaperUrl remains manual: each wedding's wallpaper is a unique
+// PNG render that has to be created and committed per couple. There's
+// no escape from that manual step. To wire it up, set wallpaperUrl on
+// the wedding row after committing the file to /weddings/.
 async function addWedding(){
   if(!isAdmin)return;
   const client=document.getElementById('nc').value.trim();
@@ -244,8 +255,11 @@ async function addWedding(){
     venueAddress:'',ceremonyVenue:'',
     package:document.getElementById('np').value,
     miles:0,
-    team:{leadPhoto:'',secondPhoto:'',photoShadow:'',leadVideo:'',secondVideo:'',videoShadow:'',bts:''},
-    vendors:[],timeline:[],shotList:[],notes:'',deliverables:'',package_code:''
+    team:{leadPhoto:'',secondPhoto:'',photoShadow:'',leadVideo:'',secondVideo:'',videoShadow:'',contentCreator:'',bts:''},
+    vendors:[],timeline:[],shotList:[],notes:'',deliverables:'',package_code:'',
+    // Auto-wired URLs — predictable from id, no manual step required
+    shotCallerUrl:'/shot-caller/?id='+id,
+    wallpaperUrl:''  // populated manually after wallpaper PNG is committed to /weddings/
   });
   document.getElementById('nc').value='';
   document.getElementById('nwd').value='';

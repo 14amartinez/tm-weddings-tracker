@@ -339,7 +339,13 @@ var dateShort = now.toLocaleDateString('en-US',{weekday:'short',month:'short',da
 document.getElementById('nav-date').textContent = dateStr;
 document.getElementById('mobile-date').textContent = dateShort;
 
-if (window.TMW_USER) {
+// Wait for centralized auth to populate TMW_USER, then init UI
+function whenUserReady(cb){
+  if(window.TMW_USER){cb();return;}
+  setTimeout(function(){whenUserReady(cb);},50);
+}
+
+whenUserReady(function(){
   document.getElementById('nav-user').textContent = TMW_USER.name;
   document.getElementById('mobile-user').textContent = TMW_USER.name;
 
@@ -362,7 +368,7 @@ if (window.TMW_USER) {
     html += '<a class="qa-item" href="/dashboard/team-members.html">Team Members <span class="dot"></span></a>';
     gl.innerHTML = html + gl.innerHTML;
   }
-}
+});
 
 document.addEventListener('click', function(e){
   var drawer = document.getElementById('mobile-drawer');
@@ -372,15 +378,19 @@ document.addEventListener('click', function(e){
   }
 });
 
+// ─── Upcoming weddings — uses tmwSbFetch (JWT-aware), waits for auth first ───
+// Per CLAUDE.md rule #1: all Supabase calls go through tmwSbFetch.
 (async function(){
-  try {
-    var headers = {
-      'apikey':'sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp',
-      'Authorization':'Bearer sb_publishable_2rv2vfk2vKGFrd36RdVb6g_RaJWQSCp'
-    };
+  // Wait for auth to resolve before any data calls (RLS requires JWT)
+  await new Promise(function(resolve){
+    (function check(){
+      if (window.TMW_USER) return resolve();
+      setTimeout(check, 50);
+    })();
+  });
 
-    var weddingsRes = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=eq.tmw_weddings&select=data',{headers:headers});
-    var rows = await weddingsRes.json();
+  try {
+    var rows = await tmwSbFetch('projects?id=eq.tmw_weddings&select=data');
     if (!rows || !rows[0]) return;
 
     var today = new Date(); today.setHours(0,0,0,0);
@@ -391,8 +401,7 @@ document.addEventListener('click', function(e){
 
     var builtIds = new Set();
     try {
-      var builtRes = await fetch('https://rafygjaemcjhnououmwn.supabase.co/rest/v1/projects?id=like.tmw_shotlist_*&select=id',{headers:headers});
-      var built = await builtRes.json();
+      var built = await tmwSbFetch('projects?id=like.tmw_shotlist_*&select=id');
       (built || []).forEach(function(r){ builtIds.add(r.id.replace('tmw_shotlist_','')); });
     } catch(e) {}
 
@@ -420,7 +429,13 @@ document.addEventListener('click', function(e){
       });
     }
     c.innerHTML = h;
-  } catch(e) { console.warn('Upcoming weddings fetch failed:',e); }
+  } catch(e) {
+    console.warn('Upcoming weddings fetch failed:',e);
+    // Surface failure in UI instead of staying stuck on "Loading..."
+    var c = document.getElementById('wdi-links');
+    c.innerHTML = '<a class="qa-item" href="/weddings/">All Weddings <span class="dot"></span></a>' +
+                  '<a class="qa-item dim">Could not load upcoming</a>';
+  }
 })();
 </script>
 </body>
