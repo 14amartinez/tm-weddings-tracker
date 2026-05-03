@@ -556,12 +556,34 @@
   let allAnchors = [];
   let costModel = null;
 
-  async function load() {
-    // Wait for auth to resolve. Per CLAUDE.md rule #2.
-    await whenUserReady();
+  // Wait for TMW auth to populate window.TMW_USER. Polls briefly because
+  // tmw-core.js loads JWT/user from sessionStorage on script init, but the
+  // exact ready signal isn't exposed as a promise in the current codebase.
+  async function waitForUser(timeoutMs = 4000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      if (window.TMW_USER) return window.TMW_USER;
+      await new Promise(r => setTimeout(r, 50));
+    }
+    return window.TMW_USER || null;
+  }
 
-    const user = window.tmwUser;
-    if (!user || !OWNER_EMAILS.includes((user.email || '').toLowerCase())) {
+  async function load() {
+    const user = await waitForUser();
+
+    // Use the codebase's role helpers — TMW_USER.isOwner / .isAdmin direct
+    // properties are the canonical idiom in this codebase (matches the
+    // pattern used by index.html General column). Falls back to the
+    // tmwHasRole() helper, then to OWNER_EMAILS allowlist as last resort.
+    const isOwner = (user && (user.isOwner === true || user.isAdmin === true))
+      || (typeof tmwHasRole === 'function' && (tmwHasRole('owner') || tmwHasRole('admin')))
+      || (user && OWNER_EMAILS.includes((user.email || '').toLowerCase()));
+
+    if (!user) {
+      window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    if (!isOwner) {
       document.getElementById('gate').classList.add('active');
       return;
     }
