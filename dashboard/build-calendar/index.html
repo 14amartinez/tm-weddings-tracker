@@ -480,9 +480,9 @@
   async function load() {
     const user = await waitForUser();
 
-    // Use the codebase's built-in admin check if available, fall back to email match.
-    const isOwner = (typeof tmwIsAdmin === 'function')
-      ? tmwIsAdmin()
+    // Use the codebase's role helpers. Owners and admins both get access.
+    const isOwner = (typeof tmwHasRole === 'function')
+      ? (tmwHasRole('owner') || tmwHasRole('admin'))
       : (user && OWNER_EMAILS.includes((user.email || '').toLowerCase()));
 
     if (!user) {
