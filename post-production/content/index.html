@@ -45,9 +45,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
 .btn-icon{height:30px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
+.admin-badge{font-size:10px;padding:3px 10px;border-radius:14px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;display:none;align-items:center;}
+.admin-badge.show{display:inline-flex;}
 .user-name{font-size:11px;color:var(--text-muted);}
 .signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
 .signout-btn:hover{color:var(--accent);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--white);border-radius:12px;padding:24px;max-width:380px;width:100%;box-shadow:0 12px 36px rgba(0,0,0,0.2);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:6px;color:var(--text-primary);}
+.modal-sub{font-size:13px;color:var(--text-secondary);margin-bottom:14px;}
+.modal input{width:100%;height:36px;font-size:13px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--cream);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;color:var(--text-primary);}
+.modal input:focus{border-color:var(--accent-mid);background:var(--white);}
+.modal-error{font-size:11px;color:var(--red);height:16px;margin-bottom:12px;display:none;}
+.modal-error.show{display:block;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.btn-cancel{height:34px;padding:0 14px;font-size:12px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-cancel:hover{background:var(--cream);}
 
 /* Main */
 .main{max-width:1200px;margin:0 auto;padding:24px;}
@@ -79,6 +95,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .client-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .header-pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .meta-pill{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--cream-dark);color:var(--text-secondary);white-space:nowrap;font-weight:500;}
+.editor-select{height:24px;font-size:11px;padding:0 22px 0 10px;border:1px solid var(--accent-mid);border-radius:14px;background:var(--accent-light);color:var(--accent);font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--accent) 50%),linear-gradient(135deg,var(--accent) 50%,transparent 50%);background-position:calc(100% - 12px) 50%,calc(100% - 8px) 50%;background-size:4px 4px,4px 4px;background-repeat:no-repeat;}
+.editor-select:focus{border-color:var(--accent);}
 .progress-wrap{display:flex;align-items:center;gap:6px;min-width:90px;}
 .progress-bar{flex:1;min-width:60px;height:4px;background:var(--cream-dark);border-radius:2px;overflow:hidden;}
 .progress-fill{height:100%;background:var(--accent-mid);border-radius:2px;transition:width 0.3s;}
@@ -112,7 +130,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .btn-primary{background:var(--accent);color:var(--white);border:none;padding:6px 14px;border-radius:6px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;transition:background 0.15s;}
 .btn-primary:hover{background:#7a5240;}
 .btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-secondary{background:var(--white);color:var(--text-secondary);border:1px solid var(--border);padding:5px 12px;border-radius:6px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;transition:all 0.15s;}
+.btn-secondary:hover{background:var(--cream);color:var(--accent);border-color:var(--accent-mid);}
+.btn-danger{background:var(--white);color:var(--red);border:1px solid #e8a0a0;padding:5px 12px;border-radius:6px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;transition:all 0.15s;}
+.btn-danger:hover{background:var(--red-light);}
 .hint{font-size:11px;color:var(--text-muted);font-style:italic;padding:4px 0;}
+
+.row-admin-actions{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed var(--border);}
+.add-reel-row{padding-top:12px;margin-top:6px;border-top:1px dashed var(--border);display:flex;justify-content:flex-start;}
 
 .empty{text-align:center;color:var(--text-muted);font-style:italic;padding:48px 16px;background:var(--white);border:1px solid var(--border);border-radius:10px;}
 
@@ -140,6 +165,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 </head>
 <body>
 
+<!-- Admin password modal -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal">
+    <div class="modal-title">Admin access</div>
+    <div class="modal-sub">Enter the admin password to enable editing of projects, deliverables, and stages.</div>
+    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminPw();else if(event.key==='Escape')closeAdminModal()"/>
+    <div class="modal-error" id="pw-error">Incorrect password.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitAdminPw()">Unlock</button>
+    </div>
+  </div>
+</div>
+
 <div id="gate" class="gate">
   <div>
     <h1>Owner only</h1>
@@ -155,6 +194,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     <div class="topbar-right">
       <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
       <button class="btn-icon" onclick="loadAndRender()">&#8635;</button>
+      <span class="admin-badge" id="admin-badge">Admin</span>
+      <button class="btn-icon" id="admin-btn" onclick="toggleAdmin()">Admin</button>
       <span class="user-name" id="user-name"></span>
       <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
     </div>
@@ -192,6 +233,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   const EMAILJS_TEMPLATE= 'template_p1hyj87';
   const EMAILJS_PUBKEY  = '3EteBapWG4a_hy5ol';
 
+  // Editor dropdown options for admin mode
+  const CONTENT_EDITORS = ['Lexi', 'Tony', 'Brynn', 'Zyara', 'Zach', 'Luke', 'Nick', 'Nathan'];
+
   const STAGE_ORDER = {
     reel:    ['edit', 'approved', 'delivered'],
     raw:     ['received', 'organizing', 'delivered'],
@@ -201,6 +245,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   let allProjects = [];
   let filterEditor = '';
   let filterStatus = '';
+  let isAdmin = sessionStorage.getItem('tmw_content_admin') === '1';
   const expandedSet = new Set();
 
   function setSync(state, text){
@@ -246,8 +291,45 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     document.getElementById('f-editor').addEventListener('change', e => { filterEditor = e.target.value; renderCards(); });
     document.getElementById('f-status').addEventListener('change', e => { filterStatus = e.target.value; renderCards(); });
 
+    applyAdminUI();
     await loadAndRender();
     setInterval(loadAndRender, 30000);
+  }
+
+  // ---- ADMIN MODE ----
+  function applyAdminUI(){
+    document.getElementById('admin-badge').classList.toggle('show', isAdmin);
+    document.getElementById('admin-btn').textContent = isAdmin ? 'Exit admin' : 'Admin';
+  }
+  function toggleAdmin(){
+    if (isAdmin){
+      isAdmin = false;
+      sessionStorage.removeItem('tmw_content_admin');
+      applyAdminUI();
+      renderCards();
+    } else {
+      document.getElementById('admin-modal').classList.add('active');
+      document.getElementById('admin-pw').value = '';
+      document.getElementById('pw-error').classList.remove('show');
+      setTimeout(() => document.getElementById('admin-pw').focus(), 50);
+    }
+  }
+  function closeAdminModal(){
+    document.getElementById('admin-modal').classList.remove('active');
+  }
+  function submitAdminPw(){
+    const entered = document.getElementById('admin-pw').value;
+    const expected = (window.TMW && TMW.admin && TMW.admin.password) || '';
+    if (entered === expected && expected !== ''){
+      isAdmin = true;
+      sessionStorage.setItem('tmw_content_admin', '1');
+      closeAdminModal();
+      applyAdminUI();
+      renderCards();
+      showToast('Admin mode on');
+    } else {
+      document.getElementById('pw-error').classList.add('show');
+    }
   }
 
   async function loadAndRender(){
@@ -354,12 +436,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     const expanded = expandedSet.has(p.wid);
     const dels = p.deliverables || [];
     const statusLabel = status === 'crit' ? 'Past SLA' : status === 'warn' ? 'At risk' : status === 'complete' ? 'Complete' : 'On track';
+
+    // Editor pill or admin select
+    const editorEl = isAdmin
+      ? `<select class="editor-select" onclick="event.stopPropagation()" onchange="updateEditor('${esc(p.wid)}', this.value)">${
+          [p.editor, ...CONTENT_EDITORS.filter(e => e !== p.editor)]
+            .filter(Boolean)
+            .map(e => `<option value="${esc(e)}" ${e === p.editor ? 'selected' : ''}>${esc(e)}</option>`).join('')
+        }</select>`
+      : `<span class="meta-pill">${esc(p.editor || '—')}</span>`;
+
     return `
       <div class="project-card ${status} ${expanded ? 'expanded' : ''}">
         <div class="project-header" onclick="toggleProject('${esc(p.wid)}')">
           <span class="client-name">${esc(p.client || '—')}</span>
           <div class="header-pills">
-            <span class="meta-pill">${esc(p.editor || '—')}</span>
+            ${editorEl}
             <span class="meta-pill">${fmtDate(p.date)}</span>
             <span class="meta-pill">${dels.length} ${dels.length === 1 ? 'del' : 'dels'}</span>
             <div class="progress-wrap">
@@ -370,7 +462,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
             <span class="expand-arrow">▶</span>
           </div>
         </div>
-        ${expanded ? `<div class="project-body">${dels.map(d => renderDeliverable(p, d)).join('')}</div>` : ''}
+        ${expanded ? `<div class="project-body">
+          ${dels.map(d => renderDeliverable(p, d)).join('')}
+          ${isAdmin ? `<div class="add-reel-row"><button class="btn-secondary" onclick="event.stopPropagation();addReel('${esc(p.wid)}')">+ Add Reel</button></div>` : ''}
+        </div>` : ''}
       </div>
     `;
   }
@@ -406,6 +501,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     }
 
     const flowSuffix = d.flow ? ' · ' + d.flow : '';
+    const adminRow = isAdmin ? `
+      <div class="row-admin-actions">
+        <button class="btn-secondary" onclick="event.stopPropagation();resetDeliverable('${esc(p.wid)}','${esc(d.name)}')">Reset stages</button>
+        <button class="btn-danger" onclick="event.stopPropagation();removeDeliverable('${esc(p.wid)}','${esc(d.name)}')">Remove</button>
+      </div>` : '';
+
     return `
       <div class="del-row">
         <div class="del-row-head">
@@ -414,6 +515,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
         </div>
         <div class="stages-row">${stagesHTML}</div>
         <div class="del-actions">${actions}</div>
+        ${adminRow}
       </div>
     `;
   }
@@ -424,7 +526,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     renderCards();
   }
 
-  // Helpers
+  // ---- HELPERS ----
   function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function fmtDate(iso){
     if (!iso) return '—';
@@ -449,7 +551,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     return vals.length > 0 && vals.every(s => s.status === 'done');
   }
 
-  // Mutations
+  // ---- MUTATIONS (operator) ----
   async function startReel(wid, deliverableName){
     const project = allProjects.find(p => p.wid === wid);
     if (!project) return;
@@ -498,6 +600,96 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     }
   }
 
+  // ---- MUTATIONS (admin) ----
+  async function addReel(wid){
+    if (!isAdmin) return;
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    const existingReels = (project.deliverables || []).filter(d => d.type === 'reel');
+    const nextNum = existingReels.length + 1;
+    const newReel = {
+      name: `Reel ${nextNum}`,
+      type: 'reel',
+      flow: 'quick_turn',
+      received_at: null,
+      deadline_hours: 24,
+      stages: {
+        edit:      { status: 'pending', completed_at: null, completed_by: null },
+        approved:  { status: 'pending', completed_at: null, completed_by: null },
+        delivered: { status: 'pending', completed_at: null, completed_by: null }
+      }
+    };
+    project.deliverables = project.deliverables || [];
+    project.deliverables.push(newReel);
+    setSync('saving', 'Adding reel...');
+    try {
+      await persist();
+      showToast(`Added "Reel ${nextNum}"`);
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
+  }
+
+  async function removeDeliverable(wid, deliverableName){
+    if (!isAdmin) return;
+    if (!confirm(`Remove "${deliverableName}" from this project? This cannot be undone.`)) return;
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    project.deliverables = (project.deliverables || []).filter(d => d.name !== deliverableName);
+    setSync('saving', 'Removing...');
+    try {
+      await persist();
+      showToast(`Removed "${deliverableName}"`);
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
+  }
+
+  async function resetDeliverable(wid, deliverableName){
+    if (!isAdmin) return;
+    if (!confirm(`Reset all stages on "${deliverableName}" to pending? This clears received_at and any completion history.`)) return;
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    const d = (project.deliverables || []).find(x => x.name === deliverableName);
+    if (!d) return;
+    const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
+    d.stages = {};
+    order.forEach(s => {
+      d.stages[s] = { status: 'pending', completed_at: null, completed_by: null };
+    });
+    if (d.type === 'reel' || d.type === 'raw' || d.type === 'moments') d.received_at = null;
+    setSync('saving', 'Resetting...');
+    try {
+      await persist();
+      showToast(`Reset "${deliverableName}"`);
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
+  }
+
+  async function updateEditor(wid, newEditor){
+    if (!isAdmin) return;
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    project.editor = newEditor;
+    setSync('saving', 'Updating editor...');
+    try {
+      await persist();
+      showToast(`Editor: ${newEditor}`);
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
+  }
+
+  // ---- PERSISTENCE ----
   async function persist(){
     const newData = { projects: allProjects };
     await tmwSbFetch('projects?id=eq.tmw_content', {
@@ -520,10 +712,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   }
 
   // Inline onclick exposure
-  window.startReel     = startReel;
-  window.advanceStage  = advanceStage;
-  window.toggleProject = toggleProject;
-  window.loadAndRender = loadAndRender;
+  window.startReel         = startReel;
+  window.advanceStage      = advanceStage;
+  window.toggleProject     = toggleProject;
+  window.loadAndRender     = loadAndRender;
+  window.toggleAdmin       = toggleAdmin;
+  window.submitAdminPw     = submitAdminPw;
+  window.closeAdminModal   = closeAdminModal;
+  window.addReel           = addReel;
+  window.removeDeliverable = removeDeliverable;
+  window.resetDeliverable  = resetDeliverable;
+  window.updateEditor      = updateEditor;
 
   init();
 </script>
