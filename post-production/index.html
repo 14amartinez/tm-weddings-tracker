@@ -27,7 +27,7 @@ body{font-family:'DM Sans',sans-serif;background:#faf8f4;color:#1a1714;min-heigh
 .hero h1{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:400;line-height:1.1;margin-bottom:14px;color:#1a1714;}
 .hero h1 span{color:#8b5e4a;}
 .hero p{font-size:14px;color:#6b6560;max-width:480px;line-height:1.6;}
-.grid{max-width:860px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.grid{max-width:860px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
 .card{background:#fff;border:1px solid #e2ddd6;border-radius:14px;padding:28px 24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:16px;transition:all 0.2s;position:relative;overflow:hidden;}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#8b5e4a;transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
 .card:hover{border-color:#c9a48a;box-shadow:0 8px 32px rgba(139,94,74,0.12);transform:translateY(-2px);}
@@ -39,6 +39,9 @@ body{font-family:'DM Sans',sans-serif;background:#faf8f4;color:#1a1714;min-heigh
 .card-tag{font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#8b5e4a;}
 .card-arrow{width:28px;height:28px;background:#f5ede8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#8b5e4a;transition:all 0.2s;}
 .card:hover .card-arrow{background:#8b5e4a;color:#fff;}
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
 @media(max-width:640px){
   .hero{padding:32px 20px 28px;}
   .hero h1{font-size:2.2rem;}
@@ -60,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:#faf8f4;color:#1a1714;min-heigh
 <div class="hero">
   <div class="eyebrow">Post Production</div>
   <h1>Your editing <span>command center.</span></h1>
-  <p>Track every project, deliverable, and deadline across video and photo — all in one place. Select a dashboard below.</p>
+  <p>Track every project, deliverable, and deadline across video, photo, and content — all in one place. Select a dashboard below.</p>
 </div>
 <div class="grid">
   <a class="card" href="/post-production/video">
@@ -90,6 +93,17 @@ body{font-family:'DM Sans',sans-serif;background:#faf8f4;color:#1a1714;min-heigh
     <div>
       <div class="card-title">Photo Post Production</div>
       <div class="card-desc">Track photography editing stages per client — culling, editing, sneak peek, gallery delivery, and album design.</div>
+    </div>
+    <div class="card-footer">
+      <span class="card-tag">Live</span>
+      <span class="card-arrow">→</span>
+    </div>
+  </a>
+  <a class="card" href="/post-production/content">
+    <div class="card-icon">🎞️</div>
+    <div>
+      <div class="card-title">Content Creator</div>
+      <div class="card-desc">Manage the content creator queue — reels, raw files, and important moments. 24-hour SLA pulse on quick-turn reels.</div>
     </div>
     <div class="card-footer">
       <span class="card-tag">Live</span>
