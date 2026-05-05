@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Creation Queue — TMW OS</title>
+<link rel="icon" href="data:,">
+
+<!-- Shared TMW foundations -->
+<script src="/tmw-auth.js" defer></script>
+<script src="/tmw-core.js" defer></script>
+
+<!-- EmailJS for owner notifications on stage completion -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+
+<style>
+  :root {
+    --bg: #0e0d0c;
+    --surface: #1a1816;
+    --surface-2: #221f1c;
+    --border: #2e2a26;
+    --text: #f5f1ea;
+    --text-dim: #9a948b;
+    --accent: #c9a48a;
+    --accent-deep: #8b5e4a;
+    --done: #4a7c59;
+    --in-progress: #c9a48a;
+    --pending: #6b6660;
+    --warn: #d4af6a;
+    --crit: #c75c4d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .gate { display: none; min-height: 100vh; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+  .gate.active { display: flex; }
+  .gate h1 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
+  .gate p { color: var(--text-dim); margin-bottom: 1.5rem; }
+  .gate a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
+  .app { display: none; }
+  .app.active { display: block; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .topbar h1 {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500;
+    font-size: 1.6rem; color: var(--accent);
+  }
+  .topbar .crumbs { font-size: 0.8rem; color: var(--text-dim); }
+  .topbar a { color: var(--accent); text-decoration: none; }
+  .topbar a:hover { text-decoration: underline; }
+  .meta-line { font-size: 0.75rem; color: var(--text-dim); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+  .empty { text-align: center; color: var(--text-dim); font-style: italic; padding: 3rem 1rem; }
+
+  /* Wedding card */
+  .wcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .wcard-head {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .wcard-head .left { display: flex; align-items: baseline; gap: 0.65rem; flex-wrap: wrap; }
+  .wcard-head .wid { font-family: monospace; font-size: 0.7rem; color: var(--text-dim); background: var(--surface-2); padding: 0.1rem 0.4rem; border-radius: 3px; }
+  .wcard-head .client { font-weight: 600; font-size: 1rem; }
+  .wcard-head .date { font-size: 0.8rem; color: var(--text-dim); }
+  .wcard-head .editor { font-size: 0.75rem; color: var(--accent); }
+  .wcard-body { padding: 0.5rem 1rem 1rem; }
+
+  /* Deliverable row */
+  .drow {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .drow:last-child { border-bottom: none; }
+  .drow-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .drow-name { font-weight: 600; font-size: 0.9rem; }
+  .drow-name .type-badge {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    background: var(--border);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-left: 0.4rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .drow-deadline {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+  .drow-deadline.warn { color: var(--warn); font-weight: 600; }
+  .drow-deadline.crit { color: var(--crit); font-weight: 700; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Stage pills */
+  .stages {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .pill {
+    padding: 0.3rem 0.65rem;
+    border-radius: 14px;
+    font-size: 0.72rem;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: var(--surface-2);
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+  .pill.done { background: var(--done); color: var(--bg); border-color: var(--done); font-weight: 600; }
+  .pill.in_progress { background: var(--in-progress); color: var(--bg); border-color: var(--in-progress); font-weight: 600; }
+  .arrow { color: var(--text-dim); font-size: 0.7rem; }
+
+  .actions {
+    margin-top: 0.6rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    transition: background 0.15s;
+  }
+  .btn:hover:not(:disabled) { background: var(--accent-deep); color: var(--text); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+  .btn.secondary:hover:not(:disabled) { background: var(--border); }
+
+  .hint { font-size: 0.7rem; color: var(--text-dim); font-style: italic; padding: 0.3rem 0; }
+
+  /* Summary stats */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 600px) { .summary { grid-template-columns: repeat(2, 1fr); } }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+  }
+  .stat .n {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; line-height: 1;
+    color: var(--accent);
+  }
+  .stat .l {
+    font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-top: 0.2rem;
+  }
+  .stat.crit .n { color: var(--crit); }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div>
+    <h1>Owner only</h1>
+    <p>This tracker is restricted to portal owners.</p>
+    <a href="/index.html">← Back to team home</a>
+  </div>
+</div>
+
+<div id="app" class="app">
+  <div class="topbar">
+    <div>
+      <div class="crumbs"><a href="/post-production/index.html">← Post-Production</a></div>
+      <h1>Content Creation Queue</h1>
+    </div>
+    <div class="meta-line" id="metaLine"></div>
+  </div>
+
+  <div class="container">
+    <div class="summary" id="summary"></div>
+    <div id="cards"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<script>
+  // ---- CONFIG ----
+  const OWNER_EMAILS = [
+    'tonyellismartinez@gmail.com',
+    'brynn.weller95@gmail.com'
+  ];
+  const EMAILJS_SERVICE  = 'service_qoodzdb';
+  const EMAILJS_TEMPLATE = 'template_p1hyj87';
+  const EMAILJS_PUBKEY   = '3EteBapWG4a_hy5ol';
+
+  // Stage progressions per flow type
+  const STAGE_ORDER = {
+    reel:    ['edit', 'approved', 'delivered'],         // quick_turn
+    raw:     ['received', 'organizing', 'delivered'],
+    moments: ['received', 'curating', 'delivered']
+  };
+
+  // ---- STATE ----
+  let allProjects = [];
+
+  // ---- AUTH GATE (poll TMW_USER, mirror build-calendar pattern) ----
+  function waitForUser(timeoutMs = 5000) {
+    return new Promise((resolve) => {
+      const start = Date.now();
+      (function tick() {
+        if (window.TMW_USER !== undefined) return resolve(window.TMW_USER);
+        if (Date.now() - start > timeoutMs) return resolve(null);
+        setTimeout(tick, 50);
+      })();
+    });
+  }
+
+  async function init() {
+    const user = await waitForUser();
+
+    if (!user) {
+      window.location.href = '/login.html?next=' + encodeURIComponent(location.pathname);
+      return;
+    }
+    const email = (user.email || '').toLowerCase();
+    if (!OWNER_EMAILS.includes(email)) {
+      document.getElementById('gate').classList.add('active');
+      return;
+    }
+    document.getElementById('app').classList.add('active');
+
+    // Init EmailJS
+    if (window.emailjs) {
+      try { emailjs.init({ publicKey: EMAILJS_PUBKEY }); } catch (e) { console.warn('EmailJS init failed', e); }
+    }
+
+    await loadAndRender();
+  }
+
+  async function loadAndRender() {
+    try {
+      const rows = await tmwSbFetch('projects?id=eq.tmw_content&select=data,updated_at');
+      if (!rows || !rows.length) {
+        document.getElementById('cards').innerHTML =
+          '<div class="empty">tmw_content row not found. Run the seed SQL in Supabase first.</div>';
+        return;
+      }
+      allProjects = rows[0].data?.projects || [];
+      document.getElementById('metaLine').textContent =
+        'Last updated ' + new Date(rows[0].updated_at).toLocaleString();
+      renderSummary();
+      renderCards();
+    } catch (err) {
+      console.error('content tracker load failed', err);
+      document.getElementById('cards').innerHTML =
+        '<div class="empty">Failed to load. Check console.</div>';
+    }
+  }
+
+  function renderSummary() {
+    let totalReels = 0, reelsCritical = 0, allDeliverables = 0, doneDeliverables = 0;
+    allProjects.forEach(p => {
+      (p.deliverables || []).forEach(d => {
+        allDeliverables++;
+        if (isDeliverableComplete(d)) doneDeliverables++;
+        if (d.type === 'reel') {
+          totalReels++;
+          const status = reelDeadlineStatus(d);
+          if (status === 'crit') reelsCritical++;
+        }
+      });
+    });
+    document.getElementById('summary').innerHTML = `
+      <div class="stat"><div class="n">${allProjects.length}</div><div class="l">Active Weddings</div></div>
+      <div class="stat"><div class="n">${totalReels}</div><div class="l">Reels Tracked</div></div>
+      <div class="stat ${reelsCritical > 0 ? 'crit' : ''}"><div class="n">${reelsCritical}</div><div class="l">Past 24hr SLA</div></div>
+      <div class="stat"><div class="n">${doneDeliverables}/${allDeliverables}</div><div class="l">Delivered</div></div>
+    `;
+  }
+
+  function renderCards() {
+    const wrap = document.getElementById('cards');
+    if (!allProjects.length) {
+      wrap.innerHTML = '<div class="empty">No content creator weddings yet. Assign team.contentCreator on a wedding then re-run the seed SQL append block.</div>';
+      return;
+    }
+    // Sort: most recent shoot date first (descending)
+    const sorted = [...allProjects].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    wrap.innerHTML = sorted.map(renderCard).join('');
+  }
+
+  function renderCard(p) {
+    return `
+      <div class="wcard">
+        <div class="wcard-head">
+          <div class="left">
+            <span class="wid">${esc(p.wid)}</span>
+            <span class="client">${esc(p.client || '—')}</span>
+            <span class="date">${fmtDate(p.date)}</span>
+          </div>
+          <div class="editor">Editor: ${esc(p.editor || '—')}</div>
+        </div>
+        <div class="wcard-body">
+          ${(p.deliverables || []).map(d => renderDeliverable(p, d)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDeliverable(p, d) {
+    const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
+    const stagesHTML = order.map((stageName, i) => {
+      const stage = (d.stages || {})[stageName] || { status: 'pending' };
+      const cls = stage.status === 'done' ? 'done' : (stage.status === 'in_progress' ? 'in_progress' : '');
+      const arrow = i < order.length - 1 ? '<span class="arrow">→</span>' : '';
+      return `<span class="pill ${cls}">${stageName.replace('_',' ')}</span>${arrow}`;
+    }).join(' ');
+
+    // Action buttons
+    const isReel = d.type === 'reel';
+    const notReceivedYet = isReel && !d.received_at;
+    const currentStage = order.find(s => (d.stages?.[s]?.status || 'pending') !== 'done');
+    const allDone = !currentStage;
+
+    let actions = '';
+    if (allDone) {
+      actions = `<div class="hint">All stages complete ✓</div>`;
+    } else if (isReel && notReceivedYet) {
+      actions = `<button class="btn" onclick="startReel('${p.wid}', '${esc(d.name)}')">Start Edit (mark received)</button>`;
+    } else {
+      const label = `Mark ${currentStage} complete`;
+      actions = `<button class="btn" onclick="advanceStage('${p.wid}', '${esc(d.name)}')">${label}</button>`;
+    }
+
+    // Deadline indicator (reels only)
+    let deadline = '';
+    if (isReel && d.received_at && !allDone) {
+      const status = reelDeadlineStatus(d);
+      const hrs = hoursElapsed(d.received_at);
+      const cls = status === 'crit' ? 'crit' : (status === 'warn' ? 'warn' : '');
+      deadline = `<div class="drow-deadline ${cls}">${hrs.toFixed(1)}hr / ${d.deadline_hours}hr SLA${status === 'crit' ? ' — OVERDUE' : (status === 'warn' ? ' — closing in' : '')}</div>`;
+    } else if (isReel && d.received_at && allDone) {
+      deadline = `<div class="drow-deadline">Delivered</div>`;
+    }
+
+    return `
+      <div class="drow">
+        <div class="drow-head">
+          <div class="drow-name">${esc(d.name)}<span class="type-badge">${d.type}${d.flow ? ' · ' + d.flow : ''}</span></div>
+          ${deadline}
+        </div>
+        <div class="stages">${stagesHTML}</div>
+        <div class="actions">${actions}</div>
+      </div>
+    `;
+  }
+
+  // ---- HELPERS ----
+  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function hoursElapsed(iso) {
+    if (!iso) return 0;
+    return (Date.now() - new Date(iso).getTime()) / 36e5;
+  }
+  function reelDeadlineStatus(d) {
+    if (!d.received_at) return 'none';
+    if (isDeliverableComplete(d)) return 'done';
+    const hrs = hoursElapsed(d.received_at);
+    if (hrs > d.deadline_hours) return 'crit';
+    if (hrs > d.deadline_hours * 0.75) return 'warn';
+    return 'ok';
+  }
+  function isDeliverableComplete(d) {
+    const stages = d.stages || {};
+    return Object.values(stages).every(s => s.status === 'done');
+  }
+
+  // ---- MUTATIONS ----
+  async function startReel(wid, deliverableName) {
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    const d = (project.deliverables || []).find(x => x.name === deliverableName);
+    if (!d) return;
+    d.received_at = new Date().toISOString();
+    d.stages.edit.status = 'in_progress';
+    await persist();
+    await loadAndRender();
+  }
+
+  async function advanceStage(wid, deliverableName) {
+    const project = allProjects.find(p => p.wid === wid);
+    if (!project) return;
+    const d = (project.deliverables || []).find(x => x.name === deliverableName);
+    if (!d) return;
+
+    const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
+    const currentIdx = order.findIndex(s => (d.stages?.[s]?.status || 'pending') !== 'done');
+    if (currentIdx === -1) return; // already all done
+
+    const currentStage = order[currentIdx];
+    const nextStage = order[currentIdx + 1];
+    const userEmail = (window.TMW_USER?.email || 'unknown').toLowerCase();
+    const nowIso = new Date().toISOString();
+
+    // For raw/moments first stage = "received" — set received_at on first advance
+    if ((d.type === 'raw' || d.type === 'moments') && currentStage === 'received' && !d.received_at) {
+      d.received_at = nowIso;
+    }
+
+    d.stages[currentStage] = { status: 'done', completed_at: nowIso, completed_by: userEmail };
+    if (nextStage) {
+      d.stages[nextStage] = { status: 'in_progress', completed_at: null, completed_by: null };
+    }
+
+    await persist();
+    notifyOwners({
+      project, deliverable: d, stage: currentStage, by: userEmail
+    }).catch(e => console.warn('Notify failed', e));
+    await loadAndRender();
+  }
+
+  async function persist() {
+    const newData = { projects: allProjects };
+    await tmwSbFetch('projects?id=eq.tmw_content', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ data: newData, updated_at: new Date().toISOString() })
+    });
+  }
+
+  async function notifyOwners({ project, deliverable, stage, by }) {
+    if (!window.emailjs) return;
+    const params = {
+      stage_name: `Content: ${deliverable.name} → ${stage}`,
+      project_name: `${project.client} (${project.wid})`,
+      completed_by: by,
+      completed_at: new Date().toLocaleString(),
+      to_email: OWNER_EMAILS.join(',')
+    };
+    return emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
+  }
+
+  // Expose handlers for inline onclick
+  window.startReel = startReel;
+  window.advanceStage = advanceStage;
+
+  // Boot
+  init();
+</script>
+
+</body>
+</html>

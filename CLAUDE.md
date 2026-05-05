@@ -1,5 +1,22 @@
 # TM Weddings Portal — Claude Context
 
+## Audience
+
+This file is loaded into multiple Claude projects. Behave according to the
+project you're in:
+
+- **Coding-Claude (TMW Architect):** All architecture rules, schemas, and
+  Don'ts apply. Treat the "Wedding intake workflow" and similar operator
+  workflow sections as informational context — they describe what
+  COO-Claude does, not what you do.
+- **COO-Claude:** All sections apply, including operator workflows.
+- **Other Claude projects:** Read for context, defer to your own project
+  instructions for behavior.
+
+When this file conflicts with hardcoded constants in HTML files (e.g.
+`OWNER_EMAILS` arrays), **this file is the source of truth** — update the
+HTML to match.
+
 ## What this is
 Internal post-production portal for TM Weddings (wedding photo/video co.,
 Lehigh Valley PA). Live at team.tmweddings.com. Used by photo editors
@@ -7,14 +24,17 @@ Lehigh Valley PA). Live at team.tmweddings.com. Used by photo editors
 creators day-of.
 
 ## Stack
-- Frontend: vanilla HTML/CSS/JS, no framework
+- Frontend: vanilla HTML/CSS/JS, no framework, no bundler, no build step
+- Each route is a self-contained `.html` with inline `<style>` and
+  `<script>`; imports are `tmw-auth.js` and `tmw-core.js` only
 - Backend: Supabase (Postgres + Auth + RLS) — project ref `rafygjaemcjhnououmwn`
 - Auth: Supabase Auth via `auth.tmweddings.com` (custom domain, JWT-based)
 - Hosting: Vercel auto-deploy from `main`
 - Notifications: EmailJS (service `service_qoodzdb`, template `template_p1hyj87`)
   - NOTE: `template_p1hyj87` was originally a post-production stage template.
     The referrals feature reuses it by mapping fields. A dedicated referrals
-    template is on the polish list.
+    template is on the polish list. Field mapping for the reused template
+    is not yet documented here — TODO in next polish pass.
 - Repo: github.com/14amartinez/tm-weddings-tracker
 
 ## Architecture rules — DO NOT VIOLATE
@@ -23,9 +43,22 @@ creators day-of.
    raw publishable key for data operations. JWT-aware path only.
 
 2. Any data fetch on a page must wait for auth to populate before firing.
-   The codebase exposes `window.TMW_USER` once auth is loaded. Pages that
-   need user context should poll for it (see Build Calendar dashboard
-   `waitForUser()` pattern) or use the global helpers below.
+   The codebase exposes `window.TMW_USER` once auth is loaded. The standard
+   pattern is:
+
+   ```js
+   async function waitForUser(timeoutMs = 4000) {
+     const start = Date.now();
+     while (Date.now() - start < timeoutMs) {
+       if (window.TMW_USER) return window.TMW_USER;
+       await new Promise(r => setTimeout(r, 50));
+     }
+     return window.TMW_USER || null;
+   }
+   ```
+
+   Reference implementation: the `waitForUser()` function inside the
+   `<script>` block of `dashboard/build-calendar/index.html`.
 
 3. **Auth idioms — TWO valid patterns coexist** (DRY violation, will be
    reconciled in Bucket 2.6):
@@ -45,7 +78,8 @@ creators day-of.
 
    Both check the same underlying state. When adding new code, **match
    the pattern of the surrounding file** rather than introducing the
-   other one. Bucket 2.6 will pick one and migrate everything.
+   other one. Bucket 2.6 will pick one and migrate everything. Do NOT
+   introduce a third idiom.
 
 4. RLS posture: all policies are `{authenticated}`-only with `USING (true)`
    / `WITH CHECK (true)` (permissive within authenticated). Owner-level
@@ -73,9 +107,39 @@ creators day-of.
    land.
 
 8. Owner emails are currently hardcoded as `OWNER_EMAILS` arrays in
-   individual HTML files (`detail.html`, `new.html`). Future Bucket 2.5
-   task: consolidate to a single exported constant in `tmw-auth.js`. Keep
-   them in sync manually for now.
+   individual HTML files (e.g. `referrals/detail.html`, `referrals/new.html`,
+   `dashboard/build-calendar/index.html`). Future Bucket 2.5 task:
+   consolidate to a single exported constant in `tmw-auth.js`. Keep them
+   in sync manually for now. **If a hardcoded `OWNER_EMAILS` array
+   disagrees with the Owner identifiers section of this file, this file
+   is the source of truth — update the HTML.**
+
+9. **Folder = feature.** New features get their own top-level folder
+   (e.g. `/referrals/`, `/shot-caller/`). Don't nest features under
+   existing folders unless they're sub-views of that feature.
+
+## File layout
+
+Root files:
+- `CLAUDE.md` — this file
+- `README.md`
+- `index.html` — Team Resources home (the team hub)
+- `login.html`
+- `tmw-auth.js`, `tmw-core.js` — shared foundations
+- `.gitignore`
+
+Directories:
+- `/auth/` — `callback.html` (OAuth callback handler)
+- `/dashboard/` — admin views
+  - `index.html` — admin dashboard home
+  - `team-members.html`, `setup-team-members.html`, `shot-builder.html`
+  - `build-calendar/index.html` — owner-only TMW OS production planning dashboard
+- `/weddings/` — wedding project list + detail (index, client.html, per-couple shot callers + timeline wallpapers)
+- `/post-production/` — index, plus subfolders `photo/`, `video/`, `deliverables/`
+- `/shot-caller/` — dynamic shot list builder (`?id=<wid>`)
+- `/shooter-sop/` — shooter SOPs
+- `/referrals/` — index (dashboard), `new.html` (form), `detail.html` (edit/lifecycle)
+- `/sql-history/` — manual SQL paper trail
 
 ## The `projects` table — key-value app store
 
@@ -179,8 +243,9 @@ tmw_photo.data = {
 - Stage values are strings: `"complete"`, `"in-progress"`, `"not-started"`
 - Stage keys are short identifiers (e.g. `qnas`, `obtained`, `edit`, `cull`,
   `export`, `deliver`, `design`, `selections`, `order`) — NOT the human-
-  readable labels. Labels are mapped in `tmw-core.js:54` and
-  `post-production/photo/index.html:217`.
+  readable labels. Labels are mapped in the `STAGES` constant in
+  `tmw-core.js` and in the `PHOTO_STAGES`/`BOOK_STAGES` constants in
+  `post-production/photo/index.html`.
 
 To query a specific deliverable:
 ```sql
@@ -225,13 +290,12 @@ stages or completion** — only dates.
 
 ## Stage labels — hardcoded in JS
 
-Stage display labels live in **two places** (DRY violation, will be
+Stage display labels live in **three places** (DRY violation, will be
 consolidated in Bucket 3.2):
 
-1. `tmw-core.js` around line 46-54 — central STAGES config object
-2. `post-production/photo/index.html` around line 215-217 — `PHOTO_STAGES`
-   and `BOOK_STAGES` constants
-3. `post-production/video/index.html` around line 346 — `STAGES` constant
+1. The `STAGES` constant in `tmw-core.js` — central config object
+2. The `PHOTO_STAGES` and `BOOK_STAGES` constants in `post-production/photo/index.html`
+3. The `STAGES` constant in `post-production/video/index.html`
 
 When changing stage names, ALL of these must be updated together AND
 the underlying short keys in `tmw_photo` data may need migration. Do NOT
@@ -242,7 +306,7 @@ ship label changes without coordinated data migration.
 Two patterns coexist:
 
 **Dynamic (default for new weddings):** `/shot-caller/?id=<wid>` — reads
-`tmw_shotlist_<wid>` from the database. `addWedding()` in
+`tmw_shotlist_<wid>` from the database. The `addWedding()` function in
 `/weddings/index.html` auto-wires `shotCallerUrl` to this on every new
 wedding. No HTML file build required.
 
@@ -257,40 +321,30 @@ When in doubt, build dynamic.
 
 Per-couple iPhone lock screen timeline wallpapers are committed as
 PNGs to `/weddings/<descriptive>_timeline_wallpaper.png` and wired
-into the wedding object via `wallpaperUrl`. Rendered with Playwright
-(`device_scale_factor=3`, viewport `440×956`, `wait 2000ms`).
+into the wedding object via `wallpaperUrl`.
+
+**Render specs (use Playwright):**
+- Viewport: `440 × 956` at `device_scale_factor=3`
+- Output dimensions: `1320 × 2868` PNG
+- Top `295px` reserved for iOS lock-screen clock overlay (no critical content)
+- Wait `2000ms` before screenshot (web fonts must load)
+- Source template: `/home/claude/timeline_wallpaper.html`
+
+**Visual style:**
+- Palette: cream `#faf7f2`, dusty rose `#c9a48a`, deep rose `#8b5e4a`,
+  charcoal `#2c2420`
+- Typography: Cormorant Garamond italic (display) + DM Sans (body)
+- Flex rows fill remaining vertical space below the reserved 295px
 
 Currently a manual step per wedding (PNG render → commit → admin sets
 `wallpaperUrl`). Auto-wire is a queued roadmap item.
-
-## File layout
-
-Root files:
-- `CLAUDE.md` — this file
-- `README.md`
-- `index.html` — Team Resources home (the team hub)
-- `login.html`
-- `tmw-auth.js`, `tmw-core.js` — shared foundations
-- `.gitignore`
-
-Directories:
-- `/auth/` — callback.html (OAuth callback handler)
-- `/dashboard/` — admin views
-  - `index.html` — admin dashboard home
-  - `team-members.html`, `setup-team-members.html`, `shot-builder.html`
-  - `build-calendar/index.html` — owner-only TMW OS production planning dashboard
-- `/weddings/` — wedding project list + detail (index, client.html, per-couple shot callers + timeline wallpapers)
-- `/post-production/` — index, plus subfolders photo/, video/, deliverables/
-- `/shot-caller/` — dynamic shot list builder (`?id=<wid>`)
-- `/shooter-sop/` — shooter SOPs
-- `/referrals/` — Bucket 3.1: index (dashboard), new (form), detail (edit/lifecycle)
-- `/sql-history/` — manual SQL paper trail
 
 ## Owner identifiers
 - Tony Martinez — tonyellismartinez@gmail.com
 - Brynn Weller — brynn.weller95@gmail.com
 
 ## Team members storage
+
 Team data is stored as a JSON array inside `projects.data.members` where
 `projects.id = 'tmw_team_members'`. Each member object has at minimum
 `name`, `email`, and `active` fields. There is NO separate `team_members`
@@ -307,7 +361,10 @@ edits, not direct SQL.
 ## Build Calendar dashboard
 
 Owner-only TMW OS production planning view at `/dashboard/build-calendar/`.
-Reads from `projects` row with id = `tmw_build_plan`.
+Reads from `projects` row with id = `tmw_build_plan`. **This dashboard is
+the source of truth for current bucket status, roadmap, and project
+value.** Do NOT maintain a parallel "Active Work" list elsewhere — query
+the dashboard or the `tmw_build_plan` row directly.
 
 **Schema of `tmw_build_plan.data`:**
 ```js
@@ -347,13 +404,11 @@ generates UPDATE SQL + sql-history file. Dashboard is read-only.
 
 **Cost calculation:** dashboard renders `hours × rate × multiplier` per
 bucket. Tier rates and multiplier come from `cost_model` in the data row.
-Premium rates (since 2026-05-03) yield ~$821k total project value, ~$274k
-shipped value at time of writing.
 
 ## Wedding intake workflow
 
-New weddings and wedding updates flow through chat-with-COO (this Claude
-context), NOT Cowork. Cowork is overkill for structured data entry.
+New weddings and wedding updates flow through chat-with-COO (the COO
+project), NOT Cowork. Cowork is overkill for structured data entry.
 
 **Format Tony pastes:**
 ```
@@ -376,44 +431,89 @@ Notes: <anything else>
 ~30 seconds end-to-end per wedding update. The bulk freeform intake
 page is a queued roadmap item that will eventually replace this flow.
 
-## Active work
+## Verification queries
 
-Completed buckets (see Build Calendar for full history):
-- Bucket 1: Initial portal (pre-2026-04-29)
-- Bucket 2: RLS + JWT lockdown (completed 2026-04-29)
-- Bucket 3.1: Team Referral Tracker (completed 2026-04-29)
-- w7 Zee & Maggie Haroon wedding intake (completed 2026-05-02)
-- Build Calendar Dashboard (completed 2026-05-02)
-- Premium cost model upgrade (completed 2026-05-03)
+When you doubt the schema or want to confirm state, run these in the
+Supabase SQL editor before guessing:
 
-Currently in: Bucket 3 (integrations + team ops). Next likely items:
-- Bucket 2.5 (RLS hardening — promote owner checks to database)
-- Bucket 2.6 (role-based access control — Owner > Admin > Editor > Shooter,
-  reconcile auth idioms A vs B)
-- Bucket 3.2 (shared tmw-core.js consolidation, includes stage label
-  consolidation)
-- Photo Book Stage Redefinition (on_hold pending Cowork code analysis)
-- Content Creator Post-Production Module (P1, ~28h, 24hr SLA design)
+```sql
+-- Confirm the projects key-value pattern and list all rows
+SELECT id, jsonb_typeof(data) AS data_type, updated_at
+FROM projects
+ORDER BY id;
 
-Queued (non-urgent):
-- Migrate static shot callers to dynamic (eliminate per-wedding HTML)
-- Bulk freeform wedding intake page (~1.5 hrs)
-- Wallpaper hosting auto-suggest in admin UI
-- Auto-set wallpaperUrl on file commit (Vercel build hook or convention)
-- Wilbur Mansion venueAddress backfill
+-- Count weddings
+SELECT jsonb_array_length(data->'weddings') AS wedding_count
+FROM projects WHERE id = 'tmw_weddings';
+
+-- Count photo projects
+SELECT jsonb_array_length(data->'projects') AS photo_project_count
+FROM projects WHERE id = 'tmw_photo';
+
+-- Count team members
+SELECT jsonb_array_length(data->'members') AS member_count
+FROM projects WHERE id = 'tmw_team_members';
+
+-- Count build buckets by status
+SELECT
+  bucket->>'status' AS status,
+  COUNT(*) AS n
+FROM projects, jsonb_array_elements(data->'buckets') bucket
+WHERE id = 'tmw_build_plan'
+GROUP BY 1
+ORDER BY 1;
+
+-- List all per-wedding shot list rows
+SELECT id, updated_at FROM projects WHERE id LIKE 'tmw_shotlist_%';
+
+-- Inspect RLS on a table
+SELECT schemaname, tablename, policyname, roles, cmd, qual
+FROM pg_policies
+WHERE tablename = 'projects';
+```
+
+If a query disagrees with what this file says, the database wins. Open
+a question with Tony before writing code that assumes either side.
+
+## Common breakages / troubleshooting
+
+- **Blank page after login** → auth not populated. Page is fetching data
+  before `window.TMW_USER` exists. Wrap fetches in `await waitForUser()`.
+- **`401` from Supabase on a request** → JWT expired or missing.
+  Refresh the page, or re-login at `/login.html`.
+- **`403` from Supabase on a request that should work** → RLS rejecting
+  the call. Confirm the policy is `{authenticated}` not `{public}`, and
+  that the user has a valid session.
+- **"Cannot read property X of undefined" on a wedding object** →
+  Either a wedding ID typo or the wedding hasn't been added to
+  `tmw_weddings.data.weddings[]` yet. Verify with the wedding count
+  query above.
+- **Stage value not rendering correctly in `/post-production/photo/`** →
+  Likely a label/key mismatch. Check the three places labels are defined
+  (see "Stage labels" section). The data uses short keys; the UI maps
+  to display labels.
+- **EmailJS notification didn't send** → Check that both Tony and Brynn
+  were in the recipient list (rule #5). Check EmailJS dashboard for the
+  service quota — `service_qoodzdb` has a monthly cap.
+- **Vercel didn't auto-deploy after push** → Confirm push hit `main`
+  branch, not a feature branch. Check Vercel dashboard for build errors.
 
 ## Don't
+
+**Architectural:**
 - Don't introduce new frameworks (React, Vue, etc.) without asking.
 - Don't bypass `tmwSbFetch` for data operations.
 - Don't add public/anon RLS policies.
 - Don't introduce database-level owner checks until Bucket 2.5 (consistency
   matters more than partial security upgrades).
-- Don't commit secrets — keys in `.env.local` only.
-- Don't auto-push to main; let Tony review the diff first.
-- Don't run schema changes silently. Always surface SQL for Tony to review
-  and run in the Supabase dashboard, plus save to `/sql-history/`.
-- Don't create new top-level nav links on team home — entry points go
-  inside the General column of the Quick Access grid on `/index.html`.
+- Don't introduce a third auth-checking idiom. Match the existing file's
+  pattern (Pattern A or Pattern B).
+- Don't fetch data without waiting for `window.TMW_USER` to populate.
+- Don't build static shot caller HTML for new weddings — use dynamic.
+- Don't change stage labels in `tmw-core.js` or post-production HTML
+  without a coordinated data migration of stage keys in `tmw_photo`.
+
+**Data assumptions:**
 - Don't assume a `team_members` table exists. It doesn't. Team data is
   in JSON inside `projects.data.members`.
 - Don't assume weddings are separate rows. They're array elements inside
@@ -421,9 +521,13 @@ Queued (non-urgent):
 - Don't assume photo books / galleries / sneak peeks are top-level rows.
   They're deliverables inside `tmw_photo.projects[].deliverables[]`,
   filtered by `name`.
-- Don't change stage labels in `tmw-core.js` or post-production HTML
-  without a coordinated data migration of stage keys in `tmw_photo`.
-- Don't fetch data without waiting for `window.TMW_USER` to populate.
-- Don't build static shot caller HTML for new weddings — use dynamic.
-- Don't introduce a third auth-checking idiom. Match the existing file's
-  pattern (Pattern A or Pattern B).
+
+**Process:**
+- Don't commit secrets — keys in `.env.local` only.
+- Don't auto-push to main; let Tony review the diff first.
+- Don't run schema changes silently. Always surface SQL for Tony to review
+  and run in the Supabase dashboard, plus save to `/sql-history/`.
+- Don't create new top-level nav links on team home — entry points go
+  inside the General column of the Quick Access grid on `/index.html`.
+- Don't maintain a parallel "active work" or "roadmap" list outside of
+  `tmw_build_plan` — that row is the source of truth.
