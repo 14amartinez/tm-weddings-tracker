@@ -75,7 +75,13 @@ async function signInWithGoogle() {
 
   try {
     if (!window.supabase) throw new Error('Auth library not loaded. Please refresh.');
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -98,7 +104,13 @@ async function signInWithGoogle() {
 window.addEventListener('load', async () => {
   try {
     if (!window.supabase) return;
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storage: window.localStorage
+      }
+    });
     const { data: { session } } = await sb.auth.getSession();
     if (session) window.location.href = '/';
   } catch(e) {}

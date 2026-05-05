@@ -174,7 +174,12 @@ function decodeJWT(token) {
     // ALSO try the SDK approach as backup so refresh tokens etc. work
     try {
       var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          storage: window.localStorage,
+          detectSessionInUrl: false
+        }
       });
       await sb.auth.setSession({
         access_token: tokens.access_token,
