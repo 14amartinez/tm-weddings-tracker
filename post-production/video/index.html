@@ -14,6 +14,7 @@
 const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
 const BRYNN_EMAIL=TMW.notify.brynn;
+const TMW_OWNER_EMAILS=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'zsanchez2149@gmail.com',Zach:'zerwin1212@gmail.com',Luke:'lukeh61403@gmail.com',Nick:'',Nathan:''};
 tmwInitEmail();
 function tmwNotifyAssignment(client,deliverable,editor){
@@ -369,10 +370,18 @@ function toggleAdminMode(){
     isAdmin=false;
     sessionStorage.removeItem('tmw_admin');
     applyAdminUI();
-  } else {
-    document.getElementById('admin-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('admin-pw-input').focus(),100);
+    return;
   }
+  const userEmail=(window.TMW_USER&&TMW_USER.email||'').toLowerCase();
+  if(TMW_OWNER_EMAILS.includes(userEmail)){
+    isAdmin=true;
+    sessionStorage.setItem('tmw_admin','1');
+    applyAdminUI();
+    renderAll();
+    return;
+  }
+  document.getElementById('admin-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('admin-pw-input').focus(),100);
 }
 function closeAdminModal(){
   document.getElementById('admin-modal').style.display='none';

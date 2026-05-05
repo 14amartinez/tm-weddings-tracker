@@ -169,6 +169,7 @@ td{padding:10px 14px;vertical-align:middle;}
 tmwInitEmail();
 const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
+const TMW_OWNER_EMAILS=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 
 const COLS=[
   {key:'sneakPeek',label:'Sneak peek',auto:false},
@@ -208,8 +209,12 @@ function showError(msg){
 
 function toggleAdmin(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
-  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_del_admin');applyAdmin();}
-  else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
+  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_del_admin');applyAdmin();return;}
+  const userEmail=(window.TMW_USER&&TMW_USER.email||'').toLowerCase();
+  if(TMW_OWNER_EMAILS.includes(userEmail)){
+    isAdmin=true;sessionStorage.setItem('tmw_del_admin','1');applyAdmin();renderTable();return;
+  }
+  document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);
 }
 function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
 function submitPw(){

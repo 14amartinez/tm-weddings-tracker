@@ -208,6 +208,7 @@ tmwInitEmail();
 const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
 const BRYNN_EMAIL=TMW.notify.brynn;
+const TMW_OWNER_EMAILS=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 const EDITORS=['Tony','Brynn'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Brynn:'brynn.weller95@gmail.com'};
 const DELIVERABLE_OPTIONS=['Sneak peek','Photo gallery','Photo book','Custom'];
@@ -243,8 +244,12 @@ function showError(msg){const b=document.getElementById('error-banner');b.textCo
 
 function toggleAdmin(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
-  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();}
-  else{document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);}
+  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_photo_admin');applyAdmin();return;}
+  const userEmail=(window.TMW_USER&&TMW_USER.email||'').toLowerCase();
+  if(TMW_OWNER_EMAILS.includes(userEmail)){
+    isAdmin=true;sessionStorage.setItem('tmw_photo_admin','1');applyAdmin();renderAll();return;
+  }
+  document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);
 }
 function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
 function submitPw(){
