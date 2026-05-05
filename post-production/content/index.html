@@ -1,193 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Content Creation Queue — TMW OS</title>
-<link rel="icon" href="data:,">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TM Weddings — Content Creator</title>
 
-<!-- Shared TMW foundations -->
-<script src="/tmw-auth.js" defer></script>
-<script src="/tmw-core.js" defer></script>
+<!-- ═══ Centralized auth guard — editor or higher (owner check happens in JS) ═══ -->
+<script src="/tmw-auth.js" data-required-role="editor"></script>
 
-<!-- EmailJS for owner notifications on stage completion -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="/tmw-core.js"></script>
 
 <style>
-  :root {
-    --bg: #0e0d0c;
-    --surface: #1a1816;
-    --surface-2: #221f1c;
-    --border: #2e2a26;
-    --text: #f5f1ea;
-    --text-dim: #9a948b;
-    --accent: #c9a48a;
-    --accent-deep: #8b5e4a;
-    --done: #4a7c59;
-    --in-progress: #c9a48a;
-    --pending: #6b6660;
-    --warn: #d4af6a;
-    --crit: #c75c4d;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.5;
-    min-height: 100vh;
-  }
-  .gate { display: none; min-height: 100vh; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
-  .gate.active { display: flex; }
-  .gate h1 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
-  .gate p { color: var(--text-dim); margin-bottom: 1.5rem; }
-  .gate a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
-  .app { display: none; }
-  .app.active { display: block; }
+:root{
+  --cream:#faf8f4;--cream-dark:#f0ece4;--border:#e2ddd6;
+  --text-primary:#1a1714;--text-secondary:#6b6560;--text-muted:#a09a93;
+  --accent:#8b5e4a;--accent-light:#f5ede8;--accent-mid:#c9a48a;
+  --green:#3d6b45;--green-light:#eaf2eb;--amber:#8a6020;--amber-light:#fdf3e3;
+  --red:#8b2e2e;--red-light:#fdeaea;--white:#fff;--shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-primary);min-height:100vh;font-size:14px;line-height:1.5;}
 
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 1rem 1.5rem;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
-  }
-  .topbar h1 {
-    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500;
-    font-size: 1.6rem; color: var(--accent);
-  }
-  .topbar .crumbs { font-size: 0.8rem; color: var(--text-dim); }
-  .topbar a { color: var(--accent); text-decoration: none; }
-  .topbar a:hover { text-decoration: underline; }
-  .meta-line { font-size: 0.75rem; color: var(--text-dim); }
+/* Owner gate */
+.gate{display:none;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+.gate.active{display:flex;}
+.gate h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:2rem;color:var(--accent);margin-bottom:0.5rem;}
+.gate p{color:var(--text-muted);margin-bottom:1.5rem;font-size:14px;}
+.gate a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:13px;}
+.app{display:none;}
+.app.active{display:block;}
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+/* Topbar */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.back-link{font-size:12px;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.15s;}
+.back-link:hover{color:var(--accent);}
+.topbar-center{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+#sync-status{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);}
+.sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
+.btn-icon{height:30px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
+.user-name{font-size:11px;color:var(--text-muted);}
+.signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
+.signout-btn:hover{color:var(--accent);}
 
-  .empty { text-align: center; color: var(--text-dim); font-style: italic; padding: 3rem 1rem; }
+/* Main */
+.main{max-width:1200px;margin:0 auto;padding:24px;}
+.page-header{margin-bottom:20px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;margin-bottom:4px;color:var(--text-primary);}
+.page-sub{font-size:13px;color:var(--text-muted);max-width:720px;}
 
-  /* Wedding card */
-  .wcard {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 1.25rem;
-    overflow: hidden;
-  }
-  .wcard-head {
-    padding: 0.85rem 1rem;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
-  }
-  .wcard-head .left { display: flex; align-items: baseline; gap: 0.65rem; flex-wrap: wrap; }
-  .wcard-head .wid { font-family: monospace; font-size: 0.7rem; color: var(--text-dim); background: var(--surface-2); padding: 0.1rem 0.4rem; border-radius: 3px; }
-  .wcard-head .client { font-weight: 600; font-size: 1rem; }
-  .wcard-head .date { font-size: 0.8rem; color: var(--text-dim); }
-  .wcard-head .editor { font-size: 0.75rem; color: var(--accent); }
-  .wcard-body { padding: 0.5rem 1rem 1rem; }
+/* Summary row */
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.summary-stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.stat-label{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:400;color:var(--text-primary);line-height:1;}
+.summary-stat.crit .stat-num{color:var(--red);}
+.summary-stat.warn .stat-num{color:var(--amber);}
 
-  /* Deliverable row */
-  .drow {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .drow:last-child { border-bottom: none; }
-  .drow-head {
-    display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .drow-name { font-weight: 600; font-size: 0.9rem; }
-  .drow-name .type-badge {
-    font-size: 0.6rem;
-    padding: 0.1rem 0.35rem;
-    border-radius: 3px;
-    background: var(--border);
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-left: 0.4rem;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-  }
-  .drow-deadline {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-  }
-  .drow-deadline.warn { color: var(--warn); font-weight: 600; }
-  .drow-deadline.crit { color: var(--crit); font-weight: 700; animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+/* Filter row */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.filter-row select{height:32px;font-size:12px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+.filter-row select:focus{border-color:var(--accent-mid);}
+.results-count{font-size:12px;color:var(--text-muted);margin-left:auto;}
 
-  /* Stage pills */
-  .stages {
-    display: flex;
-    gap: 0.4rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .pill {
-    padding: 0.3rem 0.65rem;
-    border-radius: 14px;
-    font-size: 0.72rem;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    background: var(--surface-2);
-    text-transform: capitalize;
-    white-space: nowrap;
-  }
-  .pill.done { background: var(--done); color: var(--bg); border-color: var(--done); font-weight: 600; }
-  .pill.in_progress { background: var(--in-progress); color: var(--bg); border-color: var(--in-progress); font-weight: 600; }
-  .arrow { color: var(--text-dim); font-size: 0.7rem; }
+/* Project card */
+.project-card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow 0.15s;}
+.project-card:hover{box-shadow:var(--shadow);}
+.project-card.crit{border-left:3px solid var(--red);}
+.project-card.warn{border-left:3px solid var(--amber);}
+.project-header{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;}
+.project-header:hover{background:var(--cream);}
+.client-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.header-pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.meta-pill{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--cream-dark);color:var(--text-secondary);white-space:nowrap;font-weight:500;}
+.progress-wrap{display:flex;align-items:center;gap:6px;min-width:90px;}
+.progress-bar{flex:1;min-width:60px;height:4px;background:var(--cream-dark);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent-mid);border-radius:2px;transition:width 0.3s;}
+.progress-pct{font-size:11px;color:var(--text-muted);font-weight:500;min-width:32px;text-align:right;}
+.pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;border:1px solid;}
+.pill.crit{background:var(--red-light);color:var(--red);border-color:#e8a0a0;}
+.pill.warn{background:var(--amber-light);color:var(--amber);border-color:#e8c87a;}
+.pill.ok{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+.pill.complete{background:var(--green-light);color:var(--green);border-color:#a0c8a8;}
+.expand-arrow{color:var(--text-muted);font-size:11px;transition:transform 0.2s;}
+.project-card.expanded .expand-arrow{transform:rotate(90deg);}
 
-  .actions {
-    margin-top: 0.6rem;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .btn {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 0.4rem 0.9rem;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.78rem;
-    transition: background 0.15s;
-  }
-  .btn:hover:not(:disabled) { background: var(--accent-deep); color: var(--text); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn.secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-  .btn.secondary:hover:not(:disabled) { background: var(--border); }
+/* Project body (deliverables) */
+.project-body{border-top:1px solid var(--border);padding:8px 18px 14px;background:#fafaf6;}
+.del-row{padding:12px 0;border-bottom:1px solid var(--border);}
+.del-row:last-child{border-bottom:none;}
+.del-row-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.del-name{font-size:13px;font-weight:600;color:var(--text-primary);}
+.type-badge{font-size:9px;padding:2px 6px;border-radius:3px;background:var(--cream-dark);color:var(--text-muted);text-transform:uppercase;margin-left:6px;letter-spacing:0.06em;font-weight:500;}
+.del-deadline{font-size:11px;color:var(--text-muted);font-weight:500;}
+.del-deadline.warn{color:var(--amber);font-weight:600;}
+.del-deadline.crit{color:var(--red);font-weight:700;animation:pulse 1.5s ease-in-out infinite;}
+.del-deadline.ok-delivered{color:var(--green);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.stages-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.stage-pill{font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid var(--border);background:var(--white);color:var(--text-muted);text-transform:capitalize;white-space:nowrap;font-weight:500;}
+.stage-pill.done{background:var(--green-light);color:var(--green);border-color:#a0c8a8;font-weight:600;}
+.stage-pill.in-progress{background:var(--accent-light);color:var(--accent);border-color:var(--accent-mid);font-weight:600;}
+.stage-arrow{color:var(--text-muted);font-size:10px;}
+.del-actions{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:var(--white);border:none;padding:6px 14px;border-radius:6px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;transition:background 0.15s;}
+.btn-primary:hover{background:#7a5240;}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+.hint{font-size:11px;color:var(--text-muted);font-style:italic;padding:4px 0;}
 
-  .hint { font-size: 0.7rem; color: var(--text-dim); font-style: italic; padding: 0.3rem 0; }
+.empty{text-align:center;color:var(--text-muted);font-style:italic;padding:48px 16px;background:var(--white);border:1px solid var(--border);border-radius:10px;}
 
-  /* Summary stats */
-  .summary {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-  @media (max-width: 600px) { .summary { grid-template-columns: repeat(2, 1fr); } }
-  .stat {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.6rem 0.85rem;
-  }
-  .stat .n {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem; line-height: 1;
-    color: var(--accent);
-  }
-  .stat .l {
-    font-size: 0.7rem; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.05em;
-    margin-top: 0.2rem;
-  }
-  .stat.crit .n { color: var(--crit); }
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text-primary);color:var(--white);font-size:12px;padding:10px 16px;border-radius:8px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* Mobile */
+@media(max-width:780px){
+  .main{padding:16px;}
+  .summary-row{grid-template-columns:repeat(3,1fr);}
+  .topbar{padding:0 16px;}
+  .user-name{display:none;}
+  .project-header{flex-direction:column;align-items:flex-start;gap:10px;}
+  .header-pills{width:100%;justify-content:flex-start;}
+  .client-name{font-size:16px;white-space:normal;}
+  .progress-wrap{min-width:auto;flex:1;}
+  .page-title{font-size:1.6rem;}
+}
+@media(max-width:480px){
+  .summary-row{grid-template-columns:repeat(2,1fr);}
+  .stat-num{font-size:1.5rem;}
+}
 </style>
 </head>
 <body>
@@ -195,51 +143,80 @@
 <div id="gate" class="gate">
   <div>
     <h1>Owner only</h1>
-    <p>This tracker is restricted to portal owners.</p>
+    <p>The Content Creator queue is restricted to portal owners.</p>
     <a href="/index.html">← Back to team home</a>
   </div>
 </div>
 
 <div id="app" class="app">
   <div class="topbar">
-    <div>
-      <div class="crumbs"><a href="/post-production/index.html">← Post-Production</a></div>
-      <h1>Content Creation Queue</h1>
+    <a class="back-link" href="/post-production">&#8592; Post Production</a>
+    <span class="topbar-center">Content Creator</span>
+    <div class="topbar-right">
+      <div id="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connecting...</span></div>
+      <button class="btn-icon" onclick="loadAndRender()">&#8635;</button>
+      <span class="user-name" id="user-name"></span>
+      <button class="signout-btn" onclick="tmwSignOut()">Sign out</button>
     </div>
-    <div class="meta-line" id="metaLine"></div>
   </div>
 
-  <div class="container">
-    <div class="summary" id="summary"></div>
-    <div id="cards"><div class="empty">Loading…</div></div>
+  <div class="main">
+    <div class="page-header">
+      <div class="page-title">Content Creation Queue</div>
+      <div class="page-sub">Reels, raw files, and important moments. 24-hour SLA tracked on quick-turn reels — Tony and Brynn notified on every stage completion.</div>
+    </div>
+
+    <div class="summary-row" id="summary-row"></div>
+
+    <div class="filter-row">
+      <select id="f-editor"><option value="">All editors</option></select>
+      <select id="f-status">
+        <option value="">All statuses</option>
+        <option value="crit">Past 24hr SLA</option>
+        <option value="warn">At risk</option>
+        <option value="ok">On track</option>
+        <option value="complete">Complete</option>
+      </select>
+      <span class="results-count" id="results-count"></span>
+    </div>
+
+    <div id="cards"><div class="empty">Loading...</div></div>
   </div>
 </div>
 
-<script>
-  // ---- CONFIG ----
-  const OWNER_EMAILS = [
-    'tonyellismartinez@gmail.com',
-    'brynn.weller95@gmail.com'
-  ];
-  const EMAILJS_SERVICE  = 'service_qoodzdb';
-  const EMAILJS_TEMPLATE = 'template_p1hyj87';
-  const EMAILJS_PUBKEY   = '3EteBapWG4a_hy5ol';
+<div id="toast" class="toast"></div>
 
-  // Stage progressions per flow type
+<script>
+  const OWNER_EMAILS    = ['tonyellismartinez@gmail.com', 'brynn.weller95@gmail.com'];
+  const EMAILJS_SERVICE = 'service_qoodzdb';
+  const EMAILJS_TEMPLATE= 'template_p1hyj87';
+  const EMAILJS_PUBKEY  = '3EteBapWG4a_hy5ol';
+
   const STAGE_ORDER = {
-    reel:    ['edit', 'approved', 'delivered'],         // quick_turn
+    reel:    ['edit', 'approved', 'delivered'],
     raw:     ['received', 'organizing', 'delivered'],
     moments: ['received', 'curating', 'delivered']
   };
 
-  // ---- STATE ----
   let allProjects = [];
+  let filterEditor = '';
+  let filterStatus = '';
+  const expandedSet = new Set();
 
-  // ---- AUTH GATE (poll TMW_USER, mirror build-calendar pattern) ----
-  function waitForUser(timeoutMs = 5000) {
-    return new Promise((resolve) => {
+  function setSync(state, text){
+    document.getElementById('sync-dot').className = 'sync-dot ' + state;
+    document.getElementById('sync-text').textContent = text;
+  }
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function waitForUser(timeoutMs = 5000){
+    return new Promise(resolve => {
       const start = Date.now();
-      (function tick() {
+      (function tick(){
         if (window.TMW_USER !== undefined) return resolve(window.TMW_USER);
         if (Date.now() - start > timeoutMs) return resolve(null);
         setTimeout(tick, 50);
@@ -247,214 +224,281 @@
     });
   }
 
-  async function init() {
+  async function init(){
     const user = await waitForUser();
-
-    if (!user) {
+    if (!user){
       window.location.href = '/login.html?next=' + encodeURIComponent(location.pathname);
       return;
     }
     const email = (user.email || '').toLowerCase();
-    if (!OWNER_EMAILS.includes(email)) {
+    if (!OWNER_EMAILS.includes(email)){
       document.getElementById('gate').classList.add('active');
       return;
     }
     document.getElementById('app').classList.add('active');
+    document.getElementById('user-name').textContent = user.name || email;
 
-    // Init EmailJS
-    if (window.emailjs) {
-      try { emailjs.init({ publicKey: EMAILJS_PUBKEY }); } catch (e) { console.warn('EmailJS init failed', e); }
+    if (window.emailjs){
+      try { emailjs.init({ publicKey: EMAILJS_PUBKEY }); }
+      catch(e){ console.warn('EmailJS init failed', e); }
     }
 
+    document.getElementById('f-editor').addEventListener('change', e => { filterEditor = e.target.value; renderCards(); });
+    document.getElementById('f-status').addEventListener('change', e => { filterStatus = e.target.value; renderCards(); });
+
     await loadAndRender();
+    setInterval(loadAndRender, 30000);
   }
 
-  async function loadAndRender() {
+  async function loadAndRender(){
+    setSync('saving', 'Loading...');
     try {
       const rows = await tmwSbFetch('projects?id=eq.tmw_content&select=data,updated_at');
-      if (!rows || !rows.length) {
-        document.getElementById('cards').innerHTML =
-          '<div class="empty">tmw_content row not found. Run the seed SQL in Supabase first.</div>';
+      if (!rows || !rows.length){
+        document.getElementById('cards').innerHTML = '<div class="empty">tmw_content row not found. Run the seed SQL in Supabase first.</div>';
+        document.getElementById('summary-row').innerHTML = '';
+        document.getElementById('results-count').textContent = '';
+        setSync('error', 'No data');
         return;
       }
       allProjects = rows[0].data?.projects || [];
-      document.getElementById('metaLine').textContent =
-        'Last updated ' + new Date(rows[0].updated_at).toLocaleString();
+      buildEditorFilter();
       renderSummary();
       renderCards();
-    } catch (err) {
+      setSync('ok', 'Live — ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    } catch(err){
       console.error('content tracker load failed', err);
-      document.getElementById('cards').innerHTML =
-        '<div class="empty">Failed to load. Check console.</div>';
+      setSync('error', 'Load failed');
+      document.getElementById('cards').innerHTML = '<div class="empty">Failed to load. Check console.</div>';
     }
   }
 
-  function renderSummary() {
-    let totalReels = 0, reelsCritical = 0, allDeliverables = 0, doneDeliverables = 0;
+  function buildEditorFilter(){
+    const editors = [...new Set(allProjects.map(p => p.editor).filter(Boolean))].sort();
+    const sel = document.getElementById('f-editor');
+    sel.innerHTML = '<option value="">All editors</option>' +
+      editors.map(e => `<option value="${esc(e)}" ${e === filterEditor ? 'selected' : ''}>${esc(e)}</option>`).join('');
+  }
+
+  function renderSummary(){
+    let weddings = allProjects.length;
+    let totalDels = 0, doneDels = 0, critReels = 0, warnReels = 0;
     allProjects.forEach(p => {
       (p.deliverables || []).forEach(d => {
-        allDeliverables++;
-        if (isDeliverableComplete(d)) doneDeliverables++;
-        if (d.type === 'reel') {
-          totalReels++;
-          const status = reelDeadlineStatus(d);
-          if (status === 'crit') reelsCritical++;
+        totalDels++;
+        if (isDeliverableComplete(d)) doneDels++;
+        if (d.type === 'reel'){
+          const s = reelDeadlineStatus(d);
+          if (s === 'crit') critReels++;
+          else if (s === 'warn') warnReels++;
         }
       });
     });
-    document.getElementById('summary').innerHTML = `
-      <div class="stat"><div class="n">${allProjects.length}</div><div class="l">Active Weddings</div></div>
-      <div class="stat"><div class="n">${totalReels}</div><div class="l">Reels Tracked</div></div>
-      <div class="stat ${reelsCritical > 0 ? 'crit' : ''}"><div class="n">${reelsCritical}</div><div class="l">Past 24hr SLA</div></div>
-      <div class="stat"><div class="n">${doneDeliverables}/${allDeliverables}</div><div class="l">Delivered</div></div>
+    document.getElementById('summary-row').innerHTML = `
+      <div class="summary-stat"><div class="stat-label">Weddings</div><div class="stat-num">${weddings}</div></div>
+      <div class="summary-stat"><div class="stat-label">Deliverables</div><div class="stat-num">${totalDels}</div></div>
+      <div class="summary-stat ${critReels > 0 ? 'crit' : ''}"><div class="stat-label">Past SLA</div><div class="stat-num">${critReels}</div></div>
+      <div class="summary-stat ${warnReels > 0 ? 'warn' : ''}"><div class="stat-label">At risk</div><div class="stat-num">${warnReels}</div></div>
+      <div class="summary-stat"><div class="stat-label">Delivered</div><div class="stat-num">${doneDels}/${totalDels}</div></div>
     `;
   }
 
-  function renderCards() {
-    const wrap = document.getElementById('cards');
-    if (!allProjects.length) {
-      wrap.innerHTML = '<div class="empty">No content creator weddings yet. Assign team.contentCreator on a wedding then re-run the seed SQL append block.</div>';
-      return;
-    }
-    // Sort: most recent shoot date first (descending)
-    const sorted = [...allProjects].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    wrap.innerHTML = sorted.map(renderCard).join('');
+  function projectStatus(p){
+    const dels = p.deliverables || [];
+    if (dels.length && dels.every(isDeliverableComplete)) return 'complete';
+    let worst = 'ok';
+    dels.forEach(d => {
+      if (d.type === 'reel'){
+        const s = reelDeadlineStatus(d);
+        if (s === 'crit') worst = 'crit';
+        else if (s === 'warn' && worst !== 'crit') worst = 'warn';
+      }
+    });
+    return worst;
+  }
+  function projectProgress(p){
+    const dels = p.deliverables || [];
+    let done = 0, total = 0;
+    dels.forEach(d => {
+      const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
+      order.forEach(s => {
+        total++;
+        if (d.stages?.[s]?.status === 'done') done++;
+      });
+    });
+    return total ? Math.round(done / total * 100) : 0;
   }
 
-  function renderCard(p) {
+  function renderCards(){
+    const wrap = document.getElementById('cards');
+    if (!allProjects.length){
+      wrap.innerHTML = '<div class="empty">No content creator weddings yet. Assign team.contentCreator on a wedding then re-run the seed SQL append block.</div>';
+      document.getElementById('results-count').textContent = '';
+      return;
+    }
+    let visible = [...allProjects];
+    if (filterEditor) visible = visible.filter(p => p.editor === filterEditor);
+    if (filterStatus) visible = visible.filter(p => projectStatus(p) === filterStatus);
+    visible.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    document.getElementById('results-count').textContent = `${visible.length} ${visible.length === 1 ? 'project' : 'projects'}`;
+    if (!visible.length){
+      wrap.innerHTML = '<div class="empty">No projects match the current filters.</div>';
+      return;
+    }
+    wrap.innerHTML = visible.map(renderCard).join('');
+  }
+
+  function renderCard(p){
+    const status = projectStatus(p);
+    const pct = projectProgress(p);
+    const expanded = expandedSet.has(p.wid);
+    const dels = p.deliverables || [];
+    const statusLabel = status === 'crit' ? 'Past SLA' : status === 'warn' ? 'At risk' : status === 'complete' ? 'Complete' : 'On track';
     return `
-      <div class="wcard">
-        <div class="wcard-head">
-          <div class="left">
-            <span class="wid">${esc(p.wid)}</span>
-            <span class="client">${esc(p.client || '—')}</span>
-            <span class="date">${fmtDate(p.date)}</span>
+      <div class="project-card ${status} ${expanded ? 'expanded' : ''}">
+        <div class="project-header" onclick="toggleProject('${esc(p.wid)}')">
+          <span class="client-name">${esc(p.client || '—')}</span>
+          <div class="header-pills">
+            <span class="meta-pill">${esc(p.editor || '—')}</span>
+            <span class="meta-pill">${fmtDate(p.date)}</span>
+            <span class="meta-pill">${dels.length} ${dels.length === 1 ? 'del' : 'dels'}</span>
+            <div class="progress-wrap">
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+              <span class="progress-pct">${pct}%</span>
+            </div>
+            <span class="pill ${status}">${statusLabel}</span>
+            <span class="expand-arrow">▶</span>
           </div>
-          <div class="editor">Editor: ${esc(p.editor || '—')}</div>
         </div>
-        <div class="wcard-body">
-          ${(p.deliverables || []).map(d => renderDeliverable(p, d)).join('')}
-        </div>
+        ${expanded ? `<div class="project-body">${dels.map(d => renderDeliverable(p, d)).join('')}</div>` : ''}
       </div>
     `;
   }
 
-  function renderDeliverable(p, d) {
+  function renderDeliverable(p, d){
     const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
-    const stagesHTML = order.map((stageName, i) => {
-      const stage = (d.stages || {})[stageName] || { status: 'pending' };
-      const cls = stage.status === 'done' ? 'done' : (stage.status === 'in_progress' ? 'in_progress' : '');
-      const arrow = i < order.length - 1 ? '<span class="arrow">→</span>' : '';
-      return `<span class="pill ${cls}">${stageName.replace('_',' ')}</span>${arrow}`;
+    const stagesHTML = order.map((sName, i) => {
+      const stage = (d.stages || {})[sName] || { status: 'pending' };
+      const cls = stage.status === 'done' ? 'done' : stage.status === 'in_progress' ? 'in-progress' : '';
+      const arrow = i < order.length - 1 ? '<span class="stage-arrow">→</span>' : '';
+      return `<span class="stage-pill ${cls}">${sName.replace('_', ' ')}</span>${arrow}`;
     }).join(' ');
 
-    // Action buttons
     const isReel = d.type === 'reel';
     const notReceivedYet = isReel && !d.received_at;
     const currentStage = order.find(s => (d.stages?.[s]?.status || 'pending') !== 'done');
     const allDone = !currentStage;
 
-    let actions = '';
-    if (allDone) {
-      actions = `<div class="hint">All stages complete ✓</div>`;
-    } else if (isReel && notReceivedYet) {
-      actions = `<button class="btn" onclick="startReel('${p.wid}', '${esc(d.name)}')">Start Edit (mark received)</button>`;
-    } else {
-      const label = `Mark ${currentStage} complete`;
-      actions = `<button class="btn" onclick="advanceStage('${p.wid}', '${esc(d.name)}')">${label}</button>`;
-    }
+    let actions;
+    if (allDone) actions = `<div class="hint">All stages complete ✓</div>`;
+    else if (isReel && notReceivedYet) actions = `<button class="btn-primary" onclick="event.stopPropagation();startReel('${esc(p.wid)}','${esc(d.name)}')">Start Edit (mark received)</button>`;
+    else actions = `<button class="btn-primary" onclick="event.stopPropagation();advanceStage('${esc(p.wid)}','${esc(d.name)}')">Mark ${currentStage} complete</button>`;
 
-    // Deadline indicator (reels only)
     let deadline = '';
-    if (isReel && d.received_at && !allDone) {
-      const status = reelDeadlineStatus(d);
+    if (isReel && d.received_at && !allDone){
+      const s = reelDeadlineStatus(d);
       const hrs = hoursElapsed(d.received_at);
-      const cls = status === 'crit' ? 'crit' : (status === 'warn' ? 'warn' : '');
-      deadline = `<div class="drow-deadline ${cls}">${hrs.toFixed(1)}hr / ${d.deadline_hours}hr SLA${status === 'crit' ? ' — OVERDUE' : (status === 'warn' ? ' — closing in' : '')}</div>`;
-    } else if (isReel && d.received_at && allDone) {
-      deadline = `<div class="drow-deadline">Delivered</div>`;
+      const cls = s === 'crit' ? 'crit' : s === 'warn' ? 'warn' : '';
+      const suffix = s === 'crit' ? ' — OVERDUE' : s === 'warn' ? ' — closing in' : '';
+      deadline = `<div class="del-deadline ${cls}">${hrs.toFixed(1)}hr / ${d.deadline_hours}hr SLA${suffix}</div>`;
+    } else if (isReel && d.received_at && allDone){
+      deadline = `<div class="del-deadline ok-delivered">Delivered</div>`;
     }
 
+    const flowSuffix = d.flow ? ' · ' + d.flow : '';
     return `
-      <div class="drow">
-        <div class="drow-head">
-          <div class="drow-name">${esc(d.name)}<span class="type-badge">${d.type}${d.flow ? ' · ' + d.flow : ''}</span></div>
+      <div class="del-row">
+        <div class="del-row-head">
+          <span class="del-name">${esc(d.name)}<span class="type-badge">${esc(d.type)}${esc(flowSuffix)}</span></span>
           ${deadline}
         </div>
-        <div class="stages">${stagesHTML}</div>
-        <div class="actions">${actions}</div>
+        <div class="stages-row">${stagesHTML}</div>
+        <div class="del-actions">${actions}</div>
       </div>
     `;
   }
 
-  // ---- HELPERS ----
-  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-  function fmtDate(iso) {
+  function toggleProject(wid){
+    if (expandedSet.has(wid)) expandedSet.delete(wid);
+    else expandedSet.add(wid);
+    renderCards();
+  }
+
+  // Helpers
+  function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function fmtDate(iso){
     if (!iso) return '—';
     return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
-  function hoursElapsed(iso) {
+  function hoursElapsed(iso){
     if (!iso) return 0;
     return (Date.now() - new Date(iso).getTime()) / 36e5;
   }
-  function reelDeadlineStatus(d) {
+  function reelDeadlineStatus(d){
     if (!d.received_at) return 'none';
     if (isDeliverableComplete(d)) return 'done';
     const hrs = hoursElapsed(d.received_at);
-    if (hrs > d.deadline_hours) return 'crit';
-    if (hrs > d.deadline_hours * 0.75) return 'warn';
+    const dl = d.deadline_hours || 24;
+    if (hrs > dl) return 'crit';
+    if (hrs > dl * 0.75) return 'warn';
     return 'ok';
   }
-  function isDeliverableComplete(d) {
+  function isDeliverableComplete(d){
     const stages = d.stages || {};
-    return Object.values(stages).every(s => s.status === 'done');
+    const vals = Object.values(stages);
+    return vals.length > 0 && vals.every(s => s.status === 'done');
   }
 
-  // ---- MUTATIONS ----
-  async function startReel(wid, deliverableName) {
+  // Mutations
+  async function startReel(wid, deliverableName){
     const project = allProjects.find(p => p.wid === wid);
     if (!project) return;
     const d = (project.deliverables || []).find(x => x.name === deliverableName);
     if (!d) return;
     d.received_at = new Date().toISOString();
-    d.stages.edit.status = 'in_progress';
-    await persist();
-    await loadAndRender();
+    if (d.stages?.edit) d.stages.edit.status = 'in_progress';
+    setSync('saving', 'Saving...');
+    try {
+      await persist();
+      showToast('Edit started — 24hr clock running');
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
   }
 
-  async function advanceStage(wid, deliverableName) {
+  async function advanceStage(wid, deliverableName){
     const project = allProjects.find(p => p.wid === wid);
     if (!project) return;
     const d = (project.deliverables || []).find(x => x.name === deliverableName);
     if (!d) return;
-
     const order = STAGE_ORDER[d.type] || Object.keys(d.stages || {});
     const currentIdx = order.findIndex(s => (d.stages?.[s]?.status || 'pending') !== 'done');
-    if (currentIdx === -1) return; // already all done
-
+    if (currentIdx === -1) return;
     const currentStage = order[currentIdx];
     const nextStage = order[currentIdx + 1];
     const userEmail = (window.TMW_USER?.email || 'unknown').toLowerCase();
     const nowIso = new Date().toISOString();
-
-    // For raw/moments first stage = "received" — set received_at on first advance
-    if ((d.type === 'raw' || d.type === 'moments') && currentStage === 'received' && !d.received_at) {
+    if ((d.type === 'raw' || d.type === 'moments') && currentStage === 'received' && !d.received_at){
       d.received_at = nowIso;
     }
-
     d.stages[currentStage] = { status: 'done', completed_at: nowIso, completed_by: userEmail };
-    if (nextStage) {
-      d.stages[nextStage] = { status: 'in_progress', completed_at: null, completed_by: null };
-    }
+    if (nextStage) d.stages[nextStage] = { status: 'in_progress', completed_at: null, completed_by: null };
 
-    await persist();
-    notifyOwners({
-      project, deliverable: d, stage: currentStage, by: userEmail
-    }).catch(e => console.warn('Notify failed', e));
-    await loadAndRender();
+    setSync('saving', 'Saving...');
+    try {
+      await persist();
+      showToast(`Marked "${currentStage}" complete`);
+      notifyOwners({ project, deliverable: d, stage: currentStage, by: userEmail }).catch(e => console.warn('Notify failed', e));
+      await loadAndRender();
+    } catch(e){
+      console.error(e);
+      setSync('error', 'Save failed');
+    }
   }
 
-  async function persist() {
+  async function persist(){
     const newData = { projects: allProjects };
     await tmwSbFetch('projects?id=eq.tmw_content', {
       method: 'PATCH',
@@ -463,23 +507,24 @@
     });
   }
 
-  async function notifyOwners({ project, deliverable, stage, by }) {
+  async function notifyOwners({ project, deliverable, stage, by }){
     if (!window.emailjs) return;
     const params = {
-      stage_name: `Content: ${deliverable.name} → ${stage}`,
+      stage_name:   `Content: ${deliverable.name} → ${stage}`,
       project_name: `${project.client} (${project.wid})`,
       completed_by: by,
       completed_at: new Date().toLocaleString(),
-      to_email: OWNER_EMAILS.join(',')
+      to_email:     OWNER_EMAILS.join(',')
     };
     return emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
   }
 
-  // Expose handlers for inline onclick
-  window.startReel = startReel;
-  window.advanceStage = advanceStage;
+  // Inline onclick exposure
+  window.startReel     = startReel;
+  window.advanceStage  = advanceStage;
+  window.toggleProject = toggleProject;
+  window.loadAndRender = loadAndRender;
 
-  // Boot
   init();
 </script>
 
