@@ -45,25 +45,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .sync-dot.ok{background:var(--green);}.sync-dot.saving{background:var(--amber);}.sync-dot.error{background:var(--red);}
 .btn-icon{height:30px;padding:0 10px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .btn-icon:hover{color:var(--accent);border-color:var(--accent-mid);}
+.btn-icon.active{background:var(--accent-light);color:var(--accent);border-color:var(--accent-mid);}
 .admin-badge{font-size:10px;padding:3px 10px;border-radius:14px;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;display:none;align-items:center;}
 .admin-badge.show{display:inline-flex;}
 .user-name{font-size:11px;color:var(--text-muted);}
 .signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
 .signout-btn:hover{color:var(--accent);}
-
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
-.modal-overlay.active{display:flex;}
-.modal{background:var(--white);border-radius:12px;padding:24px;max-width:380px;width:100%;box-shadow:0 12px 36px rgba(0,0,0,0.2);}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:6px;color:var(--text-primary);}
-.modal-sub{font-size:13px;color:var(--text-secondary);margin-bottom:14px;}
-.modal input{width:100%;height:36px;font-size:13px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--cream);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;color:var(--text-primary);}
-.modal input:focus{border-color:var(--accent-mid);background:var(--white);}
-.modal-error{font-size:11px;color:var(--red);height:16px;margin-bottom:12px;display:none;}
-.modal-error.show{display:block;}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
-.btn-cancel{height:34px;padding:0 14px;font-size:12px;border:1px solid var(--border);background:var(--white);color:var(--text-secondary);border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.btn-cancel:hover{background:var(--cream);}
 
 /* Main */
 .main{max-width:1200px;margin:0 auto;padding:24px;}
@@ -164,20 +151,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 </style>
 </head>
 <body>
-
-<!-- Admin password modal -->
-<div class="modal-overlay" id="admin-modal">
-  <div class="modal">
-    <div class="modal-title">Admin access</div>
-    <div class="modal-sub">Enter the admin password to enable editing of projects, deliverables, and stages.</div>
-    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminPw();else if(event.key==='Escape')closeAdminModal()"/>
-    <div class="modal-error" id="pw-error">Incorrect password.</div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitAdminPw()">Unlock</button>
-    </div>
-  </div>
-</div>
 
 <div id="gate" class="gate">
   <div>
@@ -296,40 +269,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     setInterval(loadAndRender, 30000);
   }
 
-  // ---- ADMIN MODE ----
+  // ---- ADMIN MODE (no password — page is already owner-gated) ----
   function applyAdminUI(){
     document.getElementById('admin-badge').classList.toggle('show', isAdmin);
     document.getElementById('admin-btn').textContent = isAdmin ? 'Exit admin' : 'Admin';
+    document.getElementById('admin-btn').classList.toggle('active', isAdmin);
   }
   function toggleAdmin(){
-    if (isAdmin){
-      isAdmin = false;
-      sessionStorage.removeItem('tmw_content_admin');
-      applyAdminUI();
-      renderCards();
-    } else {
-      document.getElementById('admin-modal').classList.add('active');
-      document.getElementById('admin-pw').value = '';
-      document.getElementById('pw-error').classList.remove('show');
-      setTimeout(() => document.getElementById('admin-pw').focus(), 50);
-    }
-  }
-  function closeAdminModal(){
-    document.getElementById('admin-modal').classList.remove('active');
-  }
-  function submitAdminPw(){
-    const entered = document.getElementById('admin-pw').value;
-    const expected = (window.TMW && TMW.admin && TMW.admin.password) || '';
-    if (entered === expected && expected !== ''){
-      isAdmin = true;
-      sessionStorage.setItem('tmw_content_admin', '1');
-      closeAdminModal();
-      applyAdminUI();
-      renderCards();
-      showToast('Admin mode on');
-    } else {
-      document.getElementById('pw-error').classList.add('show');
-    }
+    isAdmin = !isAdmin;
+    if (isAdmin) sessionStorage.setItem('tmw_content_admin', '1');
+    else sessionStorage.removeItem('tmw_content_admin');
+    applyAdminUI();
+    renderCards();
+    showToast(isAdmin ? 'Admin mode on' : 'Admin mode off');
   }
 
   async function loadAndRender(){
@@ -437,7 +389,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
     const dels = p.deliverables || [];
     const statusLabel = status === 'crit' ? 'Past SLA' : status === 'warn' ? 'At risk' : status === 'complete' ? 'Complete' : 'On track';
 
-    // Editor pill or admin select
     const editorEl = isAdmin
       ? `<select class="editor-select" onclick="event.stopPropagation()" onchange="updateEditor('${esc(p.wid)}', this.value)">${
           [p.editor, ...CONTENT_EDITORS.filter(e => e !== p.editor)]
@@ -717,8 +668,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
   window.toggleProject     = toggleProject;
   window.loadAndRender     = loadAndRender;
   window.toggleAdmin       = toggleAdmin;
-  window.submitAdminPw     = submitAdminPw;
-  window.closeAdminModal   = closeAdminModal;
   window.addReel           = addReel;
   window.removeDeliverable = removeDeliverable;
   window.resetDeliverable  = resetDeliverable;
