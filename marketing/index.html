@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMW · Marketing Onboarding</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="/tmw-auth.js" data-required-role="marketing"></script>
+
+<style>
+:root {
+  --cream: #F6FEFE;
+  --teal: #4aacac;
+  --teal-dark: #357e7e;
+  --teal-light: #d8eeee;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --border: #d8eeee;
+  --border-strong: #b8d8d8;
+  --text: #0f0f0f;
+  --text-mid: #4a6868;
+  --text-dim: #7a8e8e;
+  --success: #2a9d4a;
+  --shadow: 0 8px 48px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.06);
+  --display: 'Cormorant Garamond', serif;
+  --body: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--body);
+  background: var(--cream);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+nav {
+  background: rgba(255,255,255,0.92);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.nav-brand {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  color: var(--teal-dark);
+  font-weight: 500;
+}
+.nav-brand em { font-style: italic; color: var(--text-mid); font-size: 0.92rem; }
+.nav-right { display: flex; align-items: center; gap: 14px; font-size: 0.85rem; }
+.nav-user { color: var(--text-mid); }
+.nav-signout {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-mid);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+}
+.nav-signout:hover { background: var(--teal-light); color: var(--teal-dark); }
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.hero {
+  text-align: center;
+  padding: 24px 0 32px;
+}
+.hero-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+.hero-title em { font-style: italic; color: var(--teal-dark); }
+.hero-sub {
+  font-size: 1rem;
+  color: var(--text-mid);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.progress-card {
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin: 24px 0 40px;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 76px;
+  z-index: 50;
+}
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.progress-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  font-weight: 600;
+}
+.progress-stats {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  color: var(--black);
+  font-weight: 500;
+}
+.progress-stats em { font-style: italic; color: var(--teal-dark); font-weight: 600; }
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--teal-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* ─── Claude Project Setup section ─── */
+.claude-setup {
+  margin: 0 0 50px;
+}
+.claude-setup-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.claude-setup-head h2 {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--black);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.claude-setup-head p {
+  color: var(--text-mid);
+  font-size: 0.92rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.claude-setup-head a {
+  color: var(--teal-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--teal-light);
+  text-underline-offset: 3px;
+}
+.claude-setup-head a:hover { text-decoration-color: var(--teal); }
+
+/* Copy block component */
+.copy-block {
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.copy-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.copy-block-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--teal-dark);
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+.copy-btn {
+  background: var(--teal);
+  color: var(--white);
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.04em;
+}
+.copy-btn:hover { background: var(--teal-dark); transform: translateY(-1px); }
+.copy-btn:active { transform: translateY(0); }
+.copy-btn.copied { background: var(--success); }
+.copy-btn.failed { background: #c0392b; }
+.copy-block-body {
+  padding: 18px 20px;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+  font-family: inherit;
+  word-break: break-word;
+}
+.copy-block-body.code {
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 0.82rem;
+  background: var(--cream);
+  line-height: 1.55;
+}
+.copy-block-body.scrollable {
+  max-height: 360px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+.copy-block-body.scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+.copy-block-body.scrollable::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+.copy-block-body.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Inline copy button (used inside callouts and other content blocks) */
+.has-copy-inline {
+  position: relative;
+}
+.copy-btn-inline {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--white);
+  color: var(--teal-dark);
+  border: 1px solid var(--teal-light);
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.copy-btn-inline:hover {
+  background: var(--teal);
+  color: var(--white);
+  border-color: var(--teal);
+}
+.copy-btn-inline.copied {
+  background: var(--success);
+  color: var(--white);
+  border-color: var(--success);
+}
+
+.briefing { margin: 40px 0 0; }
+.briefing-head {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  font-style: italic;
+  color: var(--black);
+  margin-bottom: 6px;
+  text-align: center;
+  font-weight: 500;
+}
+.briefing-sub {
+  text-align: center;
+  color: var(--text-mid);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+details.section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+details.section[open] { box-shadow: var(--shadow-sm); }
+details.section summary {
+  cursor: pointer;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  list-style: none;
+  user-select: none;
+}
+details.section summary::-webkit-details-marker { display: none; }
+.section-num {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--teal);
+  min-width: 32px;
+  font-weight: 500;
+}
+.section-title {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--black);
+  flex: 1;
+}
+.section-chevron {
+  color: var(--text-dim);
+  transition: transform 0.2s;
+  font-size: 1rem;
+}
+details.section[open] .section-chevron { transform: rotate(90deg); }
+.section-body {
+  padding: 0 22px 22px 68px;
+  color: var(--text);
+}
+.section-body p { margin-bottom: 14px; }
+.section-body h3 {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--black);
+  margin: 18px 0 8px;
+  font-weight: 500;
+}
+.section-body h4 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal);
+  margin: 18px 0 6px;
+  font-weight: 600;
+}
+.section-body ul, .section-body ol {
+  padding-left: 22px;
+  margin-bottom: 14px;
+}
+.section-body li { margin-bottom: 4px; }
+.section-body strong { color: var(--black); font-weight: 600; }
+.section-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 0.86rem;
+}
+.section-body th, .section-body td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.section-body th {
+  background: var(--cream);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.section-body code {
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 0.84rem;
+  background: var(--teal-light);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--teal-dark);
+}
+.section-body pre {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.section-body a {
+  color: var(--teal-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--teal-light);
+  text-underline-offset: 3px;
+}
+.section-body a:hover { text-decoration-color: var(--teal); }
+
+.callout {
+  background: var(--teal-light);
+  border-left: 3px solid var(--teal);
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin: 14px 0;
+  font-style: italic;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  color: var(--teal-dark);
+  line-height: 1.5;
+}
+.callout.has-copy-inline {
+  padding-right: 80px;
+}
+
+.checklist {
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 40px;
+  box-shadow: var(--shadow-sm);
+}
+.checklist-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.checklist-head h2 {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.8rem;
+  color: var(--black);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.checklist-head p {
+  color: var(--text-mid);
+  font-size: 0.9rem;
+}
+.checklist-group { margin-bottom: 22px; }
+.checklist-group:last-child { margin-bottom: 0; }
+.checklist-group-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item:hover { background: var(--cream); }
+.checklist-item input[type=checkbox] {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  accent-color: var(--teal);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checklist-item-text {
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+.checklist-item.checked .checklist-item-text {
+  color: var(--text-dim);
+  text-decoration: line-through;
+  text-decoration-color: var(--teal);
+}
+
+.save-state {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--black);
+  color: var(--white);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+.save-state.show { opacity: 1; }
+.save-state.error { background: #c0392b; }
+
+.loading {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-mid);
+  font-size: 0.86rem;
+}
+.loading-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
+}
+
+@media (max-width: 700px) {
+  .page { padding: 24px 16px 60px; }
+  nav { padding: 12px 16px; }
+  .nav-brand { font-size: 1.15rem; }
+  .nav-right { font-size: 0.78rem; }
+  .progress-card { padding: 18px; top: 70px; }
+  .progress-stats { font-size: 1.15rem; }
+  .copy-block-head { padding: 10px 14px; }
+  .copy-block-body { padding: 14px 16px; font-size: 0.88rem; }
+  .copy-block-body.code { font-size: 0.74rem; }
+  .copy-block-body.scrollable { max-height: 280px; }
+  details.section summary { padding: 14px 16px; gap: 10px; }
+  .section-num { font-size: 1.25rem; min-width: 24px; }
+  .section-title { font-size: 0.92rem; }
+  .section-body { padding: 0 16px 18px; }
+  .checklist { padding: 20px 18px; }
+  .section-body table { font-size: 0.78rem; display: block; overflow-x: auto; }
+  .section-body th, .section-body td { padding: 6px 8px; }
+  .save-state { left: 16px; right: 16px; bottom: 16px; text-align: center; }
+  .callout.has-copy-inline { padding-right: 18px; padding-top: 44px; }
+  .copy-btn-inline { top: 8px; right: 8px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">TM Weddings <em>Marketing</em></span>
+    <div class="nav-right">
+      <span class="nav-user" id="user-name">Loading…</span>
+      <button class="nav-signout" onclick="tmwSignOut()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Welcome to the team</div>
+    <h1 class="hero-title">Your TM Weddings <em>onboarding hub</em></h1>
+    <p class="hero-sub">
+      Everything Tony and Brynn want you to know before you build your first campaign. Take your time with this. The brand was built carefully and the work that comes out of it should reflect that.
+    </p>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-head">
+      <span class="progress-label">Onboarding Progress</span>
+      <span class="progress-stats" id="progress-stats"><em>0</em> of <em>16</em> complete</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-meta" id="progress-meta">Sign in to start tracking your progress.</div>
+  </div>
+
+  <!-- ───────── CLAUDE PROJECT SETUP ───────── -->
+  <section class="claude-setup">
+    <div class="claude-setup-head">
+      <h2>Set up your Claude project</h2>
+      <p>Greg, head to <a href="https://claude.ai/projects" target="_blank">claude.ai/projects</a>, click <strong>New Project</strong>, and paste each block below in order. This gives Claude full brand context so every draft, audit, and campaign idea you generate inside that project is already on-voice.</p>
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-block-head">
+        <span class="copy-block-label">1 · Project Name</span>
+        <button class="copy-btn" data-copy-target="cp-name">Copy</button>
+      </div>
+      <div class="copy-block-body" id="cp-name">TM Weddings Paid Media</div>
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-block-head">
+        <span class="copy-block-label">2 · Description</span>
+        <button class="copy-btn" data-copy-target="cp-desc">Copy</button>
+      </div>
+      <div class="copy-block-body" id="cp-desc">Paid media operations for TM Weddings, a premium wedding photo and film studio in Lehigh Valley, PA. Supports Google Ads, Meta Ads, creative drafting, audience targeting, and reporting for engaged couples investing $7,000 to $15,000+ in photo and film coverage.</div>
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-block-head">
+        <span class="copy-block-label">3 · Custom Instructions (the project's system prompt)</span>
+        <button class="copy-btn" data-copy-target="cp-instructions">Copy</button>
+      </div>
+      <pre class="copy-block-body code scrollable" id="cp-instructions">You are an AI marketing strategist supporting Greg, the paid media manager for TM Weddings, a premium wedding photography and film studio based in the Lehigh Valley, Pennsylvania.
+
+==== ABOUT TM WEDDINGS ====
+Husband-and-wife founded studio (Tony and Brynn Martinez) with a 15-person team serving couples in PA, NJ, NY, and select destinations. Founded 2020. The brand differentiator is photo and film delivered by ONE coordinated team, replacing the typical two-vendor experience couples have to juggle. Approximately 147 leads per month organic, 18 percent session-to-lead conversion (roughly 4 times industry average).
+
+==== PACKAGES ====
+- Photo Base: $3,797 (8 hours, 1 photographer, edited online gallery)
+- Film Base: $4,697 (8 hours, 2 videographers, cinematic film)
+- Photo + Film Bundle: $7,197 (both, one team)
+- Add-ons: Engagement $275, Second Photographer $527, Content Creator $750, Wedding Trailer $497, Save the Date Film $497, Extended Highlight $697, Feature Highlight $997, Rehearsal $300/hr, Signature Book $527, Signature Album $897, Livestream $2,497
+
+==== TARGET CLIENT ====
+- Engaged couples, ages 26 to 36, household income $100k+
+- Photo + film budget: $7,000 to $15,000+
+- Most profitable client: $10,000+ total
+- Geographic priority: Lehigh Valley core (Allentown, Bethlehem, Easton, Nazareth) > Philly metro suburbs > Western/Northern NJ > NY metro > destination
+- Psychographic: values cinematic storytelling and emotional authenticity, often values faith and community
+
+==== BRAND VOICE: STRICT RULES ====
+1. NEVER use em dashes. Use commas, parentheses, or periods. This is non-negotiable.
+2. NEVER use "Contact Us." Use "Check Availability" or "Book a Consultation."
+3. NEVER frame on price. No "affordable," "budget-friendly," "cheap." TM is premium.
+4. ALWAYS lead with story, not specs. Open with emotion, never with "8-hour packages."
+5. The phrase "husband and wife" carries enormous emotional weight. Use it for cold audiences.
+6. Faith messaging is powerful but segmented. Only for values-aligned audiences, not every campaign.
+7. Photo + film as one team is THE central differentiator. Anchor most campaigns on this.
+
+==== VISUAL IDENTITY (non-negotiable for all creative) ====
+- Background: #F6FEFE (light cyan)
+- Brand teal: #4aacac
+- Black: #0f0f0f
+- Display font: Cormorant Garamond (often italic)
+- Body font: Jost
+- Aesthetic: bright, airy, light-filled, editorial, cinematic. Editorial wedding magazine spreads, not stock photography.
+
+==== CTAs ====
+Primary: "Check Availability"
+Secondary: "Book a Consultation"
+Conversion event: HoneyBook booking button click (GA4 Key Event)
+Cold paid traffic landing pages: /book-your-date or /photo-film-pricing
+Never send paid traffic to the homepage (mobile LCP issues)
+
+==== COMPETITIVE MOATS (use as ad angles) ====
+1. Photo + film, one coordinated 15-person team (vs typical two-vendor mess)
+2. Husband and wife founders (Tony and Brynn)
+3. 15-person team scale (multi-wedding-day capability)
+4. Speed: 2 weeks photo, 4 to 6 weeks film (industry: 2 to 6 months)
+5. Faith-based giving (Travis Mills Foundation, DiscipleMakers, Compassion International)
+
+==== UTM CONVENTIONS ====
+?utm_source=google&utm_medium=cpc&utm_campaign={campaign-name}
+?utm_source=meta&utm_medium=paid-social&utm_campaign={campaign-name}
+?utm_source=instagram&utm_medium=social&utm_campaign=bio-link
+
+==== APPROVAL FLOW ====
+ALL creative requires Tony AND Brynn approval before going live. Build approval cycles into campaign timelines. No exceptions.
+
+==== YOUR ROLE ====
+Help Greg draft ad copy, brainstorm campaign angles, write headlines, suggest audience targeting, write reporting summaries, troubleshoot campaign performance, and maintain brand voice across every output. When you write copy, write IN BRAND. When asked, audit existing copy against the brand voice rules above.
+
+When in doubt, default to: warm, confident, editorial. Never salesy, never corporate.
+
+If a draft contains an em dash, flag it and rewrite. If a draft uses "Contact Us," flag it and rewrite. If a draft frames on price, flag it and rewrite.</pre>
+    </div>
+
+    <div class="copy-block">
+      <div class="copy-block-head">
+        <span class="copy-block-label">4 · Project Knowledge (paste as a knowledge document)</span>
+        <button class="copy-btn" data-copy-target="cp-knowledge">Copy</button>
+      </div>
+      <pre class="copy-block-body code scrollable" id="cp-knowledge"># TM Weddings: Brand and Marketing Reference
+
+## 1. Company
+
+- Business name: TM Weddings (also TM Weddings Photo &amp; Video, TM Weddings LV)
+- Type: Premium wedding photography and film studio
+- Founded: 2020 (legal operations January 2021)
+- Founders: Tony Martinez and Brynn Martinez (husband and wife)
+- HQ: Lehigh Valley, Pennsylvania
+- Team size: 15 photographers, videographers, editors
+- Service area: PA, NJ, NY (destination available)
+- Website: https://tmweddings.com
+- Phone: (835) 245-0037
+- Email: tmweddingslv@gmail.com
+- Instagram: @tmweddingslv
+- Booking platform: HoneyBook
+- Website CMS: Squarespace
+- Photo gallery: Pixieset (https://tmweddingslv.pixieset.com)
+- Video host: Vimeo
+
+## 2. Three-Line Positioning (use in ads)
+
+Premium wedding photo and film, captured by one coordinated 15-person team based in the Lehigh Valley. No juggling two vendors, no miscommunication on the day. Your gallery and your film tell the same story.
+
+## 3. Founders
+
+### Tony Martinez (co-founder, photographer, filmmaker)
+Co-founded TM Weddings out of a love for storytelling. Belief: weddings are some of the most honest, emotional moments anyone will experience and they deserve a team that shows up with that same level of passion. Runs camera side and business operations alongside Brynn.
+
+### Brynn Martinez (co-founder, photographer, filmmaker)
+Co-founded TM Weddings on the conviction that the best wedding photos and films are not just beautiful, they are true. Grounded in capturing couples as they actually are. Shoots, leads creative direction, public-facing voice alongside Tony.
+
+### Founding story (use in long-form creative)
+Tony and Brynn married in 2020. The experience of being on the client side, of feeling what a wedding day actually feels like, became the foundation for everything they built next. Started TM Weddings the year after, grew it into a 15-person team serving PA, NJ, NY.
+
+## 4. The 15-Person Team
+
+Tony Martinez, Brynn Martinez, Lexi Martinez, Zach Erwin, Isabella Martinez, Nick Stewart, Luke Heffelfinger, PJ Knight, Nolan Guzman, Nathan Rathmell, Zyara Sanchez, Kaitlyn Esteves, Chris Kauffman, Dylan Spangler, Natasha DeAngelo.
+
+Each has a bio page at tmweddings.com/first-last and most have personal video bios on Vimeo. The "Meet Your Storytellers" page is one of the strongest brand assets.
+
+## 5. Packages and Pricing
+
+### Base Collections (all include 8 hours of coverage)
+- Photo Base: $3,797 (1 photographer, edited online gallery)
+- Film Base: $4,697 (2 videographers, cinematic film)
+- Photo + Film Bundle: $7,197 (both, one coordinated team)
+
+### Add-Ons
+- Feature Highlight Film (8 to 10 min): $997
+- Extended Highlight Film (4 to 5 min): $697
+- Wedding Trailer (60 sec): $497
+- Save the Date Film: $497
+- Engagement Session (booked with photo): $275
+- Second Photographer: $527
+- Content Creator: $750
+- Rehearsal Dinner Coverage: $300/hr
+- Livestream: $2,497
+- Signature Book: $527
+- Signature Album: $897
+
+### Booking Terms
+- 25% retainer to book (non-refundable)
+- Payment plans: full, halves, quarters, monthly via HoneyBook auto-pay
+- Postponement allowed within 12 months
+- Service credit valid 12 months from cancellation date
+
+### Target Client Investment
+- Best fit: $7,000+ in photo and film
+- Most profitable: $10,000+ total
+- Ad targeting floor: $7k+
+
+## 6. Differentiators (top moats to use in ad angles)
+
+1. Photo + film, one coordinated team (vs typical two-vendor mess)
+2. Husband and wife founders (emotional resonance)
+3. Team scale of 15 (multi-wedding capability, redundancy)
+4. Speed: 2 weeks photo, 4 to 6 weeks film (industry: 2 to 6 months)
+5. Faith-based giving: Travis Mills Foundation (veterans), DiscipleMakers (campus ministry), Compassion International (children in poverty)
+6. Editorial visual style (bright, airy, cinematic, light-filled)
+7. Fully insured and venue-ready
+
+## 7. Ideal Client Profile
+
+### Demographics
+- Engaged couples, ages 26 to 36
+- Combined household income $100k+
+- College-educated, often dual-professional
+- Planning weddings 9 to 18 months out
+- Photo + film budget: $7k to $15k+
+
+### Geographic Priority (in order of fit)
+1. Lehigh Valley core: Allentown, Bethlehem, Easton, Nazareth, Macungie, Whitehall
+2. Philly metro suburbs: Bucks, Berks, Montgomery, Chester, Lancaster Counties
+3. Western and Northern NJ: Hunterdon, Warren, Morris, Bergen
+4. NY metro: New York County, Westchester
+5. Destination weddings (couple covers travel)
+
+### Psychographic Profile
+- Sees wedding as meaningful, once-in-a-lifetime, not a transaction
+- Values cinematic storytelling and emotional authenticity over Instagram trends
+- Wants both photo and film, dreads hiring two vendors
+- Prefers a team that feels personal and deeply invested
+- Often values faith, family, community (not required, but giving angle resonates)
+- Comparing 3 to 5 vendors at premium tier
+- Reads reviews, watches wedding films, looks at full galleries before booking
+
+### Triggers That Move Them
+- Seeing a couple who looks like them at a similar venue
+- Hearing other couples describe team as calm, fun, made-our-day-better
+- Watching a 60-second cinematic trailer that makes them feel something
+- Seeing the founders' faces and the team behind the brand
+- A clear, transparent pricing page (no "request pricing" friction)
+
+### Top Intent Keywords
+1. Wedding Photo &amp; Video (priority)
+2. Wedding Videographer
+3. Wedding Videography
+4. Wedding Photography
+5. Wedding Photographer
+6. Geo-modified versions ("Lehigh Valley wedding photographer," etc.)
+
+## 8. Brand Voice
+
+### Tone
+Warm, confident, editorial. Never salesy. Never corporate. Conversational but premium. Faith and giving are natural parts of the brand, not bolted-on virtue signaling. Always speaks to the couple as people, not as "leads" or "clients."
+
+### Phrases that fit
+- "Your wedding day deserves..."
+- "We don't treat it like a job. We treat it like an honor."
+- "One team, one vision, one story."
+- "Captured by people who actually show up for you."
+- "Cinematic, bright, deeply personal."
+- "Check Availability" (preferred CTA)
+- "Book a Consultation" (alt CTA)
+
+### Phrases to AVOID
+- "Contact Us"
+- Salesy CTAs: "Get a Quote," "Request Pricing," "Click Here Now"
+- "USB drive," "raw files," anything that makes deliverable feel cheap
+- "Cheap," "affordable," "budget-friendly"
+- EM DASHES ARE FORBIDDEN. Use commas, parentheses, or periods. Strict brand rule.
+
+## 9. Visual Identity (non-negotiable)
+
+- Primary background: #F6FEFE (light cyan)
+- Brand teal: #4aacac
+- Black: #0f0f0f
+- White: #ffffff
+- Border accents: #d8eeee
+- Display font: Cormorant Garamond (serif, often italic)
+- Body font: Jost (clean sans)
+- Card style: white rounded cards, box-shadow 0 8px 48px rgba(0,0,0,0.08)
+- Visual cues: orbiting teal hearts on key sections, transparent backgrounds
+
+### Photography and Film Aesthetic
+Bright, airy, light-filled, editorial, cinematic. True warm skin tones, never overcooked. Story-driven films with real audio (vows, toasts, music), not just slow-motion B-roll. Static images for ads should look like editorial wedding magazine spreads, not stock photography.
+
+## 10. Performance Baseline
+
+- Approximately 147 leads per month (GA4)
+- Session-to-lead conversion: ~18% (industry benchmark 2 to 5%, so roughly 4x industry)
+- Primary conversion event: HoneyBook booking button click (GA4 Key Event)
+- Top organic landing pages: Homepage, Pricing, FAQ, Meet Your Storytellers
+- Domain Rating (Ahrefs): 15
+- Backlinks: ~119
+- Linking domains: ~51
+- Google reviews: ~55
+- GBP primary: Wedding photographer
+- GBP secondary: Video production service
+
+### Channel Mix (lead source priority)
+1. Organic Google search (largest)
+2. Google Maps 3-pack
+3. Wedding directories (Zola live, Philly In Love submitted, Junebug applied, Green Wedding Shoes applied)
+4. Past client and venue referrals
+5. Instagram
+
+### Currently Greenfield (Greg's territory)
+- No Google Ads or Meta Ads currently running
+- The Knot and WeddingWire deprioritized (pay-to-play)
+
+## 11. UTM Conventions
+
+```
+?utm_source=instagram&amp;utm_medium=social&amp;utm_campaign=bio-link
+?utm_source=zola&amp;utm_medium=directory&amp;utm_campaign=zola-listing
+?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign={campaign-name}
+?utm_source=meta&amp;utm_medium=paid-social&amp;utm_campaign={campaign-name}
+```
+
+## 12. Tracking Infrastructure
+
+- Google Search Console: verified, sitemap submitted
+- GA4: HoneyBook click marked as Key Event conversion
+- Google Business Profile: active
+- Bing Webmaster Tools: verified
+- Schema markup: LocalBusiness, FAQPage, BreadcrumbList live
+
+### Mobile Performance Caveat
+Mobile LCP previously 24.8s (Vimeo background). Fix deployed: static poster on screens under 768px, Vimeo API conditionally loaded desktop-only. Mobile LCP is still the biggest technical lever. Route paid traffic to /book-your-date or /photo-film-pricing rather than homepage.
+
+## 13. Landing Page Strategy
+
+- Cold paid traffic: /book-your-date or /photo-film-pricing (NEVER homepage)
+- Venue-specific paid traffic: venue landing page (Woodmont Manor live, more in production)
+- Retargeting traffic: /meet-your-storytellers (deeper-funnel emotional content) or /reviews
+
+## 14. Conversion Event Hierarchy
+
+1. Primary: HoneyBook booking button click (GA4 Key Event)
+2. Secondary: Pricing page scroll depth or 60-second time on page
+3. Tertiary: Pixieset gallery clicks (high-intent browsing)
+
+## 15. Budget Guidance
+
+- TM targets $10k+ couples
+- 25% retainer per booking: $1,800 to $2,500
+- Lifetime client value with add-ons: $9k to $14k
+- Supportable CAC: $300 to $500 per booking
+- Target cost per qualified lead: $50 to $150
+- Target lead-to-booking close rate: 5 to 10%
+
+## 16. Top Creative Angles (ranked)
+
+1. "Two vendors. Zero communication. One coordinated team." Pain-point hook on the typical photo-and-film coordination mess.
+2. Husband and wife founder story. Authentic, personal, builds trust fast.
+3. Speed of delivery. "Your photos in 2 weeks. Your film in 6." Differentiates against industry norm.
+4. Cinematic film snippets. Pure emotional play. Zero copy needed for first 5 seconds.
+5. Behind-the-scenes 15-person team. Team scale as trust signal.
+6. Giving / faith angle. Targeted segment only. Converts incredibly well with values-aligned audiences.
+
+## 17. Approval Flow
+
+ALL creative requires Tony AND Brynn approval before going live. Build approval cycles into campaign timelines. No exceptions.
+
+- Tony Martinez: tonyellismartinez@gmail.com
+- Brynn Martinez: brynn.weller95@gmail.com
+
+## 18. Giving Program
+
+A portion of every TM Weddings booking is donated to:
+- Travis Mills Foundation (supports veterans and their families)
+- DiscipleMakers (campus ministry across the U.S.)
+- Compassion International (children living in poverty worldwide)
+
+Core brand pillar, not a marketing tactic. Use authentically; do not commercialize.
+
+## 19. Directory Relationships
+
+- Zola: live listing
+- Yelp: listed, NAP-consistent
+- Philly In Love: submitted
+- Junebug Weddings: vendor application submitted
+- Green Wedding Shoes: real wedding feature submitted (Selner wedding at The Woodlands Inn)
+- The Knot, WeddingWire: NOT pursued (pay-to-play, deprioritized)
+
+## 20. Operational Notes
+
+- All inquiries flow through HoneyBook
+- Tony and Brynn personally respond to most premium-tier leads
+- Avg response time: same-day during business hours
+- Consultation: free 30-minute video call or in-person
+- Closing rate higher than industry (couples feel they "know" team via video bios)
+- Peak booking season: November through March
+- Wedding season: April through October peak, year-round availability
+
+## Quick Contact Sheet
+
+```
+Business: TM Weddings
+Founders: Tony Martinez, Brynn Martinez
+Phone: (835) 245-0037
+Email: tmweddingslv@gmail.com
+Website: https://tmweddings.com
+Booking: https://tmweddings.com/book-your-date
+Pricing: https://tmweddings.com/photo-film-pricing
+Team page: https://tmweddings.com/meet-your-storytellers
+Photo gallery: https://tmweddingslv.pixieset.com
+Instagram: @tmweddingslv
+HQ: Lehigh Valley, PA
+Service area: PA, NJ, NY (destination available)
+Booking platform: HoneyBook
+Website CMS: Squarespace
+```</pre>
+    </div>
+  </section>
+
+  <div class="briefing">
+    <h2 class="briefing-head">The complete brand briefing</h2>
+    <p class="briefing-sub">Tap any section to expand. Twenty in total. Look for the COPY buttons on key blocks you'll reuse.</p>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">1</span>
+        <span class="section-title">Company Snapshot</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <table>
+          <tr><th>Business name</th><td>TM Weddings (also TM Weddings Photo &amp; Video, TM Weddings LV)</td></tr>
+          <tr><th>Type</th><td>Premium wedding photography and film studio</td></tr>
+          <tr><th>Founded</th><td>2020 (legal operations January 2021)</td></tr>
+          <tr><th>Founders</th><td>Tony Martinez and Brynn Martinez (husband and wife)</td></tr>
+          <tr><th>HQ</th><td>Lehigh Valley, Pennsylvania</td></tr>
+          <tr><th>Team size</th><td>15 photographers, videographers, editors</td></tr>
+          <tr><th>Service area</th><td>PA, NJ, NY (destination available)</td></tr>
+          <tr><th>Website</th><td><a href="https://tmweddings.com" target="_blank">tmweddings.com</a></td></tr>
+          <tr><th>Phone</th><td>(835) 245-0037</td></tr>
+          <tr><th>Email</th><td>tmweddingslv@gmail.com</td></tr>
+          <tr><th>Instagram</th><td>@tmweddingslv</td></tr>
+          <tr><th>Facebook</th><td>@tmweddingslv</td></tr>
+          <tr><th>Booking</th><td>HoneyBook</td></tr>
+          <tr><th>CMS</th><td>Squarespace</td></tr>
+          <tr><th>Photo gallery</th><td>Pixieset</td></tr>
+          <tr><th>Video host</th><td>Vimeo</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">2</span>
+        <span class="section-title">What TM Weddings Does</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <p>TM Weddings is a full-service wedding photography and cinematic film company. Couples can book photo only, film only, or the bundle that combines both under one coordinated team. Every package centers on 8 hours of full-day wedding coverage, plus an extensive add-on menu (engagement sessions, second shooters, extended highlight films, livestreaming, content creators, signature albums, rehearsal dinner coverage, and more).</p>
+        <p>The deliverables are a fully edited, color-corrected, downloadable online photo gallery (high-resolution JPGs), and a cinematic wedding film with music, color grading, and professional cuts. Couples can also commission heirloom-quality printed albums.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">3</span>
+        <span class="section-title">The Three-Line Positioning</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Use this in ads</h4>
+        <div class="callout has-copy-inline">
+          <button class="copy-btn-inline" data-copy-target="quote-positioning">Copy</button>
+          <span id="quote-positioning">Premium wedding photo and film, captured by one coordinated 15-person team based in the Lehigh Valley. No juggling two vendors, no miscommunication on the day. Your gallery and your film tell the same story.</span>
+        </div>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">4</span>
+        <span class="section-title">Founders</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h3>Tony Martinez (co-founder, photographer, filmmaker)</h3>
+        <p>Tony co-founded TM Weddings out of a love for storytelling. His belief is that weddings are some of the most honest, emotional moments anyone will experience, and that they deserve a team that shows up with that same level of passion. He works on the camera side and runs the business operations alongside Brynn.</p>
+
+        <h3>Brynn Martinez (co-founder, photographer, filmmaker)</h3>
+        <p>Brynn co-founded TM Weddings on the conviction that the best wedding photos and films are not just beautiful, they are true. Her work is grounded in capturing couples as they actually are, not just how they looked on the day. She shoots, leads creative direction, and is the public-facing voice of the brand alongside Tony.</p>
+
+        <h3>Founding story</h3>
+        <p>Tony and Brynn got married in 2020. The experience of being on the client side, of feeling what a wedding day actually feels like and how much it matters to be photographed and filmed by someone who shows up fully, became the foundation for everything they built next. They started TM Weddings the year after, and have grown it into a 15-person team serving couples across PA, NJ, and NY.</p>
+        <p style="font-size:0.84rem;color:var(--text-dim);">Use the founding story in long-form creative.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">5</span>
+        <span class="section-title">The Full 15-Person Team</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <p>Each team member has a dedicated bio page on the website at <code>/first-last-name</code> and most have a personal video bio hosted on Vimeo.</p>
+        <table>
+          <thead><tr><th>Member</th><th>Role</th><th>Page slug</th></tr></thead>
+          <tr><td>Tony Martinez</td><td>Co-founder, Photographer, Filmmaker</td><td>/tony-martinez</td></tr>
+          <tr><td>Brynn Martinez</td><td>Co-founder, Photographer, Filmmaker</td><td>/brynn-martinez</td></tr>
+          <tr><td>Lexi Martinez</td><td>Photographer / Videographer</td><td>/lexi-martinez</td></tr>
+          <tr><td>Zach Erwin</td><td>Photographer / Videographer</td><td>/zach-erwin</td></tr>
+          <tr><td>Isabella Martinez</td><td>Photographer / Videographer</td><td>/isabella-martinez</td></tr>
+          <tr><td>Nick Stewart</td><td>Photographer / Videographer</td><td>/nick-stewart</td></tr>
+          <tr><td>Luke Heffelfinger</td><td>Photographer / Videographer</td><td>/luke-heffelfinger</td></tr>
+          <tr><td>PJ Knight</td><td>Photographer / Videographer</td><td>/pj-knight</td></tr>
+          <tr><td>Nolan Guzman</td><td>Photographer / Videographer</td><td>/nolan-guzman</td></tr>
+          <tr><td>Nathan Rathmell</td><td>Photographer / Videographer</td><td>/nathan-rathmell</td></tr>
+          <tr><td>Zyara Sanchez</td><td>Photographer / Videographer</td><td>/zyara-sanchez</td></tr>
+          <tr><td>Kaitlyn Esteves</td><td>Team member</td><td>/kaitlyn-esteves</td></tr>
+          <tr><td>Chris Kauffman</td><td>Team member</td><td>/chris-kauffman</td></tr>
+          <tr><td>Dylan Spangler</td><td>Team member</td><td>/dylan-spangler</td></tr>
+          <tr><td>Natasha DeAngelo</td><td>Team member</td><td>/natasha-deangelo</td></tr>
+        </table>
+        <p>All 15 are featured on the <strong>Meet Your Storytellers</strong> page, which is one of the strongest brand assets the company has. Team size is a real differentiator in the local market.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">6</span>
+        <span class="section-title">Packages and Pricing</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Base Collections (8 hours of coverage included in all)</h4>
+        <table>
+          <thead><tr><th>Package</th><th>Price</th><th>Core</th></tr></thead>
+          <tr><td>Photo Base</td><td><strong>$3,797</strong></td><td>8 hours, 1 photographer, full edited online gallery</td></tr>
+          <tr><td>Film Base</td><td><strong>$4,697</strong></td><td>8 hours, 2 videographers, full edited cinematic film</td></tr>
+          <tr><td>Photo + Film Bundle</td><td><strong>$7,197</strong></td><td>Both, one coordinated team</td></tr>
+        </table>
+
+        <h4>Add-Ons</h4>
+        <table>
+          <thead><tr><th>Add-on</th><th>Price</th></tr></thead>
+          <tr><td>Feature Highlight Film (8 to 10 min)</td><td>$997</td></tr>
+          <tr><td>Extended Highlight Film (4 to 5 min)</td><td>$697</td></tr>
+          <tr><td>Wedding Trailer (60 sec)</td><td>$497</td></tr>
+          <tr><td>Save the Date Film</td><td>$497</td></tr>
+          <tr><td>Engagement Session (booked with photo)</td><td>$275</td></tr>
+          <tr><td>Second Photographer</td><td>$527</td></tr>
+          <tr><td>Content Creator</td><td>$750</td></tr>
+          <tr><td>Rehearsal Dinner Coverage</td><td>$300/hr</td></tr>
+          <tr><td>Livestream</td><td>$2,497</td></tr>
+          <tr><td>Signature Book</td><td>$527</td></tr>
+          <tr><td>Signature Album</td><td>$897</td></tr>
+        </table>
+
+        <h4>Booking Terms</h4>
+        <ul>
+          <li><strong>Retainer:</strong> 25% of total balance, non-refundable</li>
+          <li><strong>Payment plans:</strong> Available, paid in full, halves, quarters, or monthly via HoneyBook auto-pay</li>
+          <li><strong>Postponement:</strong> Retainer applies to new date if confirmed within 12 months</li>
+          <li><strong>Service credit:</strong> Any payments can convert to TM Weddings credit valid 12 months from cancellation</li>
+        </ul>
+
+        <h4>Target Client Investment Threshold</h4>
+        <p>TM Weddings best fits couples investing <strong>$7,000+ in photo and film</strong>. Most profitable client lands at <strong>$10,000+</strong> total. This is the ad targeting floor.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">7</span>
+        <span class="section-title">What Makes TM Weddings Different</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <div class="callout has-copy-inline">
+          <button class="copy-btn-inline" data-copy-target="quote-differentiator">Copy</button>
+          <span id="quote-differentiator">The single strongest differentiator: photo + film, one team, one booking, one vision.</span>
+        </div>
+        <p>Most wedding couples in the PA/NJ/NY market have to hire two separate vendors who barely talk to each other. TM Weddings replaces that with a 15-person coordinated team where the photographer and videographer are working off the same shot list, the same timeline, and the same creative vision.</p>
+
+        <h4>Other meaningful differentiators</h4>
+        <ol>
+          <li><strong>Husband and wife founders.</strong> Tony and Brynn lead from the front, which couples respond to emotionally.</li>
+          <li><strong>Team scale.</strong> 15 people means TM can cover multiple weddings on the same date and offer redundancy that solo photographers cannot.</li>
+          <li><strong>Speed of delivery.</strong> Photos in 2 weeks, films in 4 to 6 weeks. One of the fastest turnaround promises in the Lehigh Valley market.</li>
+          <li><strong>Faith-based giving.</strong> A portion of every booking goes to Travis Mills Foundation (veterans), DiscipleMakers (campus ministry), and Compassion International (children in poverty worldwide). Featured on the Giving page. Resonates strongly with values-aligned couples.</li>
+          <li><strong>Editorial visual style.</strong> Bright, airy, cinematic, light-filled. Mirrors what publications like Junebug Weddings and Green Wedding Shoes feature.</li>
+          <li><strong>Fully insured and venue-ready.</strong> Certificate of insurance available on request.</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">8</span>
+        <span class="section-title">Ideal Client Profile</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Demographics</h4>
+        <ul>
+          <li>Engaged couples, primarily ages 26 to 36</li>
+          <li>Combined household income $100k+</li>
+          <li>College-educated, often dual-professional</li>
+          <li>Planning weddings 9 to 18 months out</li>
+          <li>Photo + film budget: $7,000 to $15,000+</li>
+        </ul>
+
+        <h4>Geographic priority (in order of fit)</h4>
+        <ol>
+          <li><strong>Lehigh Valley core:</strong> Allentown, Bethlehem, Easton, Nazareth, Macungie, Whitehall</li>
+          <li><strong>Philadelphia metro and suburbs:</strong> Bucks, Berks, Montgomery, Chester, Lancaster Counties</li>
+          <li><strong>Western and Northern NJ:</strong> Hunterdon, Warren, Morris, Bergen Counties</li>
+          <li><strong>NY metro:</strong> New York County, Westchester County</li>
+          <li><strong>Destination weddings,</strong> when the couple is willing to cover travel</li>
+        </ol>
+
+        <h4>Psychographic profile</h4>
+        <p>The TM Weddings ideal client is a couple who:</p>
+        <ul>
+          <li>Sees their wedding as a meaningful, once-in-a-lifetime event, not a transaction</li>
+          <li>Values cinematic storytelling and emotional authenticity over Instagram trends</li>
+          <li>Wants both photo and film, and dreads the idea of hiring two separate vendors</li>
+          <li>Prefers a team that feels personal, present, and deeply invested</li>
+          <li>Often values faith, family, and community (not required, but the giving angle resonates strongly with this segment)</li>
+          <li>Has done their research and is comparing 3 to 5 vendors at the premium tier</li>
+          <li>Is reading reviews, watching wedding films, and looking at full galleries before booking</li>
+        </ul>
+
+        <h4>Triggers that move them</h4>
+        <ul>
+          <li>Seeing a couple who looks like them, photographed at a venue similar to theirs</li>
+          <li>Hearing other couples describe the team as calm, fun, and made-our-day-better</li>
+          <li>Watching a 60-second cinematic trailer that makes them feel something</li>
+          <li>Seeing the founders' faces and the team behind the brand</li>
+          <li>A clear, transparent pricing page (no "request pricing" friction)</li>
+        </ul>
+
+        <h4>Top intent keywords</h4>
+        <ol>
+          <li>Wedding Photo &amp; Video (priority)</li>
+          <li>Wedding Videographer</li>
+          <li>Wedding Videography</li>
+          <li>Wedding Photography</li>
+          <li>Wedding Photographer</li>
+          <li>Geo-modified versions: "Lehigh Valley wedding photographer," "Bethlehem wedding videographer," "Allentown wedding photo and video"</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">9</span>
+        <span class="section-title">Brand Voice and Creative Direction</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Tone</h4>
+        <p>Warm, confident, editorial. Never salesy. Never corporate. Conversational but premium. Faith and giving are natural parts of the brand, not bolted-on virtue signaling. Always speaks to the couple as people, not as "leads" or "clients."</p>
+
+        <h4>Phrases that fit the brand</h4>
+        <ul>
+          <li>"Your wedding day deserves..."</li>
+          <li>"We don't treat it like a job. We treat it like an honor."</li>
+          <li>"One team, one vision, one story."</li>
+          <li>"Captured by people who actually show up for you."</li>
+          <li>"Cinematic, bright, deeply personal."</li>
+          <li>"Check Availability" (preferred CTA)</li>
+          <li>"Book a Consultation" (alt CTA)</li>
+        </ul>
+
+        <h4>Phrases to AVOID</h4>
+        <ul>
+          <li>"Contact Us" (use Check Availability or Book a Consultation)</li>
+          <li>Salesy CTAs: "Get a Quote," "Request Pricing," "Click Here Now"</li>
+          <li>"USB drive," "raw files," anything that makes the deliverable feel cheap</li>
+          <li>"Cheap," "affordable," "budget-friendly" (TM is premium, never frame on price savings)</li>
+          <li><strong>Em dashes are forbidden in all TM Weddings copy.</strong> Use commas, parentheses, or periods. Strict brand rule.</li>
+        </ul>
+
+        <h4>Visual identity</h4>
+        <table>
+          <tr><th>Element</th><th>Spec</th></tr>
+          <tr><td>Primary background</td><td><code>#F6FEFE</code> (light cyan)</td></tr>
+          <tr><td>Brand teal</td><td><code>#4aacac</code></td></tr>
+          <tr><td>Black</td><td><code>#0f0f0f</code></td></tr>
+          <tr><td>White</td><td><code>#ffffff</code></td></tr>
+          <tr><td>Border accents</td><td><code>#d8eeee</code></td></tr>
+          <tr><td>Display font</td><td>Cormorant Garamond (serif, often italic)</td></tr>
+          <tr><td>Body font</td><td>Jost (clean sans)</td></tr>
+          <tr><td>Card style</td><td>White rounded cards, <code>box-shadow: 0 8px 48px rgba(0,0,0,0.08)</code></td></tr>
+          <tr><td>Visual cues</td><td>Orbiting teal hearts on key sections, transparent backgrounds</td></tr>
+        </table>
+
+        <h4>Photography and film aesthetic</h4>
+        <p>Bright, airy, light-filled, editorial, cinematic. Skin tones are true and warm, never overcooked. Films are story-driven with real audio (vows, toasts, music), not just slow-motion B-roll set to pop tracks. Static images for ads should look like editorial wedding magazine spreads, not stock photography.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">10</span>
+        <span class="section-title">Website Page Inventory</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <table>
+          <thead><tr><th>Page</th><th>URL</th><th>Purpose</th></tr></thead>
+          <tr><td>Homepage</td><td>/</td><td>Hero, brand intro, social proof, video reel</td></tr>
+          <tr><td>Pricing</td><td>/photo-film-pricing</td><td>Tabbed: Bundle, Photo, Film. All pricing public.</td></tr>
+          <tr><td>Booking</td><td>/book-your-date</td><td>HoneyBook embedded form (primary conversion event)</td></tr>
+          <tr><td>Meet Your Storytellers</td><td>/meet-your-storytellers</td><td>15-member team grid</td></tr>
+          <tr><td>Individual team pages</td><td>/first-last (15 of them)</td><td>Personal video bios</td></tr>
+          <tr><td>FAQ</td><td>/faq</td><td>Search + accordion, full FAQ schema markup</td></tr>
+          <tr><td>Reviews</td><td>/reviews</td><td>Elfsight Google reviews widget</td></tr>
+          <tr><td>Photo Gallery</td><td>/gallery (or via Pixieset iframe)</td><td>Real wedding portfolio</td></tr>
+          <tr><td>Video Gallery</td><td>/video-gallery</td><td>Wedding films</td></tr>
+          <tr><td>Giving</td><td>/giving</td><td>Travis Mills Foundation, DiscipleMakers, Compassion International</td></tr>
+        </table>
+
+        <h4>Venue landing pages (in development)</h4>
+        <p>A scalable venue page template is built. First live page is <strong>Woodmont Manor</strong> in Nazareth, PA. Venue landing pages target queries like "Woodmont Manor wedding photographer" and serve as both SEO assets and direct ad landing pages for couples already booked at a specific venue.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">11</span>
+        <span class="section-title">Frequently Asked Questions (Full Content)</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <p>Pulled from the live FAQ page. The cleanest source of truth for objection-handling in ad copy.</p>
+
+        <h4>Booking and Payment</h4>
+        <ul>
+          <li><strong>How do we book?</strong> Check date at tmweddings.com/book-your-date or call (835) 245-0037. All weddings require a signed contract and 25% retainer.</li>
+          <li><strong>Payment plans?</strong> Yes. After the 25% retainer, the remaining balance can be paid in full, halves, quarters, or monthly via HoneyBook auto-pay.</li>
+          <li><strong>Cancellation/postponement?</strong> 25% retainer is non-refundable. Postponement allowed within 12 months if TM is available. Payments can convert to a 12-month service credit.</li>
+          <li><strong>Insured?</strong> Yes, fully insured. Certificate of coverage available to venues on request.</li>
+        </ul>
+
+        <h4>Packages</h4>
+        <ul>
+          <li><strong>What packages do you offer?</strong> Photo ($3,797), Film ($4,697), Photo + Film Bundle ($7,197). All include 8 hours of coverage.</li>
+          <li><strong>What add-ons?</strong> Feature Highlight ($997), Extended Highlight ($697), Wedding Trailer ($497), Save the Date Film ($497), Signature Book ($527), Signature Album ($897), Second Photographer ($527), Engagement ($275 with photo), Content Creator ($750), Rehearsal Dinner ($300/hr), Livestream ($2,497).</li>
+          <li><strong>Do you edit?</strong> Yes. Photos color-corrected and professionally edited. Films fully edited with music, color grading, and cinematic cuts.</li>
+        </ul>
+
+        <h4>Coverage and Team</h4>
+        <ul>
+          <li><strong>Where based?</strong> Lehigh Valley, PA. Cover PA, NJ, NY regularly. Destination weddings available with travel fee.</li>
+          <li><strong>Who will be at our wedding?</strong> Team of 15. Assignments based on availability and wedding needs. Specific associate requests must be in writing.</li>
+          <li><strong>How many shooters?</strong> Photo Base = 1 photographer. Film Base = 2 videographers. Bundle = both.</li>
+        </ul>
+
+        <h4>Delivery</h4>
+        <ul>
+          <li><strong>Turnaround?</strong> Photos in 2 weeks (excluding Sundays). Films in 4 to 6 weeks. Documentary Edit delivered separately. Albums in 4 to 6 weeks after image selections.</li>
+          <li><strong>Do we get all images?</strong> Yes. Private online gallery, all professionally edited high-res JPGs, downloadable. RAW files not provided unless requested for additional fee.</li>
+          <li><strong>File retention?</strong> 60-day review period. After that, no obligation to retain. $500 non-refundable recovery fee if needed beyond.</li>
+          <li><strong>Album process?</strong> 60 days from gallery delivery to submit selections. $250 reactivation fee if delayed. Forfeited if not completed within 60 days of gallery delivery.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">12</span>
+        <span class="section-title">Current Marketing Performance (Baseline)</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <p>From GA4, GSC, and BrightLocal as of recent measurement.</p>
+
+        <h4>Traffic and conversion</h4>
+        <ul>
+          <li>Approximately <strong>147 leads/month</strong> based on GA4 data</li>
+          <li>Session-to-lead conversion rate: <strong>~18%</strong> (industry benchmark for wedding vendors is 2 to 5%, so the site is converting roughly 4x above industry)</li>
+          <li>Primary conversion event: HoneyBook booking button click, tracked as a Key Event in GA4</li>
+          <li>Top organic landing pages: Homepage, Pricing, FAQ, Meet Your Storytellers</li>
+        </ul>
+
+        <h4>SEO baseline</h4>
+        <ul>
+          <li>Domain Rating (Ahrefs): 15</li>
+          <li>Backlinks: ~119</li>
+          <li>Linking domains: ~51</li>
+          <li>Dofollow ratio: 49%</li>
+          <li>Google reviews: ~55</li>
+          <li>GBP primary category: Wedding photographer</li>
+          <li>GBP secondary category: Video production service</li>
+        </ul>
+
+        <h4>Channel mix (lead source priority)</h4>
+        <ol>
+          <li>Organic Google search (largest)</li>
+          <li>Google Maps 3-pack</li>
+          <li>Wedding directories (Zola live, Philly In Love submitted, Junebug applied, Green Wedding Shoes applied)</li>
+          <li>Referrals from past clients and venues</li>
+          <li>Instagram (@tmweddingslv)</li>
+        </ol>
+
+        <h4>Not currently active as paid channels</h4>
+        <p>The Knot and WeddingWire are pay-to-play and not currently being pursued (deprioritized). No Google Ads or Meta Ads currently running. <strong>Greenfield for the ad manager.</strong></p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">13</span>
+        <span class="section-title">Attribution and Tracking Infrastructure</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>UTM convention (already established, adopt this)</h4>
+        <div class="copy-block" style="margin-top:8px;">
+          <div class="copy-block-head">
+            <span class="copy-block-label">UTM patterns</span>
+            <button class="copy-btn" data-copy-target="utm-patterns">Copy</button>
+          </div>
+          <pre class="copy-block-body code" id="utm-patterns">?utm_source=instagram&amp;utm_medium=social&amp;utm_campaign=bio-link
+?utm_source=zola&amp;utm_medium=directory&amp;utm_campaign=zola-listing
+?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign={campaign-name}
+?utm_source=meta&amp;utm_medium=paid-social&amp;utm_campaign={campaign-name}</pre>
+        </div>
+
+        <h4>Tracking stack</h4>
+        <ul>
+          <li><strong>Google Search Console:</strong> Verified, sitemap submitted, all key pages indexed</li>
+          <li><strong>Google Analytics 4:</strong> Confirmed firing on all pages, HoneyBook click marked as Key Event conversion</li>
+          <li><strong>Google Business Profile:</strong> Active, photos, services, and pricing ranges current</li>
+          <li><strong>Bing Webmaster Tools:</strong> Verified, sitemap submitted (covers Microsoft Copilot AI)</li>
+          <li><strong>Schema markup:</strong> LocalBusiness, FAQPage, BreadcrumbList all live and validated. EventVenue schema rolling out on venue landing pages.</li>
+        </ul>
+
+        <h4>Mobile performance caveat</h4>
+        <p>Mobile PageSpeed score has been a known issue (LCP previously 24.8s due to Vimeo background video). Fix deployed: static poster image on screens under 768px, Vimeo API conditionally loaded desktop-only. Mobile LCP remains the single biggest technical lever. Any campaign that drives mobile traffic should monitor the homepage as a landing page closely. Consider routing paid traffic to dedicated landing pages (e.g. /book-your-date or /photo-film-pricing) which load faster than the homepage.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">14</span>
+        <span class="section-title">Competitive Landscape</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Who TM Weddings competes with</h4>
+        <p>The Lehigh Valley wedding photo and video market is dominated by solo photographers and 2-person studios charging $2,500 to $5,500. TM is in the upper tier at $3,797 to $10,000+.</p>
+
+        <h4>Direct premium competitors</h4>
+        <p>Premium-tier photo and film studios serving Lehigh Valley and Philadelphia metro. The segment is fragmented; few competitors offer photo + film under one team at TM's scale.</p>
+
+        <h4>TM Weddings' competitive moat</h4>
+        <ol>
+          <li>Bundled photo + film with one coordinated team (most competitors are photo only OR film only, or two separate companies)</li>
+          <li>Team capacity of 15 allows multi-wedding days and add-on flexibility no solo competitor can match</li>
+          <li>Husband and wife brand identity is a marketing asset that drives emotional connection</li>
+          <li>Faith-based giving differentiator is unique in the local premium market</li>
+          <li>Editorial style and submitted to Junebug, Green Wedding Shoes, Philly In Love. Signals taste-level above commodity competitors.</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">15</span>
+        <span class="section-title">Ad Strategy Recommendations (Starting Point)</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <h4>Highest-leverage paid channels to test</h4>
+        <ol>
+          <li><strong>Google Search (high commercial intent):</strong> Bid on "Lehigh Valley wedding photographer," "wedding videographer Allentown," "wedding photo and video PA," and venue-specific queries. Send to /book-your-date or to dedicated venue landing pages.</li>
+          <li><strong>Meta (Facebook + Instagram):</strong> Engagement and interest targeting on women 25 to 35 in the Lehigh Valley + Philly + NJ metro area, with custom audiences from past Pixieset gallery viewers. Lookalike audiences from past HoneyBook leads. Creative leans on the husband + wife founder story and the "one team for photo + film" angle.</li>
+          <li><strong>YouTube pre-roll:</strong> 30-second wedding film cuts to engaged couples in the geographic targeting set. Brand awareness and remarketing.</li>
+          <li><strong>Pinterest:</strong> Wedding planning intent platform. Visual editorial style fits perfectly. Pin past gallery highlights with venue and location keywords.</li>
+        </ol>
+
+        <h4>Top creative angles ranked</h4>
+        <div class="copy-block" style="margin-top:8px;">
+          <div class="copy-block-head">
+            <span class="copy-block-label">Top creative angles (ranked)</span>
+            <button class="copy-btn" data-copy-target="creative-angles">Copy</button>
+          </div>
+          <pre class="copy-block-body" id="creative-angles">1. "Two vendors. Zero communication. One coordinated team." Pain-point hook on the typical photo-and-film coordination mess.
+2. Husband and wife founder story. Authentic, personal, builds trust fast.
+3. Speed of delivery. "Your photos in 2 weeks. Your film in 6." Differentiates against industry norm of 2 to 6 months.
+4. Cinematic film snippets. Pure emotional play. Zero copy needed for first 5 seconds.
+5. Behind-the-scenes 15-person team. Team scale as trust signal.
+6. Giving / faith angle. Targeted segment only, but converts incredibly well with values-aligned audiences.</pre>
+        </div>
+
+        <h4>Landing page strategy</h4>
+        <ul>
+          <li><strong>Cold paid traffic:</strong> Send to /book-your-date or /photo-film-pricing, never the homepage.</li>
+          <li><strong>Venue-specific paid traffic:</strong> Send to the venue landing page (Woodmont Manor live, more in production).</li>
+          <li><strong>Retargeting traffic:</strong> Send to /meet-your-storytellers (deeper-funnel emotional content) or /reviews (closing trust signal).</li>
+        </ul>
+
+        <h4>Conversion event hierarchy</h4>
+        <ol>
+          <li><strong>Primary:</strong> HoneyBook booking button click (already a GA4 Key Event)</li>
+          <li><strong>Secondary:</strong> Pricing page scroll depth or 60-second time on page</li>
+          <li><strong>Tertiary:</strong> Pixieset gallery clicks (high-intent browsing behavior)</li>
+        </ol>
+
+        <h4>Budget guidance</h4>
+        <p>TM is targeting $10k+ couples. With a 25% retainer of approximately $1,800 to $2,500 per booking and a lifetime client value (often add-ons brings total to $9k to $14k), the unit economics support a CAC up to $300 to $500 per booking comfortably. Ads should aim for $50 to $150 cost per qualified lead and a 5 to 10% lead-to-booking close rate.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">16</span>
+        <span class="section-title">Things You Must Know Before Writing Any Copy</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <ol>
+          <li><strong>No em dashes. Ever.</strong> Use commas, periods, or parentheses. This is a hard brand rule.</li>
+          <li><strong>CTA is "Check Availability" or "Book a Consultation."</strong> Never "Contact Us," never "Get a Quote."</li>
+          <li><strong>Don't compete on price.</strong> TM Weddings is premium. Do not run "affordable wedding photographer" ad copy.</li>
+          <li><strong>Lead with story, not specs.</strong> The brand's own copy never opens with "8-hour packages." It opens with "your wedding day deserves..."</li>
+          <li><strong>Faith messaging is powerful but segmented.</strong> Include it for values-aligned audiences. Don't force it into every campaign.</li>
+          <li><strong>The phrase "husband and wife" carries enormous emotional weight.</strong> Use it in copy, especially for cold audiences.</li>
+          <li><strong>Photo + film as one team is THE differentiator.</strong> Anchor most campaigns on this.</li>
+          <li><strong>Squarespace platform constraint.</strong> No new landing pages can be spun up without involving the existing dev workflow (code injection, header injection). Brief Tony on landing page needs early.</li>
+          <li><strong>Brand colors and fonts are non-negotiable.</strong> All static and motion creative must use <code>#F6FEFE</code> / <code>#4aacac</code> / <code>#0f0f0f</code> / Cormorant Garamond / Jost.</li>
+          <li><strong>Tony and Brynn approve all creative before it goes live.</strong> Build approval cycles into the campaign timeline.</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">17</span>
+        <span class="section-title">Giving Program (For Faith-and-Values Campaigns)</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <p>A portion of every TM Weddings booking is donated to:</p>
+        <ul>
+          <li><strong>Travis Mills Foundation</strong> (supports veterans and their families)</li>
+          <li><strong>DiscipleMakers</strong> (campus ministry across the U.S.)</li>
+          <li><strong>Compassion International</strong> (children living in poverty worldwide)</li>
+        </ul>
+        <p>This is a core brand pillar, not a marketing tactic. Featured on the dedicated /giving page. Use authentically; do not commercialize.</p>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">18</span>
+        <span class="section-title">Existing Directory and Publication Relationships</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <ul>
+          <li><strong>Zola:</strong> Live listing, vendor profile complete with bio and pricing</li>
+          <li><strong>Yelp:</strong> Listed, NAP-consistent</li>
+          <li><strong>Philly In Love:</strong> Listing submitted</li>
+          <li><strong>Junebug Weddings:</strong> Vendor application submitted</li>
+          <li><strong>Green Wedding Shoes:</strong> Real wedding feature submitted (Selner wedding at The Woodlands Inn, PA)</li>
+          <li><strong>The Knot, WeddingWire:</strong> Not pursued (pay-to-play, deprioritized)</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">19</span>
+        <span class="section-title">Operational Notes That Affect Marketing</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <ul>
+          <li><strong>Lead handling:</strong> All inquiries flow through HoneyBook. Tony and Brynn personally respond to most premium-tier leads.</li>
+          <li><strong>Average response time:</strong> Typically same-day during business hours</li>
+          <li><strong>Consultation format:</strong> Free 30-minute video call or in-person meeting</li>
+          <li><strong>Closing rate:</strong> Higher than industry, in part due to the team's video-bio approach (couples often feel they "know" the team before booking)</li>
+          <li><strong>Peak booking season:</strong> November through March (couples engaged over the holidays book in the first three months of the year)</li>
+          <li><strong>Wedding season:</strong> April through October peak, year-round availability</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="section">
+      <summary>
+        <span class="section-num">20</span>
+        <span class="section-title">Quick-Reference Contact Sheet</span>
+        <span class="section-chevron">›</span>
+      </summary>
+      <div class="section-body">
+        <div class="copy-block" style="margin-top:0;">
+          <div class="copy-block-head">
+            <span class="copy-block-label">Contact sheet</span>
+            <button class="copy-btn" data-copy-target="contact-sheet">Copy</button>
+          </div>
+          <pre class="copy-block-body code" id="contact-sheet">Business: TM Weddings
+Founders: Tony Martinez, Brynn Martinez
+Phone: (835) 245-0037
+Email: tmweddingslv@gmail.com
+Website: https://tmweddings.com
+Booking: https://tmweddings.com/book-your-date
+Pricing: https://tmweddings.com/photo-film-pricing
+Team: https://tmweddings.com/meet-your-storytellers
+Photo Gallery: https://tmweddingslv.pixieset.com
+Instagram: @tmweddingslv
+Facebook: @tmweddingslv
+HQ: Lehigh Valley, PA
+Service area: PA, NJ, NY (destination available)
+Booking platform: HoneyBook
+Website CMS: Squarespace</pre>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <div class="checklist">
+    <div class="checklist-head">
+      <h2>Your onboarding checklist</h2>
+      <p>Check items off as you complete them. Progress saves automatically.</p>
+    </div>
+    <div id="checklist-body">
+      <div class="loading">
+        <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+        <div style="margin-top:14px;">Loading your progress…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="save-state" id="save-state"></div>
+
+<script>
+const ACTION_ITEMS = [
+  { id: 'claude-project',    group: 'Setup',     title: 'Set up your TM Weddings Claude project (use the 4 copy blocks at the top of this page)' },
+  { id: 'gads-access',       group: 'Setup',     title: 'Get Google Ads account access from Tony' },
+  { id: 'meta-access',       group: 'Setup',     title: 'Get Meta Business Manager access from Tony' },
+  { id: 'ga4-verify',        group: 'Setup',     title: 'Verify GA4 conversion event firing on HoneyBook click' },
+  { id: 'utm-conventions',   group: 'Setup',     title: 'Adopt the UTM conventions documented in section 13' },
+  { id: 'read-briefing',     group: 'Knowledge', title: 'Read the full briefing above (sections 1 through 20)' },
+  { id: 'voice-rules',       group: 'Knowledge', title: 'Internalize brand voice rules (no em dashes, "Check Availability" CTA, premium tone)' },
+  { id: 'memorize-pricing',  group: 'Knowledge', title: 'Memorize package pricing and add-on menu (section 6)' },
+  { id: 'icp-deep',          group: 'Knowledge', title: 'Internalize the ideal client profile (section 8)' },
+  { id: 'competitive',       group: 'Knowledge', title: 'Review the competitive landscape and TM\'s moat (section 14)' },
+  { id: 'creative-google',   group: 'Creative',  title: 'Draft 3 Google Search ad creatives for first campaign' },
+  { id: 'creative-meta',     group: 'Creative',  title: 'Draft 3 Meta ad creatives for first campaign' },
+  { id: 'creative-approval', group: 'Creative',  title: 'Submit creative round 1 for Tony and Brynn approval' },
+  { id: 'launch-google',     group: 'Launch',    title: 'Launch first Google Search campaign' },
+  { id: 'launch-meta',       group: 'Launch',    title: 'Launch first Meta campaign' },
+  { id: 'weekly-cadence',    group: 'Launch',    title: 'Set up weekly performance reporting cadence with Tony' }
+];
+
+const PROGRESS_ROW_ID = 'tmw_marketing_progress';
+let progressData = null;
+let myProgress = null;
+let saveTimer = null;
+let saveStateTimer = null;
+
+function waitForUser(cb){
+  if (window.TMW_USER) { cb(); return; }
+  setTimeout(function(){ waitForUser(cb); }, 50);
+}
+
+waitForUser(function(){
+  document.getElementById('user-name').textContent = TMW_USER.name || TMW_USER.email;
+  bootProgress();
+});
+
+async function bootProgress(){
+  try {
+    const rows = await tmwSbFetch('projects?id=eq.' + PROGRESS_ROW_ID + '&select=data');
+    if (!rows || !rows[0]) {
+      progressData = { schema_version: 1, users: {} };
+    } else {
+      progressData = rows[0].data || { schema_version: 1, users: {} };
+      if (!progressData.users) progressData.users = {};
+    }
+    if (!progressData.users[TMW_USER.email]) {
+      progressData.users[TMW_USER.email] = { checked: [], lastUpdated: null };
+    }
+    myProgress = progressData.users[TMW_USER.email];
+    if (!Array.isArray(myProgress.checked)) myProgress.checked = [];
+    renderChecklist();
+    updateProgress();
+  } catch (e) {
+    console.error('Progress load failed:', e);
+    showSave('Could not load progress', true);
+    progressData = { schema_version: 1, users: {} };
+    myProgress = { checked: [], lastUpdated: null };
+    progressData.users[TMW_USER.email] = myProgress;
+    renderChecklist();
+    updateProgress();
+  }
+}
+
+function renderChecklist(){
+  const groups = {};
+  ACTION_ITEMS.forEach(function(item){
+    if (!groups[item.group]) groups[item.group] = [];
+    groups[item.group].push(item);
+  });
+  const order = ['Setup', 'Knowledge', 'Creative', 'Launch'];
+  let html = '';
+  order.forEach(function(group){
+    if (!groups[group]) return;
+    html += '<div class="checklist-group">';
+    html += '<div class="checklist-group-title">' + group + '</div>';
+    groups[group].forEach(function(item){
+      const checked = myProgress.checked.indexOf(item.id) !== -1;
+      html += '<label class="checklist-item' + (checked ? ' checked' : '') + '" data-id="' + item.id + '">';
+      html += '<input type="checkbox"' + (checked ? ' checked' : '') + ' onchange="toggleItem(\'' + item.id + '\', this.checked)">';
+      html += '<span class="checklist-item-text">' + escapeHtml(item.title) + '</span>';
+      html += '</label>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('checklist-body').innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleItem(id, checked){
+  if (checked) {
+    if (myProgress.checked.indexOf(id) === -1) myProgress.checked.push(id);
+  } else {
+    myProgress.checked = myProgress.checked.filter(function(x){ return x !== id; });
+  }
+  myProgress.lastUpdated = new Date().toISOString();
+  const label = document.querySelector('.checklist-item[data-id="' + id + '"]');
+  if (label) {
+    if (checked) label.classList.add('checked');
+    else label.classList.remove('checked');
+  }
+  updateProgress();
+  scheduleSave();
+}
+
+function updateProgress(){
+  const total = ACTION_ITEMS.length;
+  const done = myProgress.checked.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-stats').innerHTML = '<em>' + done + '</em> of <em>' + total + '</em> complete &middot; ' + pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  let meta = '';
+  if (done === 0) meta = 'Start by setting up your Claude project at the top. Then read through the briefing and check items off as you go.';
+  else if (done === total) meta = 'You\'re fully onboarded. Time to launch.';
+  else if (myProgress.lastUpdated) {
+    const t = new Date(myProgress.lastUpdated);
+    meta = 'Last update: ' + t.toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  } else {
+    meta = 'Keep going.';
+  }
+  document.getElementById('progress-meta').textContent = meta;
+}
+
+function scheduleSave(){
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProgress, 600);
+}
+
+async function saveProgress(){
+  progressData.users[TMW_USER.email] = myProgress;
+  try {
+    const patchRes = await tmwSbFetch('projects?id=eq.' + PROGRESS_ROW_ID, {
+      method: 'PATCH',
+      body: JSON.stringify({ data: progressData })
+    });
+    if (!patchRes || !patchRes.length) {
+      await tmwSbFetch('projects', {
+        method: 'POST',
+        body: JSON.stringify({ id: PROGRESS_ROW_ID, data: progressData })
+      });
+    }
+    showSave('Saved');
+  } catch (e) {
+    console.error('Save failed:', e);
+    showSave('Save failed, retrying…', true);
+    setTimeout(saveProgress, 3000);
+  }
+}
+
+function showSave(msg, isError){
+  const el = document.getElementById('save-state');
+  el.textContent = msg;
+  el.className = 'save-state show' + (isError ? ' error' : '');
+  if (saveStateTimer) clearTimeout(saveStateTimer);
+  saveStateTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
+}
+
+// ─── Copy-to-clipboard handler (delegated for all copy buttons on the page) ───
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-copy-target]');
+  if (!btn) return;
+  e.preventDefault();
+  const targetId = btn.dataset.copyTarget;
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  const text = target.textContent;
+  copyToClipboard(text).then(function(){
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 1500);
+  }).catch(function(err){
+    console.error('Copy failed:', err);
+    const orig = btn.textContent;
+    btn.textContent = '⚠ Failed';
+    btn.classList.add('failed');
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.classList.remove('failed');
+    }, 1800);
+  });
+});
+
+function copyToClipboard(text){
+  if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function(resolve, reject){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.setAttribute('readonly', '');
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    try {
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) resolve();
+      else reject(new Error('execCommand failed'));
+    } catch (e) {
+      document.body.removeChild(ta);
+      reject(e);
+    }
+  });
+}
+</script>
+
+</body>
+</html>

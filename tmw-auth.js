@@ -12,6 +12,7 @@
  *     "shooter" — owner, admin, OR shooter
  *     "post-production" — owner, admin, OR editor (semantic alias)
  *     "shoot"   — owner, admin, OR shooter (semantic alias)
+ *     "marketing" — owner OR marketing (external partner role)
  *
  * AFTER LOAD, GLOBALS:
  *   window.TMW_USER           — { email, name, roles: [], isOwner, isAdmin, isEditor, isShooter }
@@ -28,6 +29,12 @@
  *   4. If Supabase fetch fails → fall back to hardcoded EMERGENCY_OWNERS list (owners only)
  *
  * The hardcoded fallback ensures owners can always log in even if Supabase is down.
+ *
+ * EXTERNAL ROLE PATH-RESTRICTION:
+ *   Users whose only role is 'marketing' (or any non-internal role) are
+ *   path-restricted to /marketing/*. They cannot navigate to internal
+ *   wedding/post-production/dashboard routes even if those pages use a
+ *   permissive 'any' guard. Internal roles are: owner, admin, editor, shooter.
  */
 
 (function(){
@@ -39,6 +46,17 @@
   var SESSION_KEY  = 'sb-rafygjaemcjhnououmwn-auth-token';
   var TEAM_CACHE_KEY = 'tmw_team_cache_v1';
   var TEAM_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+  // Internal team roles — users with at least one of these can access the
+  // full portal. Users with only external roles (marketing, etc.) are
+  // path-restricted to their dedicated subdirectory.
+  var INTERNAL_ROLES = ['owner', 'admin', 'editor', 'shooter'];
+
+  // External role → allowed path prefix. Users whose only role is the key
+  // are restricted to navigating within the value's path.
+  var EXTERNAL_ROLE_PATHS = {
+    'marketing': '/marketing'
+  };
 
   // Emergency fallback — used only if Supabase fetch fails AND no valid cache.
   // Just owners, so the people who can fix things can always log in.
@@ -55,7 +73,8 @@
     'editor':          function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('editor') !== -1; },
     'shooter':         function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('shooter') !== -1; },
     'post-production': function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('editor') !== -1; },
-    'shoot':           function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('shooter') !== -1; }
+    'shoot':           function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('shooter') !== -1; },
+    'marketing':       function(roles){ return roles.indexOf('owner') !== -1 || roles.indexOf('marketing') !== -1; }
   };
 
   // ─── EXPOSE SIGN OUT IMMEDIATELY ───
@@ -231,6 +250,54 @@
     window.location.replace('/');
   }
 
+  // For external-role-only users, redirect to their allowed path prefix.
+  function redirectToExternalHome(externalRole){
+    var dest = EXTERNAL_ROLE_PATHS[externalRole];
+    if (dest) {
+      window.location.replace(dest + '/');
+    } else {
+      // Unknown external role — sign them out rather than risk lateral access.
+      window.tmwSignOut();
+    }
+  }
+
+  // Determine if a user has any internal team role
+  function hasInternalRole(roles){
+    for (var i = 0; i < INTERNAL_ROLES.length; i++) {
+      if (roles.indexOf(INTERNAL_ROLES[i]) !== -1) return true;
+    }
+    return false;
+  }
+
+  // Determine which external role a user has (if any) when they have NO
+  // internal roles. Returns the first matching external role, or null.
+  function getExternalOnlyRole(roles){
+    if (hasInternalRole(roles)) return null;
+    for (var ext in EXTERNAL_ROLE_PATHS) {
+      if (Object.prototype.hasOwnProperty.call(EXTERNAL_ROLE_PATHS, ext)) {
+        if (roles.indexOf(ext) !== -1) return ext;
+      }
+    }
+    return null;
+  }
+
+  // Path-restriction enforcement: external-only users may only navigate
+  // within their allowed path prefix. Anything else routes them home.
+  function enforcePathRestriction(externalRole){
+    var allowedPrefix = EXTERNAL_ROLE_PATHS[externalRole];
+    if (!allowedPrefix) return false;
+    var path = window.location.pathname || '/';
+    // Allow exact prefix match: /marketing or /marketing/ or /marketing/anything
+    var withinPrefix = (path === allowedPrefix) ||
+                       (path.indexOf(allowedPrefix + '/') === 0) ||
+                       (path === allowedPrefix + '/');
+    if (!withinPrefix) {
+      redirectToExternalHome(externalRole);
+      return true;
+    }
+    return false;
+  }
+
   // ─── EXECUTE GUARD ───
   try {
     var session = readSession();
@@ -261,11 +328,24 @@
 
     var roles = member.roles || [];
 
+    // Path-restriction for external-only users (e.g. marketing partners).
+    // If they're already off-path, redirect and bail before role check runs.
+    var externalOnlyRole = getExternalOnlyRole(roles);
+    if (externalOnlyRole) {
+      var redirected = enforcePathRestriction(externalOnlyRole);
+      if (redirected) return;
+    }
+
     var requiredRole = getRequiredRole();
     var checker = AREA_ACCESS[requiredRole] || AREA_ACCESS['any'];
     if (!checker(roles)) {
-      console.warn('TMW: ' + email + ' lacks role "' + requiredRole + '" (has ' + roles.join(',') + '). Redirecting to home.');
-      redirectToHome();
+      console.warn('TMW: ' + email + ' lacks role "' + requiredRole + '" (has ' + roles.join(',') + '). Redirecting.');
+      // External-only users get sent to their external home, internal users to /
+      if (externalOnlyRole) {
+        redirectToExternalHome(externalOnlyRole);
+      } else {
+        redirectToHome();
+      }
       return;
     }
 
@@ -277,10 +357,12 @@
       isAdmin:   roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1,
       isEditor:  roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('editor') !== -1,
       isShooter: roles.indexOf('owner') !== -1 || roles.indexOf('admin') !== -1 || roles.indexOf('shooter') !== -1,
-      hasOwnerRole:   roles.indexOf('owner') !== -1,
-      hasAdminRole:   roles.indexOf('admin') !== -1,
-      hasEditorRole:  roles.indexOf('editor') !== -1,
-      hasShooterRole: roles.indexOf('shooter') !== -1
+      hasOwnerRole:     roles.indexOf('owner') !== -1,
+      hasAdminRole:     roles.indexOf('admin') !== -1,
+      hasEditorRole:    roles.indexOf('editor') !== -1,
+      hasShooterRole:   roles.indexOf('shooter') !== -1,
+      hasMarketingRole: roles.indexOf('marketing') !== -1,
+      isExternalOnly:   externalOnlyRole !== null
     };
 
     window.tmwHasRole = function(role){
