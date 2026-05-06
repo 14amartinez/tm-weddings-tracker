@@ -357,7 +357,10 @@ whenUserReady(function(){
 
   // Referrals — visible to all team members
   var gl = document.getElementById('general-links');
-  gl.innerHTML = '<a class="qa-item" href="/referrals/">Referrals <span class="dot"></span></a>' + gl.innerHTML;
+  gl.innerHTML =
+    '<a class="qa-item" href="/referrals/">Referrals <span class="dot"></span></a>' +
+    '<a class="qa-item" href="/referrals/program.html">Referral Program <span class="dot"></span></a>' +
+    gl.innerHTML;
 
   // Owner / admin only: dashboard + builder + team admin
   if (TMW_USER.isAdmin) {
