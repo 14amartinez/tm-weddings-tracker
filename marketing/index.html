@@ -1671,6 +1671,7 @@ async function bootProgress(){
     }
     myProgress = progressData.users[TMW_USER.email];
     if (!Array.isArray(myProgress.checked)) myProgress.checked = [];
+    pruneOrphanedChecks();
     renderChecklist();
     updateProgress();
   } catch (e) {
@@ -1681,6 +1682,21 @@ async function bootProgress(){
     progressData.users[TMW_USER.email] = myProgress;
     renderChecklist();
     updateProgress();
+  }
+}
+
+// Drop any saved task ids that no longer exist in ACTION_ITEMS (e.g.
+// items removed in a later release). Persists the cleanup to Supabase
+// so stale completions don't keep inflating the progress count.
+function pruneOrphanedChecks(){
+  var validIds = ACTION_ITEMS.map(function(i){ return i.id; });
+  var before = myProgress.checked.length;
+  myProgress.checked = myProgress.checked.filter(function(id){
+    return validIds.indexOf(id) !== -1;
+  });
+  if (myProgress.checked.length !== before) {
+    myProgress.lastUpdated = new Date().toISOString();
+    scheduleSave();
   }
 }
 
