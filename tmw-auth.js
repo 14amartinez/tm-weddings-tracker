@@ -1,5 +1,5 @@
 /**
- * TMW Auth Guard — centralized, role-aware, hybrid-cached.
+ * TMW Auth Guard — centralized, role-aware, hybrid-cached, refresh-aware.
  *
  * USAGE:
  *   <script src="/tmw-auth.js" data-required-role="any"></script>
@@ -35,6 +35,16 @@
  *   path-restricted to /marketing/*. They cannot navigate to internal
  *   wedding/post-production/dashboard routes even if those pages use a
  *   permissive 'any' guard. Internal roles are: owner, admin, editor, shooter.
+ *
+ * SESSION REFRESH (added 2026-05-06):
+ *   Supabase access tokens are issued with a 1-hour TTL. The refresh_token
+ *   issued alongside lasts ~7 days by default. This guard now uses the
+ *   refresh_token to extend sessions on the fly:
+ *     - >5 min left:  use session as-is (sync fast path)
+ *     - <5 min, >60s: use as-is, fire async background refresh
+ *     - <60s or expired: sync refresh in-place; only sign out if refresh fails
+ *   Net effect: users stay signed in until they go a full week without
+ *   visiting the portal, instead of getting kicked every hour.
  */
 
 (function(){
@@ -46,6 +56,10 @@
   var SESSION_KEY  = 'sb-rafygjaemcjhnououmwn-auth-token';
   var TEAM_CACHE_KEY = 'tmw_team_cache_v1';
   var TEAM_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+  // Refresh thresholds (in seconds)
+  var REFRESH_HARD_THRESHOLD = 60;    // less than this → sync refresh now
+  var REFRESH_SOFT_THRESHOLD = 300;   // less than this → background refresh
 
   // Internal team roles — users with at least one of these can access the
   // full portal. Users with only external roles (marketing, etc.) are
@@ -127,24 +141,110 @@
     return body ? JSON.parse(body) : null;
   };
 
-  // ─── READ SESSION FROM LOCALSTORAGE ───
+  // ─── SESSION REFRESH HELPERS ───
+  // Build a session payload from /auth/v1/token refresh response, in the
+  // same shape callback.html writes (so readers don't care which path
+  // wrote it).
+  function buildSessionFromRefresh(refreshData, prevUser){
+    var nowSec = Math.floor(Date.now() / 1000);
+    return {
+      access_token: refreshData.access_token,
+      refresh_token: refreshData.refresh_token || null,
+      expires_at: refreshData.expires_at || (nowSec + (refreshData.expires_in || 3600)),
+      expires_in: refreshData.expires_in || 3600,
+      token_type: refreshData.token_type || 'bearer',
+      provider_token: refreshData.provider_token || null,
+      provider_refresh_token: refreshData.provider_refresh_token || null,
+      user: refreshData.user || prevUser || null
+    };
+  }
+
+  // Synchronous refresh — used inline when session is expired and we need a
+  // fresh token before the page renders. Mirrors fetchTeamSync's pattern.
+  function refreshSessionSync(refreshToken){
+    if (!refreshToken) return null;
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', false);
+      xhr.setRequestHeader('apikey', SUPABASE_KEY);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({ refresh_token: refreshToken }));
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var data = JSON.parse(xhr.responseText);
+        if (data && data.access_token) {
+          return data;
+        }
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  // Async refresh — fire-and-forget, used when the session is still valid
+  // but expiring within REFRESH_SOFT_THRESHOLD seconds. The current page
+  // load uses the existing token; the next page load gets the fresh one.
+  function refreshSessionAsync(refreshToken){
+    if (!refreshToken) return;
+    fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    })
+    .then(function(res){ return res.ok ? res.json() : null; })
+    .then(function(data){
+      if (!data || !data.access_token) return;
+      // Read current session to merge user info if response omits it
+      var raw = null;
+      try { raw = localStorage.getItem(SESSION_KEY); } catch(e) { return; }
+      var prev = null;
+      try { prev = raw ? JSON.parse(raw) : null; } catch(e) { prev = null; }
+      var newSession = buildSessionFromRefresh(data, prev && prev.user);
+      if (!newSession.user) return; // never write a session without user info
+      try { localStorage.setItem(SESSION_KEY, JSON.stringify(newSession)); } catch(e) {}
+    })
+    .catch(function(){ /* silent — current token still valid */ });
+  }
+
+  // ─── READ SESSION FROM LOCALSTORAGE (with refresh on expiry) ───
   function readSession(){
     var raw = null;
     try { raw = localStorage.getItem(SESSION_KEY); } catch(e) { return null; }
     if (!raw) return null;
+
+    var s;
     try {
-      var s = JSON.parse(raw);
-      if (!s || !s.user || !s.user.email) return null;
-      var notExpired = !s.expires_at || (s.expires_at * 1000 > Date.now());
-      if (!notExpired) {
-        try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
-        return null;
-      }
-      return s;
+      s = JSON.parse(raw);
     } catch(e) {
       try { localStorage.removeItem(SESSION_KEY); } catch(e2) {}
       return null;
     }
+    if (!s || !s.user || !s.user.email) return null;
+
+    var nowSec = Math.floor(Date.now() / 1000);
+    var expiresAt = s.expires_at || 0;
+    var secondsLeft = expiresAt - nowSec;
+
+    // Hard threshold — expired or imminently expiring. Refresh in-place.
+    if (secondsLeft < REFRESH_HARD_THRESHOLD) {
+      var refreshData = refreshSessionSync(s.refresh_token);
+      if (refreshData) {
+        var refreshed = buildSessionFromRefresh(refreshData, s.user);
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify(refreshed)); } catch(e) {}
+        return refreshed;
+      }
+      // Refresh failed — session is dead. Clear and bail.
+      try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+      return null;
+    }
+
+    // Soft threshold — still valid but expiring soon. Fire background refresh.
+    if (secondsLeft < REFRESH_SOFT_THRESHOLD) {
+      refreshSessionAsync(s.refresh_token);
+    }
+
+    return s;
   }
 
   // ─── TEAM CACHE ───
