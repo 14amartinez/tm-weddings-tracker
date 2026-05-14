@@ -1,22 +1,28 @@
 -- =====================================================================
 -- File: 2026-05-14-w9-julia-timeline-and-postprod-queues.sql
--- Bucket: wedding_intake (w9 update + post-prod queue seed)
+-- Bucket: wedding_intake (w9 update + post-prod queue patch)
 -- Author: Tony Martinez (via embedded COO)
 -- Date: 2026-05-14
 -- Purpose: Update w9 Julia (5/16/26) with Saturday timeline from
 --          photographer PDF, rename client to bride-and-groom convention,
---          set ceremony venue + shotCallerUrl, fill the existing
---          tmw_deliverables row for Julia (id=8) with the three blank
---          deliverable due dates, append a tmw_photo project entry,
---          and seed tmw_shotlist_w9 from the baseline template.
+--          set ceremony venue + shotCallerUrl, patch the existing
+--          tmw_photo entry (p8) with wid/client/editor + deliverables,
+--          fill the existing tmw_deliverables row for Julia (id="8")
+--          with the three blank deliverable due dates, and seed
+--          tmw_shotlist_w9 from the baseline template.
+--
+-- IMPORTANT — discovery during this session:
+-- - tmw_photo already had a Julia entry at id="p8" (pre-wid-convention,
+--   wid=null, client="Julia Swayser", weddingDate=2026-05-16). The
+--   original BLOCK 2 (APPEND new project) correctly no-op'd via the
+--   idempotency guard. Block was rewritten as a PATCH against p8.
+-- - Existing tmw_deliverables row id="8" already had sneakPeek +
+--   photoBook set. BLOCK 3 fills the three blanks.
 --
 -- Source:
 -- - Photographer PDF "Julia & Ethan Gilbert 5.16.26-2 - Sheet1.pdf"
---   (timeline grid, venue confirmation, groom name confirmation)
 -- - Existing w9 in tmw_weddings (Brynn lead photo, Lexi 2nd photo,
 --   Parque at Ridley Creek reception, 112mi, JE0516, Photo+Video)
--- - Existing tmw_deliverables row id="8" (sneakPeek + photoBook
---   already set; doc/highlight/videoBook blank; name still "Julia Swayser")
 -- - Baseline shot list = getBaselineTemplate() in dashboard/shot-builder.html
 --
 -- What's updated:
@@ -27,13 +33,15 @@
 --     timeline → 9 blocks from PDF (single start times)
 --     venueAddress: NOT set (not in PDF; fill when known)
 --
--- - tmw_photo.projects[] (NEW entry p_w9):
---     6 deliverables — Sneak peek, Photo gallery, Photo book,
---     Highlight, Doc, Video book. Stage keys per tmw-core.js
---     photoStages / bookStages / videoStages.
---     Photo editor = Brynn (current leadPhoto).
---     Video editor = "" (no leadVideo assigned 2 days from shoot —
---     KNOWN GAP, must be filled before 5/16).
+-- - tmw_photo.projects[] (PATCH existing p8 — not append):
+--     wid → "w9"
+--     client → "Julia & Ethan Gilbert"
+--     editor → "Brynn"
+--     deliverables → 6 entries IFF current deliverables array is empty
+--       (Sneak peek, Photo gallery, Photo book, Highlight, Doc, Video book)
+--     Stage keys per tmw-core.js photoStages/bookStages/videoStages.
+--     Photo editor = Brynn. Video editor = "" (no leadVideo assigned
+--     2 days from shoot — KNOWN GAP, must be filled before 5/16).
 --
 -- - tmw_deliverables.clients[] (UPDATE existing id="8"):
 --     name → "Julia & Ethan Gilbert"
@@ -50,7 +58,9 @@
 --
 -- Idempotency:
 -- - BLOCK 1: deterministic merge via jsonb `||`. Safe to re-run.
--- - BLOCK 2: NOT EXISTS guard on wid/client+date. No-op on rerun.
+-- - BLOCK 2: PATCH against id="p8". Metadata patch is deterministic;
+--   deliverables array only set when currently empty (so re-running
+--   after manual stage progress won't blow it away).
 -- - BLOCK 3: deterministic merge via jsonb `||`. Safe to re-run.
 -- - BLOCK 4: ON CONFLICT DO NOTHING on PK. No-op on rerun.
 --
@@ -88,42 +98,42 @@ SET data = jsonb_set(data, '{weddings}', (
 updated_at = NOW()
 WHERE id = 'tmw_weddings';
 
--- ─── BLOCK 2 ── Append w9 to tmw_photo (idempotent NOT EXISTS guard)
+-- ─── BLOCK 2 (REWRITTEN) ── PATCH existing tmw_photo entry p8
+--      Sets metadata (wid/client/editor) and adds deliverables IFF
+--      p8.deliverables is currently empty/missing.
 UPDATE projects
-SET data = jsonb_set(
-  data, '{projects}',
-  COALESCE(data->'projects', '[]'::jsonb) || COALESCE(
-    (SELECT $j$[
-      {
-        "id": "p_w9",
-        "wid": "w9",
-        "client": "Julia & Ethan Gilbert",
-        "editor": "Brynn",
-        "weddingDate": "2026-05-16",
-        "deliverables": [
-          {"id":"p_w9_d1","name":"Sneak peek","editor":"Brynn",
-           "stages":{"qnas":"not-started","obtained":"not-started","cull":"not-started","edit":"not-started","export":"not-started","deliver":"not-started"}},
-          {"id":"p_w9_d2","name":"Photo gallery","editor":"Brynn",
-           "stages":{"qnas":"not-started","obtained":"not-started","cull":"not-started","edit":"not-started","export":"not-started","deliver":"not-started"}},
-          {"id":"p_w9_d3","name":"Photo book","editor":"Brynn",
-           "stages":{"qnas":"not-started","obtained":"not-started","selections":"not-started","design":"not-started","ordered":"not-started"}},
-          {"id":"p_w9_d4","name":"Highlight","editor":"",
-           "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}},
-          {"id":"p_w9_d5","name":"Doc","editor":"",
-           "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}},
-          {"id":"p_w9_d6","name":"Video book","editor":"",
-           "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}}
-        ]
-      }
-    ]$j$::jsonb
-    WHERE NOT EXISTS (
-      SELECT 1 FROM jsonb_array_elements(
-        COALESCE((SELECT data->'projects' FROM projects WHERE id = 'tmw_photo'), '[]'::jsonb)
-      ) p
-      WHERE p->>'wid' = 'w9'
-         OR (p->>'client' ILIKE 'Julia%' AND p->>'weddingDate' = '2026-05-16')
-    )), '[]'::jsonb)
-),
+SET data = jsonb_set(data, '{projects}', (
+  SELECT jsonb_agg(
+    CASE
+      WHEN p->>'id' = 'p8' THEN
+        p
+        || $j${"wid":"w9","client":"Julia & Ethan Gilbert","editor":"Brynn"}$j$::jsonb
+        || jsonb_build_object(
+             'deliverables',
+             CASE
+               WHEN jsonb_array_length(COALESCE(p->'deliverables','[]'::jsonb)) = 0
+                 THEN $j$[
+                   {"id":"p8_d1","name":"Sneak peek","editor":"Brynn",
+                    "stages":{"qnas":"not-started","obtained":"not-started","cull":"not-started","edit":"not-started","export":"not-started","deliver":"not-started"}},
+                   {"id":"p8_d2","name":"Photo gallery","editor":"Brynn",
+                    "stages":{"qnas":"not-started","obtained":"not-started","cull":"not-started","edit":"not-started","export":"not-started","deliver":"not-started"}},
+                   {"id":"p8_d3","name":"Photo book","editor":"Brynn",
+                    "stages":{"qnas":"not-started","obtained":"not-started","selections":"not-started","design":"not-started","ordered":"not-started"}},
+                   {"id":"p8_d4","name":"Highlight","editor":"",
+                    "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}},
+                   {"id":"p8_d5","name":"Doc","editor":"",
+                    "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}},
+                   {"id":"p8_d6","name":"Video book","editor":"",
+                    "stages":{"qnas":"not-started","obtained":"not-started","sync":"not-started","edit":"not-started","color":"not-started","deliver":"not-started"}}
+                 ]$j$::jsonb
+               ELSE p->'deliverables'
+             END
+           )
+      ELSE p
+    END
+  )
+  FROM jsonb_array_elements(data->'projects') p
+)),
 updated_at = NOW()
 WHERE id = 'tmw_photo';
 
@@ -246,13 +256,15 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- ─── VERIFY ──
+-- ─── VERIFY ── target p8 directly
 SELECT
-  (SELECT w.value->>'client'                                  FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_client,
-  (SELECT jsonb_array_length(w.value->'timeline')             FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_timeline_count,
-  (SELECT w.value->>'shotCallerUrl'                           FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_shot_caller_url,
-  (SELECT jsonb_array_length(p.value->'deliverables')         FROM projects, jsonb_array_elements(data->'projects') p WHERE id='tmw_photo'        AND p.value->>'wid'='w9')         AS photo_deliv_count,
-  (SELECT c.value->>'name'                                    FROM projects, jsonb_array_elements(data->'clients')  c WHERE id='tmw_deliverables' AND c.value->>'id'='8')           AS deliv_name,
-  (SELECT c.value->>'videoBook'                               FROM projects, jsonb_array_elements(data->'clients')  c WHERE id='tmw_deliverables' AND c.value->>'id'='8')           AS deliv_videobook,
-  (SELECT jsonb_array_length(data->'shotGroups')              FROM projects                                            WHERE id='tmw_shotlist_w9')                                   AS shotlist_groups;
--- Expect: "Julia & Ethan Gilbert" | 9 | "/shot-caller/?id=w9" | 6 | "Julia & Ethan Gilbert" | "2026-07-30" | 8
+  (SELECT w.value->>'client'                              FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_client,
+  (SELECT jsonb_array_length(w.value->'timeline')         FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_timeline_count,
+  (SELECT w.value->>'shotCallerUrl'                       FROM projects, jsonb_array_elements(data->'weddings') w WHERE id='tmw_weddings'     AND w.value->>'id'='w9')          AS w9_shot_caller_url,
+  (SELECT p.value->>'wid'                                 FROM projects, jsonb_array_elements(data->'projects') p WHERE id='tmw_photo'        AND p.value->>'id'='p8')          AS p8_wid,
+  (SELECT p.value->>'client'                              FROM projects, jsonb_array_elements(data->'projects') p WHERE id='tmw_photo'        AND p.value->>'id'='p8')          AS p8_client,
+  (SELECT jsonb_array_length(p.value->'deliverables')     FROM projects, jsonb_array_elements(data->'projects') p WHERE id='tmw_photo'        AND p.value->>'id'='p8')          AS p8_deliv_count,
+  (SELECT c.value->>'name'                                FROM projects, jsonb_array_elements(data->'clients')  c WHERE id='tmw_deliverables' AND c.value->>'id'='8')           AS deliv_name,
+  (SELECT c.value->>'videoBook'                           FROM projects, jsonb_array_elements(data->'clients')  c WHERE id='tmw_deliverables' AND c.value->>'id'='8')           AS deliv_videobook,
+  (SELECT jsonb_array_length(data->'shotGroups')          FROM projects                                            WHERE id='tmw_shotlist_w9')                                   AS shotlist_groups;
+-- Expect: "Julia & Ethan Gilbert" | 9 | "/shot-caller/?id=w9" | "w9" | "Julia & Ethan Gilbert" | 6 | "Julia & Ethan Gilbert" | "2026-07-30" | 8
