@@ -9,7 +9,9 @@ project you're in:
   Don'ts apply. Treat the "Wedding intake workflow" and similar operator
   workflow sections as informational context — they describe what
   COO-Claude does, not what you do.
-- **COO-Claude:** All sections apply, including operator workflows.
+- **COO-Claude:** All sections apply, including operator workflows. For
+  wedding intake specifically, defer to `WEDDING_INTAKE.md` at the repo
+  root — it's the canonical playbook and wins on intake details.
 - **Other Claude projects:** Read for context, defer to your own project
   instructions for behavior.
 
@@ -17,13 +19,20 @@ When this file conflicts with hardcoded constants in HTML files (e.g.
 `OWNER_EMAILS` arrays), **this file is the source of truth** — update the
 HTML to match.
 
+When this file conflicts with `WEDDING_INTAKE.md` on intake specifics
+(deliverable defaults, exact ID conventions, package strings, response
+template), `WEDDING_INTAKE.md` wins. For architecture (schema shapes, RLS,
+SQL patterns), this file wins.
+
 ## What this is
+
 Internal post-production portal for TM Weddings (wedding photo/video co.,
 Lehigh Valley PA). Live at team.tmweddings.com. Used by photo editors
-(Tony, Brynn) and video editors (full team), plus shooters and content
-creators day-of.
+(Tony, Brynn), video editors (full team), shooters, content creators,
+and marketing-role users.
 
 ## Stack
+
 - Frontend: vanilla HTML/CSS/JS, no framework, no bundler, no build step
 - Each route is a self-contained `.html` with inline `<style>` and
   `<script>`; imports are `tmw-auth.js` and `tmw-core.js` only
@@ -33,9 +42,10 @@ creators day-of.
 - Notifications: EmailJS (service `service_qoodzdb`, template `template_p1hyj87`)
   - NOTE: `template_p1hyj87` was originally a post-production stage template.
     The referrals feature reuses it by mapping fields. A dedicated referrals
-    template is on the polish list. Field mapping for the reused template
-    is not yet documented here — TODO in next polish pass.
+    template is on the polish list.
 - Repo: github.com/14amartinez/tm-weddings-tracker
+- Related docs at repo root: `WEDDING_INTAKE.md` (intake playbook),
+  `AUDIT-2026-05-16.md` (point-in-time architecture audit)
 
 ## Architecture rules — DO NOT VIOLATE
 
@@ -63,23 +73,34 @@ creators day-of.
 3. **Auth idioms — TWO valid patterns coexist** (DRY violation, will be
    reconciled in Bucket 2.6):
 
-   **Pattern A — direct property checks (used in `index.html` General column):**
+   **Pattern A — direct property checks (most common today):**
    ```js
-   if (TMW_USER.isOwner) { ... }
-   if (TMW_USER.isAdmin) { ... }
+   if (TMW_USER.isOwner)  { ... }
+   if (TMW_USER.isAdmin)  { ... }
+   if (TMW_USER.isEditor) { ... }
    ```
 
-   **Pattern B — helper functions (defined in `tmw-core.js`):**
+   **Pattern B — helper functions (defined in `tmw-auth.js`):**
    ```js
-   if (tmwIsAdmin()) { ... }
-   if (tmwHasRole('owner')) { ... }
-   if (tmwHasRole('admin')) { ... }
+   if (tmwHasRole('owner'))      { ... }
+   if (tmwHasRole('admin'))      { ... }
+   if (tmwCanAccess('editor'))   { ... }
    ```
 
-   Both check the same underlying state. When adding new code, **match
+   Both check the same underlying role data. When adding new code, **match
    the pattern of the surrounding file** rather than introducing the
    other one. Bucket 2.6 will pick one and migrate everything. Do NOT
    introduce a third idiom.
+
+   **Name-collision warning:** `tmwIsAdmin(sessionKey)` exists in
+   `tmw-core.js` but does NOT check user roles. It checks a sessionStorage
+   flag for whether the legacy admin-password UI is unlocked on a given
+   page. Don't use it as a role check. Bucket 2.6 will rename or remove it.
+
+   **Legacy admin password:** `TMW.admin.password` in `tmw-core.js` gates
+   "admin mode" in several post-prod pages. Visible in DevTools to anyone
+   who opens Source. Provides no real security — the actual gate is
+   `TMW_USER.isOwner`. Scheduled for removal in Bucket 2.6.
 
 4. RLS posture: all policies are `{authenticated}`-only with `USING (true)`
    / `WITH CHECK (true)` (permissive within authenticated). Owner-level
@@ -95,6 +116,13 @@ creators day-of.
 5. Owner notification rule: Tony AND Brynn must be notified on ALL stage
    completions and significant events. No exceptions.
 
+   **Current implementation reality (per 2026-05-16 audit):** `tmwNotify()`
+   in `tmw-core.js` exists as the centralized helper but is called zero
+   times. Every post-prod page reimplements `emailjs.send` inline with its
+   own (inconsistent) recipient list. Bucket 2.6/2.7 task: consolidate.
+   Until then, if you add a notification, verify the inline implementation
+   in the relevant page actually includes both Tony and Brynn.
+
 6. Every new table needs RLS enabled before first row is written.
 
 7. Schema changes are run manually in the Supabase dashboard SQL editor
@@ -103,25 +131,44 @@ creators day-of.
    a clear "Run this in Supabase SQL editor" header. Also save a copy to
    `/sql-history/YYYY-MM-DD-description.sql` in the repo with a full
    header comment block (File / Bucket / Author / Date / Purpose / Design
-   notes / RLS notes) for the manual paper trail until proper migrations
-   land.
+   notes / RLS notes / Rollback notes) for the manual paper trail until
+   proper migrations land.
 
-8. Owner emails are currently hardcoded as `OWNER_EMAILS` arrays in
-   individual HTML files (e.g. `referrals/detail.html`, `referrals/new.html`,
-   `dashboard/build-calendar/index.html`). Future Bucket 2.5 task:
-   consolidate to a single exported constant in `tmw-auth.js`. Keep them
-   in sync manually for now. **If a hardcoded `OWNER_EMAILS` array
-   disagrees with the Owner identifiers section of this file, this file
-   is the source of truth — update the HTML.**
+8. **Allowlists and owner emails — multiple sources, must be kept in sync:**
+
+   Today, owner/team allowlists are scattered. Audit 2026-05-16 confirmed
+   the full inventory:
+
+   - `tmw-auth.js` — `EMERGENCY_OWNERS` (Tony + Brynn, fallback only)
+   - `auth/callback.html` — `APPROVED_EMAILS` (full team, ~16 emails;
+     **de-facto login gate** that runs before `tmw-auth.js` ever sees the
+     user). New teammates require an edit here + a Supabase row + a deploy.
+   - `tmw-core.js` — `TMW.notify.{tony,brynn,lexi}`
+   - 7 feature pages, each with their own `OWNER_EMAILS` /
+     `TMW_OWNER_EMAILS` / `EDITOR_EMAILS` constants:
+     `post-production/photo/index.html`, `post-production/video/index.html`,
+     `post-production/deliverables/index.html`,
+     `post-production/content/index.html`,
+     `dashboard/build-calendar/index.html`, `referrals/new.html`,
+     `referrals/detail.html`
+
+   Bucket 2.5 consolidates everything into exports from `tmw-auth.js`
+   backed by live `tmw_team_members` lookups. Until then: keep them in
+   sync manually. **If a hardcoded `OWNER_EMAILS` array disagrees with
+   the Owner identifiers section of this file, this file is the source
+   of truth — update the HTML.**
 
 9. **Folder = feature.** New features get their own top-level folder
-   (e.g. `/referrals/`, `/shot-caller/`). Don't nest features under
-   existing folders unless they're sub-views of that feature.
+   (e.g. `/referrals/`, `/shot-caller/`, `/marketing/`,
+   `/post-production/content/`). Don't nest features under existing
+   folders unless they're sub-views of that feature.
 
 ## File layout
 
 Root files:
 - `CLAUDE.md` — this file
+- `WEDDING_INTAKE.md` — canonical wedding intake playbook (for COO-Claude)
+- `AUDIT-2026-05-16.md` — point-in-time architecture audit snapshot
 - `README.md`
 - `index.html` — Team Resources home (the team hub)
 - `login.html`
@@ -129,17 +176,38 @@ Root files:
 - `.gitignore`
 
 Directories:
-- `/auth/` — `callback.html` (OAuth callback handler)
+- `/auth/` — `callback.html` (OAuth callback handler; contains the
+  de-facto login allowlist — see rule #8)
 - `/dashboard/` — admin views
   - `index.html` — admin dashboard home
   - `team-members.html`, `setup-team-members.html`, `shot-builder.html`
   - `build-calendar/index.html` — owner-only TMW OS production planning dashboard
-- `/weddings/` — wedding project list + detail (index, client.html, per-couple shot callers + timeline wallpapers)
-- `/post-production/` — index, plus subfolders `photo/`, `video/`, `deliverables/`
-- `/shot-caller/` — dynamic shot list builder (`?id=<wid>`)
-- `/shooter-sop/` — shooter SOPs
-- `/referrals/` — index (dashboard), `new.html` (form), `detail.html` (edit/lifecycle)
-- `/sql-history/` — manual SQL paper trail
+- `/marketing/` — `index.html` — marketing onboarding hub (~1.9k lines);
+  gated to marketing-role users via path-restriction redirect
+- `/weddings/` — wedding project list + detail
+  - `index.html` — wedding list + admin (canonical `addWedding()` schema)
+  - `client.html` — per-wedding detail view
+  - `shot_caller_<descriptive>.html` — legacy static shot callers (being
+    migrated to dynamic)
+  - `<descriptive>_timeline_wallpaper.png` — per-couple lock-screen renders
+- `/post-production/`
+  - `index.html` — post-prod hub
+  - `photo/index.html`
+  - `video/index.html` — reads `tmw_state` (yes, video lives in
+    `tmw_state` — see "The `projects` table" section)
+  - `deliverables/index.html` — client-facing due-date calendar
+  - `content/index.html` — content creator workflow (shipped 5/5)
+- `/shot-caller/` — `index.html` — dynamic shot list builder (`?id=<wid>`)
+- `/shooter-sop/` — `index.html` — role-by-role shooter SOPs
+- `/referrals/`
+  - `index.html` — dashboard
+  - `new.html` — submission form
+  - `detail.html` — edit/lifecycle
+  - `program.html` — public-facing program description
+- `/sql-history/` — manual SQL paper trail (idempotent UPDATE patterns,
+  one file per session/change)
+- `/tm-reels/` — Remotion project (separate stack; not currently wired
+  into the portal; pending decision: integrate or extract to its own repo)
 
 ## The `projects` table — key-value app store
 
@@ -150,9 +218,18 @@ row represents a different app section/module:
 - `tmw_weddings` — master wedding list (array of weddings inside `data.weddings[]`)
 - `tmw_team_members` — team roster (array inside `data.members[]`)
 - `tmw_shotlist_<wid>` — per-wedding dynamic shot caller (one row per wedding)
-- `tmw_photo` — photo + content creator post-prod state (see structure below)
+- `tmw_photo` — photo post-prod state (read by `/post-production/photo/`)
+- `tmw_state` — **video post-prod state** (read by `/post-production/video/`).
+  Row is misleadingly named `tmw_state` — it stores the video projects
+  queue with the same shape as `tmw_photo`. Planned cleanup: destructive
+  rename to `tmw_video`, queued but not yet scheduled. Until then, all
+  code expects `tmw_state` — any SQL or fetch must use the current name.
+- `tmw_content` — content creator post-prod state (read by
+  `/post-production/content/`; shipped 5/5; see its data architecture
+  section below). Mirrors `tmw_photo` shape with two important
+  differences: foreign-key field is `wid` (direct wedding ID), and stages
+  are nested status objects, not flat strings.
 - `tmw_deliverables` — client-facing due-date ledger (per-client deliverable dates)
-- `tmw_state` — misc app state
 - `tmw_build_plan` — Build Calendar dashboard data (buckets, anchors, cost model)
 
 When code needs data from a section, query by exact id:
@@ -195,6 +272,13 @@ avoid escape-hell in the Supabase SQL editor.
 Per-wedding shot lists live in their own row: `tmw_shotlist_<wid>` (e.g.
 `tmw_shotlist_w7`). Do NOT nest shot lists inside the wedding object —
 they're large and have their own update cadence.
+
+**Canonical wedding object shape:** see the `addWedding()` function in
+`/weddings/index.html`. Field names are camelCase: `leadPhoto`,
+`secondPhoto`, `contentCreator`, `bts`, etc. — NOT snake_case. If you're
+writing SQL that creates a new wedding, open that function first and
+copy the shape verbatim. `WEDDING_INTAKE.md` documents it for reference,
+but the HTML is the source of truth.
 
 ## tmw_photo data architecture
 
@@ -241,11 +325,16 @@ tmw_photo.data = {
 - **There is NO `type` field on deliverables** — filter by `name`
 - Stages live inside a `stages` sub-object on each deliverable
 - Stage values are strings: `"complete"`, `"in-progress"`, `"not-started"`
-- Stage keys are short identifiers (e.g. `qnas`, `obtained`, `edit`, `cull`,
-  `export`, `deliver`, `design`, `selections`, `order`) — NOT the human-
-  readable labels. Labels are mapped in the `STAGES` constant in
-  `tmw-core.js` and in the `PHOTO_STAGES`/`BOOK_STAGES` constants in
-  `post-production/photo/index.html`.
+- Stage keys are short identifiers — exact lists:
+  - Photo (sneak peek + gallery + anything that isn't a book):
+    `qnas`, `obtained`, `cull`, `edit`, `export`, `deliver`
+  - Photo book: `qnas`, `obtained`, `selections`, `design`, `ordered`
+- Labels are mapped in the `TMW.photoStages` / `TMW.bookStages` constants
+  in `tmw-core.js` AND in the `PHOTO_STAGES`/`BOOK_STAGES` constants in
+  `post-production/photo/index.html` (see "Stage labels" section)
+- **No `wid` field.** Links to weddings only by `client` string match.
+  Renaming a client in `tmw_weddings` breaks the link silently. Fix-it
+  ticket: add `wid` to `tmw_photo` and `tmw_state` (bundled with Bucket 8).
 
 To query a specific deliverable:
 ```sql
@@ -258,10 +347,57 @@ WHERE p.id = 'tmw_photo'
   AND d.value->>'name' = 'Photo book';
 ```
 
+## tmw_state (video) data architecture
+
+`tmw_state` is the video post-prod queue. Same shape as `tmw_photo`,
+different stage keys and deliverable names. Structure:
+
+```
+tmw_state.data = {
+  "projects": [
+    {
+      "id": "<epoch_ms>",
+      "client": "First + First Lastname",
+      "weddingDate": "YYYY-MM-DD",
+      "editor": "Tony",
+      "deliverables": [
+        {
+          "id": "<epoch_ms>1",
+          "name": "10 min highlight",
+          "editor": "Tony",
+          "dueDate": "YYYY-MM-DD",
+          "stages": {
+            "qnas":     "not-started",
+            "obtained": "not-started",
+            "sync":     "not-started",
+            "edit":     "not-started",
+            "color":    "not-started",
+            "deliver":  "not-started"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Stage keys** (from `TMW.videoStages.keys` in `tmw-core.js`):
+`qnas` · `obtained` · `sync` · `edit` · `color` · `deliver`
+
+**Deliverable name options** (from `DELIVERABLE_OPTIONS` in
+`/post-production/video/index.html`): `2–3 min highlight` ·
+`5 min highlight` · `10 min highlight` · `30–60 min doc edit` ·
+`Video book` · `Custom`
+
+**Editor pool** (from `TMW.editors`): `Tony` · `Lexi` · `Zyara` · `Nick`
+· `Nathan` · `Luke` · `Zach`
+
+Same `client`-string-match limitation as `tmw_photo` — no `wid` foreign key.
+
 ## tmw_deliverables data architecture
 
-DIFFERENT from `tmw_photo`. This is the **client-facing due-date ledger**,
-not stage tracking. Structure:
+DIFFERENT from `tmw_photo` and `tmw_state`. This is the **client-facing
+due-date ledger**, not stage tracking. Structure:
 
 ```
 tmw_deliverables.data = {
@@ -288,18 +424,111 @@ Each client object has fields for each deliverable type with the **due date**
 the `/post-production/deliverables/` calendar view. **It does NOT track
 stages or completion** — only dates.
 
+## tmw_content data architecture
+
+NEW row, shipped 2026-05-05. Different from `tmw_photo` and `tmw_state`
+in two important ways:
+
+1. **Foreign key:** has a `wid` field that links directly to
+   `tmw_weddings.data.weddings[].id`. No client-string-match required.
+2. **Stage shape:** stages are nested objects with audit metadata, not
+   flat strings.
+
+Structure:
+
+```
+tmw_content.data = {
+  "projects": [
+    {
+      "wid": "w7",
+      "client": "Maggie + Zee Haroon",
+      "date": "2026-05-03",
+      "editor": "Lexi",
+      "deliverables": [
+        {
+          "name": "Reel 1",
+          "type": "reel",
+          "flow": "quick_turn",
+          "received_at": null,
+          "deadline_hours": 24,
+          "stages": {
+            "edit":      { "status": "pending", "completed_at": null, "completed_by": null },
+            "approved":  { "status": "pending", "completed_at": null, "completed_by": null },
+            "delivered": { "status": "pending", "completed_at": null, "completed_by": null }
+          }
+        },
+        {
+          "name": "Raw Files",
+          "type": "raw",
+          "stages": {
+            "received":   { "status": "pending", "completed_at": null, "completed_by": null },
+            "organizing": { "status": "pending", "completed_at": null, "completed_by": null },
+            "delivered":  { "status": "pending", "completed_at": null, "completed_by": null }
+          }
+        },
+        {
+          "name": "Important Moments",
+          "type": "moments",
+          "stages": {
+            "received":  { "status": "pending", "completed_at": null, "completed_by": null },
+            "curating":  { "status": "pending", "completed_at": null, "completed_by": null },
+            "delivered": { "status": "pending", "completed_at": null, "completed_by": null }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Stage status values:** `pending`, `complete` (different vocab from
+photo/video, which use `not-started` / `in-progress` / `complete`). Don't
+mix the two.
+
+**Deliverable types:** `reel` (quick_turn flow with 24hr SLA), `raw`,
+`moments`. Hardcoded in `/post-production/content/index.html` — not yet
+in `tmw-core.js`.
+
+**24hr SLA on reels:** the `deadline_hours: 24` field combined with the
+`received_at` timestamp drives the deadline-pulse UI (yellow at 18hr,
+red+pulsing past 24hr).
+
+To query a single content project:
+```sql
+SELECT p.value
+FROM projects, jsonb_array_elements(data->'projects') p
+WHERE id = 'tmw_content' AND p.value->>'wid' = 'w7';
+```
+
+When seeding new content projects, see
+`/sql-history/2026-05-05-content-creator-stages-seed.sql` for the
+canonical idempotent append pattern (BLOCK 2 in that file).
+
+**Schema convergence target:** Bucket 3.2 + the eventual relational split
+(Bucket 8) will harmonize `tmw_photo`, `tmw_state`, and `tmw_content` on
+the `tmw_content` shape (nested status objects with `completed_at` /
+`completed_by` audit fields, `wid` foreign keys). Don't introduce more
+flat-string stage data on new tables.
+
 ## Stage labels — hardcoded in JS
 
-Stage display labels live in **three places** (DRY violation, will be
-consolidated in Bucket 3.2):
+Stage display labels for photo and video live in **three places** (DRY
+violation, will be consolidated in Bucket 3.2):
 
-1. The `STAGES` constant in `tmw-core.js` — central config object
-2. The `PHOTO_STAGES` and `BOOK_STAGES` constants in `post-production/photo/index.html`
-3. The `STAGES` constant in `post-production/video/index.html`
+1. The `TMW.photoStages` / `TMW.bookStages` / `TMW.videoStages` constants
+   in `tmw-core.js` — central config (`.keys` and `.labels` arrays)
+2. The `PHOTO_STAGES` / `PHOTO_STAGE_KEYS` / `BOOK_STAGES` /
+   `BOOK_STAGE_KEYS` constants in `post-production/photo/index.html`
+3. The `STAGES` / `STAGE_KEYS` constants in
+   `post-production/video/index.html`
 
-When changing stage names, ALL of these must be updated together AND
-the underlying short keys in `tmw_photo` data may need migration. Do NOT
-ship label changes without coordinated data migration.
+Content stages are separate and live ONLY in
+`/post-production/content/index.html` (not yet in `tmw-core.js`).
+
+When changing photo or video stage names, ALL three sites must be updated
+together AND the underlying short keys in `tmw_photo` / `tmw_state` may
+need migration. Do NOT ship label changes without a coordinated data
+migration.
 
 ## Shot caller conventions
 
@@ -312,7 +541,7 @@ wedding. No HTML file build required.
 
 **Static (legacy / special builds):** `/weddings/shot_caller_<descriptive>.html`
 — hand-built HTML file committed to the repo. Used for early weddings
-(Mallory standard) and one-off special cases. Migration target: move
+(Maggie+Zee Haroon) and one-off special cases. Migration target: move
 all of these to dynamic over time.
 
 When in doubt, build dynamic.
@@ -343,6 +572,12 @@ Currently a manual step per wedding (PNG render → commit → admin sets
 - Tony Martinez — tonyellismartinez@gmail.com
 - Brynn Weller — brynn.weller95@gmail.com
 
+These are the OWNERS. Additional team members with login access live in
+`tmw_team_members.data.members[]` AND (until Bucket 2.5 consolidation
+lands) also in the `APPROVED_EMAILS` array in `auth/callback.html`. The
+callback allowlist is broader than this owners list — it covers the full
+authorized team, not just owners.
+
 ## Team members storage
 
 Team data is stored as a JSON array inside `projects.data.members` where
@@ -357,6 +592,15 @@ override, notification mechanic), query:
 
 Team admin UI lives at `/dashboard/team-members.html` — use this for
 edits, not direct SQL.
+
+**Onboarding friction (until Bucket 2.5 lands):** Adding a new teammate
+requires THREE actions, not one:
+1. Add row in `tmw_team_members` via `/dashboard/team-members.html`
+2. Add email to `APPROVED_EMAILS` in `auth/callback.html`
+3. Commit + push (Vercel auto-deploys)
+
+The page lies about step 1 being sufficient. Bucket 2.5 fixes this by
+making `callback.html` fetch `tmw_team_members` live.
 
 ## Build Calendar dashboard
 
@@ -407,29 +651,18 @@ bucket. Tier rates and multiplier come from `cost_model` in the data row.
 
 ## Wedding intake workflow
 
-New weddings and wedding updates flow through chat-with-COO (the COO
-project), NOT Cowork. Cowork is overkill for structured data entry.
+**Canonical source: `WEDDING_INTAKE.md` at the repo root.** That file is
+the SOURCE OF TRUTH for intake — exact field shapes, deliverable
+defaults, package strings, ID conventions, multi-day patterns, response
+template, and worked examples. If anything below conflicts, that file wins.
 
-**Format Tony pastes:**
-```
-Wedding: <id>
-Couple: <names>
-Date: <YYYY-MM-DD>
-Coverage: <start>-<end>
-Team: lead photo=X, 2nd photo=Y, lead video=Z, content=W
-Venue (ceremony): ...
-Venue (reception): ...
-Timeline: <freeform>
-Notes: <anything else>
-```
+High-level summary: new weddings and updates flow through chat-with-COO
+(NOT Cowork — Cowork is overkill for structured data entry). Tony pastes
+intake, COO returns SQL + wallpaper PNG + `/sql-history/` file. ~30
+seconds end-to-end per wedding.
 
-**COO returns:**
-- Preview SQL (read what's already there)
-- UPDATE SQL (ready-to-paste merge)
-- `/sql-history/YYYY-MM-DD-<description>.sql` file content for the paper trail
-
-~30 seconds end-to-end per wedding update. The bulk freeform intake
-page is a queued roadmap item that will eventually replace this flow.
+The bulk freeform intake admin page is a queued roadmap item that will
+eventually replace this flow with a single-step UI.
 
 ## Verification queries
 
@@ -449,6 +682,14 @@ FROM projects WHERE id = 'tmw_weddings';
 -- Count photo projects
 SELECT jsonb_array_length(data->'projects') AS photo_project_count
 FROM projects WHERE id = 'tmw_photo';
+
+-- Count video projects (lives in tmw_state, not tmw_video)
+SELECT jsonb_array_length(data->'projects') AS video_project_count
+FROM projects WHERE id = 'tmw_state';
+
+-- Count content projects
+SELECT jsonb_array_length(data->'projects') AS content_project_count
+FROM projects WHERE id = 'tmw_content';
 
 -- Count team members
 SELECT jsonb_array_length(data->'members') AS member_count
@@ -488,13 +729,24 @@ a question with Tony before writing code that assumes either side.
   Either a wedding ID typo or the wedding hasn't been added to
   `tmw_weddings.data.weddings[]` yet. Verify with the wedding count
   query above.
+- **New teammate can't log in** → likely missing from `APPROVED_EMAILS`
+  in `auth/callback.html`. Check there first, then `tmw_team_members`.
+  Both are required until Bucket 2.5 ships.
 - **Stage value not rendering correctly in `/post-production/photo/`** →
   Likely a label/key mismatch. Check the three places labels are defined
   (see "Stage labels" section). The data uses short keys; the UI maps
   to display labels.
+- **Stage updates silently disappear** → lost-update bug. Every post-prod
+  page PATCHes the entire `projects.data` array on every edit. Concurrent
+  edits (two people on the same row within ~30s) silently overwrite.
+  Workaround until Bucket 2.5: don't edit the same client simultaneously
+  with another editor. Real fix: `If-Match` on `updated_at` (cheap) or
+  per-entity rows (Bucket 8, expensive).
 - **EmailJS notification didn't send** → Check that both Tony and Brynn
   were in the recipient list (rule #5). Check EmailJS dashboard for the
-  service quota — `service_qoodzdb` has a monthly cap.
+  service quota — `service_qoodzdb` has a monthly cap. Remember:
+  `tmwNotify()` in `tmw-core.js` is NOT the actual notification path
+  today; check the inline `emailjs.send` call in the relevant page.
 - **Vercel didn't auto-deploy after push** → Confirm push hit `main`
   branch, not a feature branch. Check Vercel dashboard for build errors.
 
@@ -507,11 +759,20 @@ a question with Tony before writing code that assumes either side.
 - Don't introduce database-level owner checks until Bucket 2.5 (consistency
   matters more than partial security upgrades).
 - Don't introduce a third auth-checking idiom. Match the existing file's
-  pattern (Pattern A or Pattern B).
+  pattern (Pattern A or Pattern B). Don't use `tmwIsAdmin()` from
+  `tmw-core.js` as a role check — it's the legacy sessionStorage flag,
+  not a role helper.
 - Don't fetch data without waiting for `window.TMW_USER` to populate.
 - Don't build static shot caller HTML for new weddings — use dynamic.
 - Don't change stage labels in `tmw-core.js` or post-production HTML
-  without a coordinated data migration of stage keys in `tmw_photo`.
+  without a coordinated data migration of stage keys in `tmw_photo` /
+  `tmw_state`.
+- Don't add new deliverable types using flat-string stage values. New
+  stage data should use the `tmw_content` shape (nested
+  `{status, completed_at, completed_by}` objects).
+- Don't introduce new `OWNER_EMAILS` / `EDITOR_EMAILS` constants in new
+  files. Wait for Bucket 2.5 or extend an existing one and document the
+  duplicate in this file.
 
 **Data assumptions:**
 - Don't assume a `team_members` table exists. It doesn't. Team data is
@@ -521,9 +782,15 @@ a question with Tony before writing code that assumes either side.
 - Don't assume photo books / galleries / sneak peeks are top-level rows.
   They're deliverables inside `tmw_photo.projects[].deliverables[]`,
   filtered by `name`.
+- Don't assume video lives in a `tmw_video` row. It lives in `tmw_state`
+  for historical reasons; rename is queued, not shipped.
+- Don't assume `tmw_photo` and `tmw_state` link to weddings by `wid` —
+  they only link by `client` string match today. Renaming a client
+  silently breaks the link.
 
 **Process:**
-- Don't commit secrets — keys in `.env.local` only.
+- Don't commit secrets — keys in `.env.local` only. The EmailJS public
+  key is fine; service-role keys are not.
 - Don't auto-push to main; let Tony review the diff first.
 - Don't run schema changes silently. Always surface SQL for Tony to review
   and run in the Supabase dashboard, plus save to `/sql-history/`.
@@ -531,3 +798,6 @@ a question with Tony before writing code that assumes either side.
   inside the General column of the Quick Access grid on `/index.html`.
 - Don't maintain a parallel "active work" or "roadmap" list outside of
   `tmw_build_plan` — that row is the source of truth.
+- Don't invent schema. Open the relevant HTML/JS file (e.g.
+  `addWedding()` in `/weddings/index.html` for wedding shape) and copy
+  the field names verbatim. CamelCase, not snake_case.
