@@ -11,10 +11,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="/tmw-core.js"></script>
 <script>
-const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
 const BRYNN_EMAIL=TMW.notify.brynn;
-const TMW_OWNER_EMAILS=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 const EDITOR_EMAILS={Tony:'tonyellismartinez@gmail.com',Lexi:'leximartinez43@gmail.com',Zyara:'zsanchez2149@gmail.com',Zach:'zerwin1212@gmail.com',Luke:'lukeh61403@gmail.com',Nick:'',Nathan:''};
 tmwInitEmail();
 function tmwNotifyAssignment(client,deliverable,editor){
@@ -75,18 +73,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* MODAL / OVERLAY */
-.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.modal{background:var(--white);border-radius:12px;padding:32px;width:100%;max-width:380px;box-shadow:var(--shadow-md);}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:6px;}
-.modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
-.modal input{width:100%;height:40px;font-size:14px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;}
-.modal input:focus{border-color:var(--accent-mid);background:var(--white);}
-.modal-error{font-size:12px;color:var(--red);margin-bottom:12px;display:none;}
-.modal-btns{display:flex;gap:8px;}
 .btn-primary{height:38px;padding:0 20px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;transition:background 0.15s;white-space:nowrap;flex:1;}
 .btn-primary:hover{background:#7a5240;}
-.btn-secondary{height:38px;padding:0 16px;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:all 0.15s;}
-.btn-secondary:hover{border-color:var(--border-strong);color:var(--text-primary);}
 
 /* SUMMARY */
 .summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
@@ -222,20 +210,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 </head>
 <body>
 
-<!-- ADMIN PASSWORD MODAL -->
-<div class="modal-overlay" id="admin-modal" style="display:none;">
-  <div class="modal">
-    <div class="modal-title">Admin access</div>
-    <div class="modal-sub">Enter the password to unlock admin controls.</div>
-    <input type="password" id="admin-pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminPw()"/>
-    <div class="modal-error" id="admin-pw-error">Incorrect password. Try again.</div>
-    <div class="modal-btns">
-      <button class="btn-secondary" onclick="closeAdminModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitAdminPw()">Unlock</button>
-    </div>
-  </div>
-</div>
-
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:16px;">
     <a style="font-size:12px;color:var(--text-muted);text-decoration:none;display:flex;align-items:center;gap:5px;" href="/post-production">&#8592; Post Production</a>
@@ -364,43 +338,20 @@ function showError(msg){
 }
 
 // ADMIN
+// Admin mode toggle. Role gate (TMW_USER.isAdmin) is the real security;
+// this is a UX affordance so admins can browse without accidentally
+// triggering edit UI. SessionStorage persists across page loads in
+// the same tab session.
 function toggleAdminMode(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
   if(isAdmin){
     isAdmin=false;
     sessionStorage.removeItem('tmw_admin');
-    applyAdminUI();
-    return;
-  }
-  const userEmail=(window.TMW_USER&&TMW_USER.email||'').toLowerCase();
-  if(TMW_OWNER_EMAILS.includes(userEmail)){
+  }else{
     isAdmin=true;
     sessionStorage.setItem('tmw_admin','1');
-    applyAdminUI();
-    renderAll();
-    return;
   }
-  document.getElementById('admin-modal').style.display='flex';
-  setTimeout(()=>document.getElementById('admin-pw-input').focus(),100);
-}
-function closeAdminModal(){
-  document.getElementById('admin-modal').style.display='none';
-  document.getElementById('admin-pw-input').value='';
-  document.getElementById('admin-pw-error').style.display='none';
-}
-function submitAdminPw(){
-  const val=document.getElementById('admin-pw-input').value;
-  if(val===ADMIN_PW){
-    isAdmin=true;
-    sessionStorage.setItem('tmw_admin','1');
-    closeAdminModal();
-    applyAdminUI();
-    renderAll();
-  } else {
-    document.getElementById('admin-pw-error').style.display='block';
-    document.getElementById('admin-pw-input').value='';
-    document.getElementById('admin-pw-input').focus();
-  }
+  applyAdminUI();
 }
 function applyAdminUI(){
   document.getElementById('add-project-card').style.display=isAdmin?'block':'none';
