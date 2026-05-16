@@ -35,17 +35,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 .user-name{font-size:11px;color:var(--text-muted);}
 .signout-btn{font-size:11px;color:var(--text-muted);background:none;border:none;text-decoration:underline;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;}
 .signout-btn:hover{color:var(--accent);}
-.modal-overlay{position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.modal{background:var(--white);border-radius:12px;padding:28px;width:100%;max-width:360px;}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:4px;}
-.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
-.modal input{width:100%;height:38px;font-size:13px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;}
-.modal input:focus{border-color:var(--accent-mid);}
-.modal-error{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
-.modal-btns{display:flex;gap:8px;}
-.btn-primary{height:36px;padding:0 18px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:var(--accent);color:var(--white);border:none;font-family:'DM Sans',sans-serif;flex:1;transition:background 0.15s;}
-.btn-primary:hover{background:#7a5240;}
-.btn-cancel{height:36px;padding:0 14px;font-size:12px;font-weight:500;cursor:pointer;border-radius:7px;background:none;color:var(--text-muted);border:1px solid var(--border);font-family:'DM Sans',sans-serif;}
 .main{max-width:1300px;margin:0 auto;padding:24px;}
 .page-header{margin-bottom:20px;}
 .page-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;margin-bottom:4px;}
@@ -97,19 +86,6 @@ td{padding:10px 14px;vertical-align:middle;}
 </style>
 </head>
 <body>
-
-<div class="modal-overlay" id="admin-modal" style="display:none;">
-  <div class="modal">
-    <div class="modal-title">Admin access</div>
-    <div class="modal-sub">Enter the password to unlock admin controls.</div>
-    <input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitPw()"/>
-    <div class="modal-error" id="pw-error">Incorrect password.</div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closePwModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitPw()">Unlock</button>
-    </div>
-  </div>
-</div>
 
 <div class="topbar">
   <a class="back-link" href="/post-production">&#8592; Post Production</a>
@@ -167,9 +143,7 @@ td{padding:10px 14px;vertical-align:middle;}
 <script src="/tmw-core.js"></script>
 <script>
 tmwInitEmail();
-const ADMIN_PW=TMW.admin.password;
 const TONY_EMAIL=TMW.notify.tony;
-const TMW_OWNER_EMAILS=['tonyellismartinez@gmail.com','brynn.weller95@gmail.com'];
 
 const COLS=[
   {key:'sneakPeek',label:'Sneak peek',auto:false},
@@ -207,20 +181,21 @@ function showError(msg){
   setTimeout(()=>b.style.display='none',7000);
 }
 
+// Admin mode toggle. Role gate (TMW_USER.isAdmin) is the real security;
+// this is a UX affordance so admins can browse without accidentally
+// triggering edit UI. SessionStorage persists across page loads in
+// the same tab session.
 function toggleAdmin(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
-  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_del_admin');applyAdmin();return;}
-  const userEmail=(window.TMW_USER&&TMW_USER.email||'').toLowerCase();
-  if(TMW_OWNER_EMAILS.includes(userEmail)){
-    isAdmin=true;sessionStorage.setItem('tmw_del_admin','1');applyAdmin();renderTable();return;
+  if(isAdmin){
+    isAdmin=false;
+    sessionStorage.removeItem('tmw_del_admin');
+  }else{
+    isAdmin=true;
+    sessionStorage.setItem('tmw_del_admin','1');
   }
-  document.getElementById('admin-modal').style.display='flex';setTimeout(()=>document.getElementById('admin-pw').focus(),80);
-}
-function closePwModal(){document.getElementById('admin-modal').style.display='none';document.getElementById('admin-pw').value='';document.getElementById('pw-error').style.display='none';}
-function submitPw(){
-  if(document.getElementById('admin-pw').value===ADMIN_PW){
-    isAdmin=true;sessionStorage.setItem('tmw_del_admin','1');closePwModal();applyAdmin();renderTable();
-  }else{document.getElementById('pw-error').style.display='block';document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus();}
+  applyAdmin();
+  renderTable();
 }
 function applyAdmin(){
   document.getElementById('add-card').style.display=isAdmin?'block':'none';
