@@ -20,9 +20,6 @@ const TMW = {
     serviceId:  'service_qoodzdb',
     templateId: 'template_p1hyj87',
   },
-  admin: {
-    password: 'Post-Production_2026!',
-  },
   notify: {
     tony:  'tonyellismartinez@gmail.com',
     brynn: 'brynn.weller95@gmail.com',
@@ -132,18 +129,6 @@ async function tmwNotifyAssignment(client, deliverable, editor) {
   } catch (e) {
     console.warn('Assignment notification failed:', e);
   }
-}
-
-// ── ADMIN ────────────────────────────────────────────────
-function tmwIsAdmin(sessionKey) {
-  return sessionStorage.getItem(sessionKey) === '1';
-}
-function tmwSetAdmin(sessionKey, val) {
-  if (val) sessionStorage.setItem(sessionKey, '1');
-  else sessionStorage.removeItem(sessionKey);
-}
-function tmwCheckAdminPw(input) {
-  return input === TMW.admin.password;
 }
 
 // ── SYNC STATUS ──────────────────────────────────────────
