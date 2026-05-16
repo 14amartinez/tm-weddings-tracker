@@ -156,7 +156,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-p
 
 <script src="/tmw-core.js"></script>
 <script>
-const ADMIN_PW=TMW.admin.password;
+
 const TEAM_MEMBERS=['Tony','Brynn','Lexi','Zyara','Nick','Nathan','Luke','Zach','PJ','Nolan','Isabella','Bella','Kaitlyn','Chris','Dylan'];
 
 let weddings=[];
@@ -178,13 +178,21 @@ function setSS(state,text){document.getElementById('sync-dot').className='sync-d
 function showError(msg){const b=document.getElementById('error-banner');b.textContent=msg;b.style.display='block';setTimeout(()=>b.style.display='none',7000);}
 function markDirty(){if(!isAdmin)return;dirty=true;document.getElementById('save-bar').classList.add('visible');}
 
+// Admin mode toggle. Role gate (TMW_USER.isAdmin) is the real security;
+// this is a UX affordance so admins can browse without accidentally
+// triggering edit UI. SessionStorage persists across page loads in
+// the same tab session.
 function toggleAdmin(){
   if(!window.TMW_USER||!TMW_USER.isAdmin)return;
-  if(isAdmin){isAdmin=false;sessionStorage.removeItem('tmw_wdi_admin');applyAdmin();renderPage();}
-  else{
-    const pw=prompt('Admin password:');
-    if(pw===ADMIN_PW){isAdmin=true;sessionStorage.setItem('tmw_wdi_admin','1');applyAdmin();renderPage();}
+  if(isAdmin){
+    isAdmin=false;
+    sessionStorage.removeItem('tmw_wdi_admin');
+  }else{
+    isAdmin=true;
+    sessionStorage.setItem('tmw_wdi_admin','1');
   }
+  applyAdmin();
+  renderPage();
 }
 function applyAdmin(){
   document.getElementById('admin-badge').style.display=isAdmin?'flex':'none';
